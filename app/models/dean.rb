@@ -1,2 +1,2 @@
-class Dean < ApplicationRecord
+class Dean < Person
 end
