@@ -1,0 +1,2 @@
+class Dean < ApplicationRecord
+end
