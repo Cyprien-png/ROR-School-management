@@ -1,10 +1,11 @@
 <p style="color: green"><%= notice %></p>
 
-<%= render @person %>
+<% partial_path = "#{@person.type.downcase.pluralize}/#{@person.type.downcase}" %>
+<%= render partial: partial_path, locals: { @person.type.downcase.to_sym => @person } %>
 
 <div>
   <%= link_to "Edit this person", edit_person_path(@person) %> |
   <%= link_to "Back to people", people_path %>
 
-  <%= button_to "Destroy this person", @person, method: :delete %>
+  <%= button_to "Destroy this person", person_path(@person), method: :delete %>
 </div>
