@@ -6,9 +6,11 @@
 
 <div id="people">
   <% @people.each do |person| %>
-    <%= render person %>
+    <% partial_path = "#{person.type.downcase.pluralize}/#{person.type.downcase}" %>
+    <%= "Rendering partial: #{partial_path}" %>
+    <%= render partial: partial_path, locals: { person.type.downcase.to_sym => person } %>
     <p>
-      <%= link_to "Show this person", person %>
+      <%= link_to "Show this person", person_path(person) %>
     </p>
   <% end %>
 </div>
