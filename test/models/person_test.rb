@@ -30,7 +30,7 @@ class PersonTest < ActiveSupport::TestCase
       firstname: "Jane",
       email: "jane.smith@test.com",
       phone_number: "0987654321",
-      status: 0,
+      status: :in_formation,
       password: "password",
       password_confirmation: "password"
     )
@@ -55,5 +55,38 @@ class PersonTest < ActiveSupport::TestCase
     assert_equal "Teacher", teacher.type, "First person should be a Teacher"
     assert_equal "Student", student.type, "Second person should be a Student"
     assert_equal "Dean", dean.type, "Third person should be a Dean"
+  end
+
+  test "student status enum works correctly" do
+    # Given
+    student = Student.create!(
+      lastname: "Smith",
+      firstname: "Jane",
+      email: "jane.smith@test.com",
+      phone_number: "0987654321",
+      status: :in_formation,
+      password: "password",
+      password_confirmation: "password"
+    )
+
+    # Then - Check initial status
+    assert student.in_formation?, "Student should start in formation"
+    assert_not student.finished?, "Student should not be finished"
+
+    # When - Change status
+    student.finished!
+
+    # Then - Verify status changed
+    assert student.finished?, "Student should be finished"
+    assert_not student.in_formation?, "Student should no longer be in formation"
+
+    # When - Find by status
+    in_formation_students = Student.in_formation
+    finished_students = Student.finished
+
+    # Then - Verify scopes work
+    assert_equal 0, in_formation_students.count, "Should have no students in formation"
+    assert_equal 1, finished_students.count, "Should have one finished student"
+    assert_equal student, finished_students.first, "Should find our finished student"
   end
 end
