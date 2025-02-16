@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  devise_for :people
+  devise_for :people, skip: [:registrations]
   resources :people
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -12,5 +12,5 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   # Defines the root path route ("/")
-  # root "posts#index"
+  root "people#index"
 end
