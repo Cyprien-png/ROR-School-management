@@ -25,7 +25,7 @@ class PeopleController < ApplicationController
 
     respond_to do |format|
       if @person.save
-        format.html { redirect_to @person, notice: "Person was successfully created." }
+        format.html { redirect_to person_url(@person), notice: "Person was successfully created." }
         format.json { render :show, status: :created, location: @person }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -38,7 +38,7 @@ class PeopleController < ApplicationController
   def update
     respond_to do |format|
       if @person.update(person_params)
-        format.html { redirect_to @person, notice: "Person was successfully updated." }
+        format.html { redirect_to person_url(@person), notice: "Person was successfully updated." }
         format.json { render :show, status: :ok, location: @person }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -52,7 +52,7 @@ class PeopleController < ApplicationController
     @person.destroy!
 
     respond_to do |format|
-      format.html { redirect_to people_path, status: :see_other, notice: "Person was successfully destroyed." }
+      format.html { redirect_to people_url, notice: "Person was successfully destroyed." }
       format.json { head :no_content }
     end
   end
@@ -60,11 +60,21 @@ class PeopleController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_person
-      @person = Person.find(params.expect(:id))
+      @person = Person.find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.
     def person_params
-      params.expect(person: [ :lastname, :firstname, :email, :phone_number, :type ])
+      params.require(:person).permit(
+        :lastname, 
+        :firstname, 
+        :email, 
+        :phone_number, 
+        :type,
+        :password,
+        :password_confirmation,
+        :iban,  # for Teacher
+        :status # for Student
+      )
     end
 end
