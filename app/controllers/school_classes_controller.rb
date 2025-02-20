@@ -1,4 +1,7 @@
 class SchoolClassesController < ApplicationController
+  include Authorization
+  
+  before_action :authorize_dean, except: [:index, :show]
   before_action :set_school_class, only: %i[ show edit update destroy ]
 
   # GET /school_classes or /school_classes.json
@@ -25,7 +28,7 @@ class SchoolClassesController < ApplicationController
 
     respond_to do |format|
       if @school_class.save
-        format.html { redirect_to @school_class, notice: "School class was successfully created." }
+        format.html { redirect_to school_class_url(@school_class), notice: "School class was successfully created." }
         format.json { render :show, status: :created, location: @school_class }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -38,7 +41,7 @@ class SchoolClassesController < ApplicationController
   def update
     respond_to do |format|
       if @school_class.update(school_class_params)
-        format.html { redirect_to @school_class, notice: "School class was successfully updated." }
+        format.html { redirect_to school_class_url(@school_class), notice: "School class was successfully updated." }
         format.json { render :show, status: :ok, location: @school_class }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -52,7 +55,7 @@ class SchoolClassesController < ApplicationController
     @school_class.destroy!
 
     respond_to do |format|
-      format.html { redirect_to school_classes_path, status: :see_other, notice: "School class was successfully destroyed." }
+      format.html { redirect_to school_classes_url, notice: "School class was successfully destroyed." }
       format.json { head :no_content }
     end
   end
@@ -60,7 +63,7 @@ class SchoolClassesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_school_class
-      @school_class = SchoolClass.find(params.expect(:id))
+      @school_class = SchoolClass.find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.
