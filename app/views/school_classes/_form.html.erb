@@ -27,6 +27,11 @@
   </div>
 
   <div>
+    <%= form.label :teacher_id, "Teacher", style: "display: block" %>
+    <%= form.collection_select :teacher_id, Teacher.all, :id, ->(teacher) { "#{teacher.firstname} #{teacher.lastname}" }, { prompt: "Select a teacher" } %>
+  </div>
+
+  <div>
     <%= form.submit %>
   </div>
 <% end %>
