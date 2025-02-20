@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :school_classes
   devise_for :people, skip: [:registrations]
   resources :people
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
