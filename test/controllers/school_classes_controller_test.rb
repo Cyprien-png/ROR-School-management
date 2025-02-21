@@ -267,16 +267,4 @@ class SchoolClassesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
     assert_equal "Only deans are allowed to perform this action.", flash[:alert]
   end
-
-  private
-
-  def sign_in_as(person)
-    sign_out :person
-    post person_session_path, params: {
-      person: {
-        email: person.email,
-        password: "password"
-      }
-    }
-  end
 end
