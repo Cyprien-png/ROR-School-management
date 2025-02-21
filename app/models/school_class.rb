@@ -1,5 +1,6 @@
 class SchoolClass < ApplicationRecord
   belongs_to :teacher, class_name: 'Teacher'
+  has_and_belongs_to_many :students, join_table: 'school_classes_students'
   
   validate :ensure_teacher_type
   
