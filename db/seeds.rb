@@ -1,8 +1,7 @@
 # Clean up existing data
-ActiveRecord::Base.connection.disable_referential_integrity do
-  SchoolClass.delete_all
-  Person.delete_all
-end
+SchoolClass.all.each { |school_class| school_class.students.clear }
+SchoolClass.delete_all
+Person.delete_all
 
 # Create a Dean
 dean = Dean.create!(
