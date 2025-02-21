@@ -12,7 +12,7 @@ class PeopleController < ApplicationController
 
   # GET /people/new
   def new
-    @person = Person.new
+    @person = Person.new(type: person_type)
   end
 
   # GET /people/1/edit
@@ -22,10 +22,11 @@ class PeopleController < ApplicationController
   # POST /people or /people.json
   def create
     @person = Person.new(person_params)
+    @person.type = person_type if person_type
 
     respond_to do |format|
       if @person.save
-        format.html { redirect_to person_url(@person), notice: "Person was successfully created." }
+        format.html { redirect_to person_url(@person), notice: "#{@person.type} was successfully created." }
         format.json { render :show, status: :created, location: @person }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -38,7 +39,7 @@ class PeopleController < ApplicationController
   def update
     respond_to do |format|
       if @person.update(person_params)
-        format.html { redirect_to person_url(@person), notice: "Person was successfully updated." }
+        format.html { redirect_to person_url(@person), notice: "#{@person.type} was successfully updated." }
         format.json { render :show, status: :ok, location: @person }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -52,7 +53,7 @@ class PeopleController < ApplicationController
     @person.destroy!
 
     respond_to do |format|
-      format.html { redirect_to people_url, notice: "Person was successfully destroyed." }
+      format.html { redirect_to people_url, notice: "#{@person.type} was successfully destroyed." }
       format.json { head :no_content }
     end
   end
@@ -76,5 +77,9 @@ class PeopleController < ApplicationController
         :iban,  # for Teacher
         :status # for Student
       )
+    end
+
+    def person_type
+      params[:type] if params[:type].in?(%w[Student Teacher Dean])
     end
 end
