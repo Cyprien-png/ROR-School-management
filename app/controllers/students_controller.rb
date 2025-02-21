@@ -1,4 +1,9 @@
 class StudentsController < PeopleController
+  include Authorization
+  
+  before_action :authenticate_person!
+  before_action :authorize_dean, only: [:new, :create, :edit, :update, :destroy]
+
   def new
     @student = Student.new
     render 'students/new'

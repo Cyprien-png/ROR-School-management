@@ -15,4 +15,6 @@
   <% end %>
 </div>
 
-<%= link_to "New person", new_person_path %>
+<% if current_person.is_a?(Dean) %>
+  <%= link_to "New student", new_student_path, class: "button" %>
+<% end %>

@@ -80,7 +80,7 @@ class SchoolClassesControllerTest < ActionDispatch::IntegrationTest
       post add_student_school_class_url(@school_class), params: { student_id: @student.id }
     end
     assert_redirected_to root_path
-    assert_equal "Only deans can manage school classes.", flash[:alert]
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
     assert_not @school_class.students.include?(@student)
   end
 
@@ -90,7 +90,7 @@ class SchoolClassesControllerTest < ActionDispatch::IntegrationTest
       post add_student_school_class_url(@school_class), params: { student_id: @student.id }
     end
     assert_redirected_to root_path
-    assert_equal "Only deans can manage school classes.", flash[:alert]
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
     assert_not @school_class.students.include?(@student)
   end
 
@@ -110,7 +110,7 @@ class SchoolClassesControllerTest < ActionDispatch::IntegrationTest
       delete remove_student_school_class_url(@school_class), params: { student_id: @student2.id }
     end
     assert_redirected_to root_path
-    assert_equal "Only deans can manage school classes.", flash[:alert]
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
     assert @school_class.students.include?(@student2)
   end
 
@@ -120,7 +120,7 @@ class SchoolClassesControllerTest < ActionDispatch::IntegrationTest
       delete remove_student_school_class_url(@school_class), params: { student_id: @student2.id }
     end
     assert_redirected_to root_path
-    assert_equal "Only deans can manage school classes.", flash[:alert]
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
     assert @school_class.students.include?(@student2)
   end
 
@@ -151,14 +151,14 @@ class SchoolClassesControllerTest < ActionDispatch::IntegrationTest
     sign_in_as(@teacher)
     get new_school_class_url
     assert_redirected_to root_path
-    assert_equal "Only deans can manage school classes.", flash[:alert]
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
   end
 
   test "should not get new when student" do
     sign_in_as(@student)
     get new_school_class_url
     assert_redirected_to root_path
-    assert_equal "Only deans can manage school classes.", flash[:alert]
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
   end
 
   test "should create school_class when dean" do
@@ -190,7 +190,7 @@ class SchoolClassesControllerTest < ActionDispatch::IntegrationTest
       }
     end
     assert_redirected_to root_path
-    assert_equal "Only deans can manage school classes.", flash[:alert]
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
   end
 
   test "should show school_class for any user type" do
@@ -220,7 +220,7 @@ class SchoolClassesControllerTest < ActionDispatch::IntegrationTest
     sign_in_as(@teacher)
     get edit_school_class_url(@school_class)
     assert_redirected_to root_path
-    assert_equal "Only deans can manage school classes.", flash[:alert]
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
   end
 
   test "should update school_class when dean" do
@@ -247,7 +247,7 @@ class SchoolClassesControllerTest < ActionDispatch::IntegrationTest
       }
     }
     assert_redirected_to root_path
-    assert_equal "Only deans can manage school classes.", flash[:alert]
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
   end
 
   test "should destroy school_class when dean" do
@@ -265,7 +265,7 @@ class SchoolClassesControllerTest < ActionDispatch::IntegrationTest
       delete school_class_url(@school_class)
     end
     assert_redirected_to root_path
-    assert_equal "Only deans can manage school classes.", flash[:alert]
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
   end
 
   private

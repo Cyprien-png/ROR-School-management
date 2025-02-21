@@ -3,7 +3,7 @@ module Authorization
 
   private def authorize_dean
     unless current_person&.is_a?(Dean)
-      flash[:alert] = "Only deans can manage school classes."
+      flash[:alert] = "Only deans are allowed to perform this action."
       redirect_to root_path
       return false
     end
