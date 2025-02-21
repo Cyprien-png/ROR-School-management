@@ -5,18 +5,36 @@
 <h1>People</h1>
 
 <div id="people">
-  <% @people.each do |person| %>
-    <% partial_path = "#{person.type.downcase.pluralize}/#{person.type.downcase}" %>
-    <%= "Rendering partial: #{partial_path}" %>
-    <%= render partial: partial_path, locals: { person.type.downcase.to_sym => person } %>
-    <p>
-      <%= link_to "Show this person", person_path(person) %>
-    </p>
-  <% end %>
+  <table>
+    <thead>
+      <tr>
+        <th>Last Name</th>
+        <th>First Name</th>
+        <th>Email</th>
+        <th>Phone Number</th>
+        <th>Type</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @people.each do |person| %>
+        <tr>
+          <td><%= person.lastname %></td>
+          <td><%= person.firstname %></td>
+          <td><%= person.email %></td>
+          <td><%= person.phone_number %></td>
+          <td><%= person.type %></td>
+          <td>
+            <%= link_to "Show", person_path(person) %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 </div>
 
 <% if current_person.is_a?(Dean) %>
-  <div>
+  <div class="actions">
     <%= link_to "New student", new_student_path, class: "button" %>
     <%= link_to "New teacher", new_teacher_path, class: "button" %>
   </div>
