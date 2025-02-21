@@ -1,8 +1,23 @@
 class SchoolClassesController < ApplicationController
   include Authorization
   
+  before_action :authenticate_person!
   before_action :authorize_dean, except: [:index, :show]
-  before_action :set_school_class, only: %i[ show edit update destroy ]
+  before_action :set_school_class, only: %i[ show edit update destroy add_student remove_student ]
+
+  # POST /school_classes/1/add_student
+  def add_student
+    student = Student.find(params[:student_id])
+    @school_class.students << student
+    redirect_to @school_class, notice: "Student was successfully added to the class."
+  end
+
+  # DELETE /school_classes/1/remove_student
+  def remove_student
+    student = Student.find(params[:student_id])
+    @school_class.students.delete(student)
+    redirect_to @school_class, notice: "Student was successfully removed from the class."
+  end
 
   # GET /school_classes or /school_classes.json
   def index

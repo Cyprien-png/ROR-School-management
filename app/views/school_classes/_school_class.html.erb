@@ -20,7 +20,22 @@
   </p>
 
   <div class="students-list">
-    <h3>Students in this class:</h3>
+    <div class="students-header">
+      <h3>Students in this class:</h3>
+      <% if current_person.is_a?(Dean) %>
+        <div class="add-student-form">
+          <%= form_with(url: add_student_school_class_path(school_class), method: :post, class: "inline-form") do |f| %>
+            <%= f.collection_select :student_id, 
+                Student.where.not(id: school_class.student_ids), 
+                :id, 
+                ->(s) { "#{s.lastname} #{s.firstname}" }, 
+                { prompt: "Select a student to add" } %>
+            <%= f.submit "Add Student", class: "button" %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
     <% if school_class.students.any? %>
       <table>
         <thead>
@@ -29,6 +44,9 @@
             <th>First Name</th>
             <th>Email</th>
             <th>Status</th>
+            <% if current_person.is_a?(Dean) %>
+              <th>Actions</th>
+            <% end %>
           </tr>
         </thead>
         <tbody>
@@ -38,6 +56,16 @@
               <td><%= student.firstname %></td>
               <td><%= student.email %></td>
               <td><%= student.status %></td>
+              <% if current_person.is_a?(Dean) %>
+                <td>
+                  <%= button_to "Remove", 
+                      remove_student_school_class_path(school_class, student_id: student.id), 
+                      method: :delete, 
+                      class: "button-small",
+                      form: { class: "inline-form" },
+                      data: { confirm: "Are you sure?" } %>
+                </td>
+              <% end %>
             </tr>
           <% end %>
         </tbody>
