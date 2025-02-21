@@ -18,4 +18,32 @@
     <strong>Teacher:</strong>
     <%= "#{school_class.teacher.firstname} #{school_class.teacher.lastname}" %>
   </p>
+
+  <div class="students-list">
+    <h3>Students in this class:</h3>
+    <% if school_class.students.any? %>
+      <table>
+        <thead>
+          <tr>
+            <th>Last Name</th>
+            <th>First Name</th>
+            <th>Email</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% school_class.students.order(:lastname, :firstname).each do |student| %>
+            <tr>
+              <td><%= student.lastname %></td>
+              <td><%= student.firstname %></td>
+              <td><%= student.email %></td>
+              <td><%= student.status %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p>No students enrolled in this class yet.</p>
+    <% end %>
+  </div>
 </div>
