@@ -41,6 +41,11 @@ rails server
 ```
 
 ### Running Tests
+Setup the DB for the tests
+```shell
+rails db:migrate RAILS_ENV=test
+```
+
 Run all tests:
 ```shell
 rails test
