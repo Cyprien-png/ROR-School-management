@@ -14,7 +14,7 @@ class TeachersControllerTest < ActionDispatch::IntegrationTest
       password_confirmation: "password"
     )
 
-    # Create a teacher for testing unauthorized access
+    # Create a teacher for testing unauthorized access and editing
     @teacher = Teacher.create!(
       lastname: "Smith",
       firstname: "John",
@@ -142,6 +142,87 @@ class TeachersControllerTest < ActionDispatch::IntegrationTest
       }
     end
 
+    assert_response :unprocessable_entity
+    assert_select "h2", /prohibited this teacher from being saved/
+  end
+
+  test "should get edit when dean" do
+    sign_in_as(@dean)
+    get edit_teacher_url(@teacher)
+    assert_response :success
+    assert_select "h1", "Editing teacher"
+  end
+
+  test "should not get edit when teacher" do
+    sign_in_as(@teacher)
+    get edit_teacher_url(@teacher)
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+  end
+
+  test "should not get edit when student" do
+    sign_in_as(@student)
+    get edit_teacher_url(@teacher)
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+  end
+
+  test "should update teacher when dean" do
+    sign_in_as(@dean)
+    patch teacher_url(@teacher), params: {
+      teacher: {
+        lastname: "Updated",
+        firstname: "Name",
+        email: "updated.teacher@test.com",
+        phone_number: "9999999999",
+        iban: "GB29NWBK60161331926820"
+      }
+    }
+    
+    @teacher.reload
+    assert_redirected_to person_url(@teacher)
+    assert_equal "Teacher was successfully updated.", flash[:notice]
+    assert_equal "Updated", @teacher.lastname
+    assert_equal "Name", @teacher.firstname
+    assert_equal "GB29NWBK60161331926820", @teacher.iban
+  end
+
+  test "should not update teacher when teacher" do
+    sign_in_as(@teacher)
+    patch teacher_url(@teacher), params: {
+      teacher: {
+        lastname: "Updated",
+        firstname: "Name"
+      }
+    }
+    
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+  end
+
+  test "should not update teacher when student" do
+    sign_in_as(@student)
+    patch teacher_url(@teacher), params: {
+      teacher: {
+        lastname: "Updated",
+        firstname: "Name"
+      }
+    }
+    
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+  end
+
+  test "should not update teacher with invalid data" do
+    sign_in_as(@dean)
+    patch teacher_url(@teacher), params: {
+      teacher: {
+        lastname: "", # Invalid: blank lastname
+        email: "invalid-email", # Invalid email format
+        iban: "" # Invalid: blank IBAN
+      }
+    }
+    
     assert_response :unprocessable_entity
     assert_select "h2", /prohibited this teacher from being saved/
   end
