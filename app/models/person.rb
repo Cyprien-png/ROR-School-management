@@ -6,6 +6,14 @@ class Person < ApplicationRecord
 
   validate :prevent_direct_person_creation, on: :create
 
+  default_scope { where(isDeleted: false) }
+  scope :with_deleted, -> { unscope(where: :isDeleted) }
+
+  # Soft delete method
+  def soft_delete
+    update_column(:isDeleted, true)
+  end
+
   # STI subclasses
   def self.types
     %w[Teacher Student Dean]
