@@ -3,6 +3,7 @@ class TeachersController < PeopleController
   
   before_action :authenticate_person!
   before_action :authorize_dean, only: [:new, :create, :edit, :update, :destroy]
+  before_action :set_teacher, only: [:edit, :update]
 
   def new
     @teacher = Teacher.new
@@ -24,13 +25,24 @@ class TeachersController < PeopleController
   end
 
   def edit
-    @teacher = Teacher.find(params[:id])
     render 'teachers/edit'
+  end
+
+  def update
+    respond_to do |format|
+      if @teacher.update(teacher_params)
+        format.html { redirect_to person_url(@teacher), notice: "Teacher was successfully updated." }
+        format.json { render :show, status: :ok, location: @teacher }
+      else
+        format.html { render :edit, status: :unprocessable_entity }
+        format.json { render json: @teacher.errors, status: :unprocessable_entity }
+      end
+    end
   end
 
   private
 
-  def set_person
+  def set_teacher
     @teacher = Teacher.find(params[:id])
   end
 
