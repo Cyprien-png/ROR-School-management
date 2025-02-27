@@ -3,7 +3,7 @@ class StudentsController < PeopleController
   
   before_action :authenticate_person!
   before_action :authorize_dean, only: [:new, :create, :edit, :update, :destroy]
-  before_action :set_student, only: [:edit, :update]
+  before_action :set_student, only: [:edit, :update, :destroy]
 
   def new
     @student = Student.new
@@ -37,6 +37,14 @@ class StudentsController < PeopleController
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @student.errors, status: :unprocessable_entity }
       end
+    end
+  end
+
+  def destroy
+    @student.soft_delete
+    respond_to do |format|
+      format.html { redirect_to people_url, notice: "Student was successfully deleted." }
+      format.json { head :no_content }
     end
   end
 
