@@ -17,6 +17,7 @@ class PeopleController < ApplicationController
 
   # GET /people/1/edit
   def edit
+    @person = Person.edit(type: person_type)
   end
 
   # POST /people or /people.json
