@@ -27,6 +27,9 @@
   <% if current_person.is_a?(Dean) %>
     <div class="actions mt-4">
       <%= link_to "Edit this teacher", edit_teacher_path(teacher), class: "button" %>
+      <%= button_to "Delete this teacher", teacher_path(teacher), method: :delete, 
+          class: "button button-danger",
+          form: { data: { turbo_confirm: "Are you sure you want to delete this teacher?" } } %>
     </div>
   <% end %>
 </div>
