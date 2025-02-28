@@ -13,3 +13,20 @@ module ActiveSupport
     # Add more helper methods to be used by all tests here...
   end
 end
+
+# Custom authentication helper for controller tests
+module AuthenticationHelper
+  def sign_in_as(person)
+    sign_out :person
+    post person_session_path, params: {
+      person: {
+        email: person.email,
+        password: "password"
+      }
+    }
+  end
+end
+
+class ActionDispatch::IntegrationTest
+  include AuthenticationHelper
+end

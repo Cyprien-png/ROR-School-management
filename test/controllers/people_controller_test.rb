@@ -1,8 +1,10 @@
 require "test_helper"
 
 class PeopleControllerTest < ActionDispatch::IntegrationTest
+  include Devise::Test::IntegrationHelpers
+
   setup do
-    # Create and sign in a dean for testing
+    # Create a dean for testing
     @dean = Dean.create!(
       lastname: "Admin",
       firstname: "Test",
@@ -11,16 +13,8 @@ class PeopleControllerTest < ActionDispatch::IntegrationTest
       password: "password",
       password_confirmation: "password"
     )
-    
-    # Sign in the dean
-    post person_session_path, params: { 
-      person: { 
-        email: @dean.email, 
-        password: "password" 
-      } 
-    }
 
-    # Create a test person for other actions
+    # Create a test person for show action
     @person = Teacher.create!(
       lastname: "Doe",
       firstname: "John",
@@ -30,6 +24,9 @@ class PeopleControllerTest < ActionDispatch::IntegrationTest
       password: "password",
       password_confirmation: "password"
     )
+
+    # Sign in before each test
+    sign_in_as(@dean)
   end
 
   teardown do
@@ -41,57 +38,20 @@ class PeopleControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should get new" do
-    get new_person_url
-    assert_response :success
-  end
-
-  test "should create person" do
-    assert_difference("Person.count") do
-      post people_url, params: { 
-        person: { 
-          type: "Teacher",
-          email: "new.teacher@test.com", 
-          firstname: "New", 
-          lastname: "Teacher", 
-          phone_number: "5555555555",
-          iban: "GB29NWBK60161331926819",
-          password: "password",
-          password_confirmation: "password"
-        } 
-      }
-    end
-
-    assert_redirected_to person_url(Person.last)
-  end
-
   test "should show person" do
     get person_url(@person)
     assert_response :success
   end
 
-  test "should get edit" do
-    get edit_person_url(@person)
-    assert_response :success
+  test "should redirect index when not signed in" do
+    sign_out :person
+    get people_url
+    assert_redirected_to new_person_session_path
   end
 
-  test "should update person" do
-    patch person_url(@person), params: { 
-      person: { 
-        email: "updated.email@test.com", 
-        firstname: "Updated", 
-        lastname: "Name", 
-        phone_number: "9999999999"
-      } 
-    }
-    assert_redirected_to person_url(@person)
-  end
-
-  test "should destroy person" do
-    assert_difference("Person.count", -1) do
-      delete person_url(@person)
-    end
-
-    assert_redirected_to people_url
+  test "should redirect show when not signed in" do
+    sign_out :person
+    get person_url(@person)
+    assert_redirected_to new_person_session_path
   end
 end

@@ -1,6 +1,14 @@
 Rails.application.routes.draw do
+  resources :school_classes do
+    member do
+      post :add_student
+      delete :remove_student
+    end
+  end
   devise_for :people, skip: [:registrations]
-  resources :people
+  resources :people, only: [:index, :show]
+  resources :students
+  resources :teachers
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

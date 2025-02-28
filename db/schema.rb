@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_13_134449) do
+ActiveRecord::Schema[8.0].define(version: 2025_02_27_134933) do
   create_table "people", force: :cascade do |t|
     t.string "lastname", null: false
     t.string "firstname", null: false
@@ -25,7 +25,29 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_13_134449) do
     t.string "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
+    t.boolean "isDeleted", default: false
     t.index ["email"], name: "index_people_on_email", unique: true
     t.index ["reset_password_token"], name: "index_people_on_reset_password_token", unique: true
   end
+
+  create_table "school_classes", force: :cascade do |t|
+    t.string "name", null: false
+    t.integer "grade", null: false
+    t.string "year", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "teacher_id", null: false
+    t.index ["teacher_id"], name: "index_school_classes_on_teacher_id"
+  end
+
+  create_table "school_classes_students", force: :cascade do |t|
+    t.integer "school_class_id", null: false
+    t.integer "student_id", null: false
+    t.index ["school_class_id"], name: "index_school_classes_students_on_school_class_id"
+    t.index ["student_id"], name: "index_school_classes_students_on_student_id"
+  end
+
+  add_foreign_key "school_classes", "people", column: "teacher_id"
+  add_foreign_key "school_classes_students", "people", column: "student_id"
+  add_foreign_key "school_classes_students", "school_classes"
 end

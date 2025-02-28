@@ -4,4 +4,6 @@ class Student < Person
     stopped: 1,
     finished: 2
   }
+
+  has_and_belongs_to_many :school_classes, join_table: 'school_classes_students'
 end
