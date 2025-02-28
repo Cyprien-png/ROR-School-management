@@ -61,6 +61,13 @@ Run tests with verbose output:
 rails test -v
 ```
 
+## Continuous Integration & Deployment
+### CI Pipeline
+The CI pipeline runs on GitHub Actions and performs the following checks on each pull request to the `develop` branch:
+- Runs all tests in the test suite
+- Verifies database migrations
+- Ensures code quality and non-regression
+
 ## Collaborate
 ### Directory structure
 _Follows the standard Rails directory structure_
