@@ -1,35 +1,39 @@
 require "test_helper"
 
 class StudentsControllerTest < ActionDispatch::IntegrationTest
-  include Devise::Test::IntegrationHelpers
+  def setup
+    super
+    @timestamp = Time.current.to_f
+  end
 
-  setup do
-    # Create a dean for testing
-    @dean = Dean.create!(
+  def create_dean
+    Dean.create!(
       lastname: "Admin",
       firstname: "Test",
-      email: "admin@test.com",
+      email: "admin-#{@timestamp}-#{SecureRandom.hex(4)}@test.com",
       phone_number: "1234567890",
       password: "password",
       password_confirmation: "password"
     )
+  end
 
-    # Create a teacher for testing unauthorized access
-    @teacher = Teacher.create!(
+  def create_teacher
+    Teacher.create!(
       lastname: "Smith",
       firstname: "John",
-      email: "john.smith@test.com",
+      email: "teacher-#{@timestamp}-#{SecureRandom.hex(4)}@test.com",
       phone_number: "9876543210",
       iban: "GB29NWBK60161331926819",
       password: "password",
       password_confirmation: "password"
     )
+  end
 
-    # Create a student for testing unauthorized access and editing
-    @student = Student.create!(
+  def create_student
+    Student.create!(
       lastname: "Doe",
       firstname: "Jane",
-      email: "jane.doe@test.com",
+      email: "student-#{@timestamp}-#{SecureRandom.hex(4)}@test.com",
       phone_number: "5555555555",
       status: :in_formation,
       password: "password",
@@ -37,39 +41,40 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
     )
   end
 
-  teardown do
-    Person.delete_all
-  end
-
   test "should get new when dean" do
-    sign_in_as(@dean)
+    dean = create_dean
+    sign_in dean
     get new_student_url
     assert_response :success
     assert_select "h1", "New Student"
   end
 
   test "should not get new when teacher" do
-    sign_in_as(@teacher)
+    teacher = create_teacher
+    sign_in teacher
     get new_student_url
     assert_redirected_to root_path
     assert_equal "Only deans are allowed to perform this action.", flash[:alert]
   end
 
   test "should not get new when student" do
-    sign_in_as(@student)
+    student = create_student
+    sign_in student
     get new_student_url
     assert_redirected_to root_path
     assert_equal "Only deans are allowed to perform this action.", flash[:alert]
   end
 
   test "should create student when dean" do
-    sign_in_as(@dean)
+    dean = create_dean
+    sign_in dean
+    
     assert_difference("Student.count") do
       post students_url, params: {
         student: {
           lastname: "New",
           firstname: "Student",
-          email: "new.student@test.com",
+          email: "new.student-#{@timestamp}-#{SecureRandom.hex(4)}@test.com",
           phone_number: "1111111111",
           status: "in_formation",
           password: "password",
@@ -87,13 +92,15 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should not create student when teacher" do
-    sign_in_as(@teacher)
+    teacher = create_teacher
+    sign_in teacher
+    
     assert_no_difference("Student.count") do
       post students_url, params: {
         student: {
           lastname: "New",
           firstname: "Student",
-          email: "new.student@test.com",
+          email: "new.student-#{@timestamp}-#{SecureRandom.hex(4)}@test.com",
           phone_number: "1111111111",
           status: "in_formation",
           password: "password",
@@ -107,13 +114,15 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should not create student when student" do
-    sign_in_as(@student)
+    student = create_student
+    sign_in student
+    
     assert_no_difference("Student.count") do
       post students_url, params: {
         student: {
           lastname: "New",
           firstname: "Student",
-          email: "new.student@test.com",
+          email: "new.student-#{@timestamp}-#{SecureRandom.hex(4)}@test.com",
           phone_number: "1111111111",
           status: "in_formation",
           password: "password",
@@ -127,7 +136,9 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should not create student with invalid data" do
-    sign_in_as(@dean)
+    dean = create_dean
+    sign_in dean
+    
     assert_no_difference("Student.count") do
       post students_url, params: {
         student: {
@@ -147,49 +158,63 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should get edit when dean" do
-    sign_in_as(@dean)
-    get edit_student_url(@student)
+    dean = create_dean
+    student = create_student
+    sign_in dean
+    get edit_student_url(student)
     assert_response :success
     assert_select "h1", "Editing student"
   end
 
   test "should not get edit when teacher" do
-    sign_in_as(@teacher)
-    get edit_student_url(@student)
+    teacher = create_teacher
+    student = create_student
+    sign_in teacher
+    get edit_student_url(student)
     assert_redirected_to root_path
     assert_equal "Only deans are allowed to perform this action.", flash[:alert]
   end
 
   test "should not get edit when student" do
-    sign_in_as(@student)
-    get edit_student_url(@student)
+    current_student = create_student
+    other_student = create_student
+    sign_in current_student
+    get edit_student_url(other_student)
     assert_redirected_to root_path
     assert_equal "Only deans are allowed to perform this action.", flash[:alert]
   end
 
   test "should update student when dean" do
-    sign_in_as(@dean)
-    patch student_url(@student), params: {
+    dean = create_dean
+    student = create_student
+    sign_in dean
+    
+    patch student_url(student), params: {
       student: {
         lastname: "Updated",
         firstname: "Name",
-        email: "updated.student@test.com",
+        email: "updated.student-#{@timestamp}-#{SecureRandom.hex(4)}@test.com",
         phone_number: "9999999999",
         status: "finished"
       }
     }
     
-    @student.reload
-    assert_redirected_to person_url(@student)
+    student.reload
+    assert_redirected_to person_url(student)
     assert_equal "Student was successfully updated.", flash[:notice]
-    assert_equal "Updated", @student.lastname
-    assert_equal "Name", @student.firstname
-    assert_equal "finished", @student.status
+    assert_equal "Updated", student.lastname
+    assert_equal "Name", student.firstname
+    assert_equal "finished", student.status
   end
 
   test "should not update student when teacher" do
-    sign_in_as(@teacher)
-    patch student_url(@student), params: {
+    teacher = create_teacher
+    student = create_student
+    original_lastname = student.lastname
+    
+    sign_in teacher
+    
+    patch student_url(student), params: {
       student: {
         lastname: "Updated",
         firstname: "Name"
@@ -198,11 +223,18 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
     
     assert_redirected_to root_path
     assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+    student.reload
+    assert_equal original_lastname, student.lastname
   end
 
   test "should not update student when student" do
-    sign_in_as(@student)
-    patch student_url(@student), params: {
+    current_student = create_student
+    other_student = create_student
+    original_lastname = other_student.lastname
+    
+    sign_in current_student
+    
+    patch student_url(other_student), params: {
       student: {
         lastname: "Updated",
         firstname: "Name"
@@ -211,11 +243,16 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
     
     assert_redirected_to root_path
     assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+    other_student.reload
+    assert_equal original_lastname, other_student.lastname
   end
 
   test "should not update student with invalid data" do
-    sign_in_as(@dean)
-    patch student_url(@student), params: {
+    dean = create_dean
+    student = create_student
+    sign_in dean
+    
+    patch student_url(student), params: {
       student: {
         lastname: "", # Invalid: blank lastname
         email: "invalid-email" # Invalid email format
