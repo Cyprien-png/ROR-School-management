@@ -186,44 +186,4 @@ class TeachersControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Name", @teacher.firstname
     assert_equal "GB29NWBK60161331926820", @teacher.iban
   end
-
-  # test "should not update teacher when teacher" do
-  #   sign_in_as(@teacher)
-  #   patch teacher_url(@teacher), params: {
-  #     teacher: {
-  #       lastname: "Updated",
-  #       firstname: "Name"
-  #     }
-  #   }
-    
-  #   assert_redirected_to root_path
-  #   assert_equal "Only deans are allowed to perform this action.", flash[:alert]
-  # end
-
-  # test "should not update teacher when student" do
-  #   sign_in_as(@student)
-  #   patch teacher_url(@teacher), params: {
-  #     teacher: {
-  #       lastname: "Updated",
-  #       firstname: "Name"
-  #     }
-  #   }
-    
-  #   assert_redirected_to root_path
-  #   assert_equal "Only deans are allowed to perform this action.", flash[:alert]
-  # end
-
-  # test "should not update teacher with invalid data" do
-  #   sign_in_as(@dean)
-  #   patch teacher_url(@teacher), params: {
-  #     teacher: {
-  #       lastname: "", # Invalid: blank lastname
-  #       email: "invalid-email", # Invalid email format
-  #       iban: "" # Invalid: blank IBAN
-  #     }
-  #   }
-    
-  #   assert_response :unprocessable_entity
-  #   assert_select "h2", /prohibited this teacher from being saved/
-  # end
 end 
