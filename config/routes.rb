@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :subjects
   resources :school_classes do
     member do
       post :add_student
