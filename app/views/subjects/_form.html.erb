@@ -11,12 +11,20 @@
     </div>
   <% end %>
 
-  <div>
+  <div class="field">
     <%= form.label :name, style: "display: block" %>
     <%= form.text_field :name %>
   </div>
 
-  <div>
-    <%= form.submit %>
+  <div class="field">
+    <%= form.label :teacher_ids, "Teachers", style: "display: block" %>
+    <div class="select-wrapper">
+      <%= form.collection_select :teacher_ids, 
+          Teacher.all.order(:lastname, :firstname), 
+          :id, 
+          ->(teacher) { "#{teacher.lastname} #{teacher.firstname}" },
+          { selected: subject.teacher_ids }, 
+          { multiple: true, size: 5, class: "multiple-select" } %>
+    </div>
   </div>
 <% end %>

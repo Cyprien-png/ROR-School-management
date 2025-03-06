@@ -1,5 +1,9 @@
 class SubjectsController < ApplicationController
-  before_action :set_subject, only: %i[ show edit update destroy ]
+  include Authorization
+  
+  before_action :authenticate_person!
+  before_action :authorize_dean, only: [:new, :create, :edit, :update, :destroy]
+  before_action :set_subject, only: [:show, :edit, :update, :destroy]
 
   # GET /subjects or /subjects.json
   def index
@@ -25,7 +29,7 @@ class SubjectsController < ApplicationController
 
     respond_to do |format|
       if @subject.save
-        format.html { redirect_to @subject, notice: "Subject was successfully created." }
+        format.html { redirect_to subject_url(@subject), notice: "Subject was successfully created." }
         format.json { render :show, status: :created, location: @subject }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -38,7 +42,7 @@ class SubjectsController < ApplicationController
   def update
     respond_to do |format|
       if @subject.update(subject_params)
-        format.html { redirect_to @subject, notice: "Subject was successfully updated." }
+        format.html { redirect_to subject_url(@subject), notice: "Subject was successfully updated." }
         format.json { render :show, status: :ok, location: @subject }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -52,7 +56,7 @@ class SubjectsController < ApplicationController
     @subject.destroy!
 
     respond_to do |format|
-      format.html { redirect_to subjects_path, status: :see_other, notice: "Subject was successfully destroyed." }
+      format.html { redirect_to subjects_url, notice: "Subject was successfully destroyed." }
       format.json { head :no_content }
     end
   end
@@ -60,11 +64,11 @@ class SubjectsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_subject
-      @subject = Subject.find(params.expect(:id))
+      @subject = Subject.find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.
     def subject_params
-      params.expect(subject: [ :name ])
+      params.require(:subject).permit(:name, teacher_ids: [])
     end
 end
