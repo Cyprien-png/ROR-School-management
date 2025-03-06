@@ -16,6 +16,9 @@ class ActiveSupport::TestCase
       Subject.delete_all
       Person.unscoped.delete_all
     end
+    
+    # Initialize timestamp for unique emails
+    @timestamp = Time.current.to_f
   end
 
   def teardown
@@ -27,6 +30,60 @@ class ActiveSupport::TestCase
       Subject.delete_all
       Person.unscoped.delete_all
     end
+  end
+  
+  # Global helper methods for creating test users
+  def create_dean
+    @dean ||= Dean.create!(
+      lastname: "Admin",
+      firstname: "Test",
+      email: "admin-#{@timestamp}-#{SecureRandom.hex(4)}@test.com",
+      phone_number: "1234567890",
+      password: "password",
+      password_confirmation: "password"
+    )
+  end
+
+  def create_teacher
+    @teacher ||= Teacher.create!(
+      lastname: "Smith",
+      firstname: "John",
+      email: "teacher-#{@timestamp}-#{SecureRandom.hex(4)}@test.com",
+      phone_number: "9876543210",
+      iban: "GB29NWBK60161331926819",
+      password: "password",
+      password_confirmation: "password"
+    )
+  end
+
+  def create_student
+    @student ||= Student.create!(
+      lastname: "Doe",
+      firstname: "Jane",
+      email: "student-#{@timestamp}-#{SecureRandom.hex(4)}@test.com",
+      phone_number: "5555555555",
+      status: :in_formation,
+      password: "password",
+      password_confirmation: "password"
+    )
+  end
+  
+  # Helper method for creating a school class
+  def create_school_class(teacher = nil)
+    teacher ||= create_teacher
+    SchoolClass.create!(
+      name: "Test Class",
+      grade: 1,
+      year: 2025,
+      teacher: teacher
+    )
+  end
+  
+  # Helper method for creating a subject
+  def create_subject
+    @subject ||= Subject.create!(
+      name: "Test Subject #{@timestamp}-#{SecureRandom.hex(4)}"
+    )
   end
 end
 
