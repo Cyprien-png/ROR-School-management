@@ -1,7 +1,9 @@
-# Clean up existing data
-SchoolClass.all.each { |school_class| school_class.students.clear }
+# Clean up existing data in the correct order
+ActiveRecord::Base.connection.execute("DELETE FROM school_classes_students")
+ActiveRecord::Base.connection.execute("DELETE FROM subjects_teachers")
 SchoolClass.delete_all
-Person.delete_all
+Subject.delete_all
+Person.with_deleted.delete_all  # Use with_deleted to ensure we clean up soft-deleted records too
 
 # Create a Dean
 dean = Dean.create!(
@@ -13,7 +15,16 @@ dean = Dean.create!(
   password_confirmation: "password"
 )
 
-# Create Teachers
+# Create Subjects
+subjects = [
+  Subject.create!(name: "Mathematics"),
+  Subject.create!(name: "Physics"),
+  Subject.create!(name: "Chemistry"),
+  Subject.create!(name: "Biology"),
+  Subject.create!(name: "Computer Science")
+]
+
+# Create Teachers with subjects
 teacher1 = Teacher.create!(
   lastname: "Smith",
   firstname: "John",
@@ -23,6 +34,7 @@ teacher1 = Teacher.create!(
   password: "password",
   password_confirmation: "password"
 )
+teacher1.subjects << subjects[0..1] # Mathematics and Physics
 
 teacher2 = Teacher.create!(
   lastname: "Brown",
@@ -33,6 +45,7 @@ teacher2 = Teacher.create!(
   password: "password",
   password_confirmation: "password"
 )
+teacher2.subjects << subjects[2..3] # Chemistry and Biology
 
 # Create 10 Students
 students = 10.times.map do |i|
@@ -51,14 +64,14 @@ end
 class1 = SchoolClass.create!(
   name: "Mathematics 101",
   grade: 1,
-  year: 2025,
+  year: "2025",
   teacher: teacher1
 )
 
 class2 = SchoolClass.create!(
   name: "Physics 101",
   grade: 1,
-  year: 2025,
+  year: "2025",
   teacher: teacher2
 )
 
@@ -70,5 +83,6 @@ puts "Seed data created successfully!"
 puts "Created:"
 puts "- 1 Dean"
 puts "- 2 Teachers"
+puts "- 5 Subjects"
 puts "- 10 Students"
 puts "- 2 Classes with 5 students each"

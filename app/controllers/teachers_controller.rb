@@ -62,7 +62,8 @@ class TeachersController < PeopleController
       :phone_number, 
       :password,
       :password_confirmation,
-      :iban
+      :iban,
+      subject_ids: []
     )
   end
 end 
