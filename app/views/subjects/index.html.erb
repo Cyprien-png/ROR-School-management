@@ -10,7 +10,9 @@
       <tr>
         <th>Name</th>
         <th>Teachers</th>
-        <th>Actions</th>
+        <% if current_person.is_a?(Dean) %>
+          <th>Actions</th>
+        <% end %>
       </tr>
     </thead>
     <tbody>
@@ -24,17 +26,17 @@
               No teachers assigned
             <% end %>
           </td>
-          <td class="actions">
-            <%= link_to "Show", subject_path(subject), class: "button-small" %>
-            <% if current_person.is_a?(Dean) %>
+          <% if current_person.is_a?(Dean) %>
+            <td class="actions">
+              <%= link_to "Show", subject_path(subject), class: "button-small" %>
               <%= link_to "Edit", edit_subject_path(subject), class: "button-small" %>
               <%= button_to "Delete", subject_path(subject), 
                   method: :delete, 
                   class: "button-small button-danger",
                   form: { style: "display: inline-block" },
                   data: { turbo_confirm: "Are you sure you want to delete this subject?" } %>
-            <% end %>
-          </td>
+            </td>
+          <% end %>
         </tr>
       <% end %>
     </tbody>

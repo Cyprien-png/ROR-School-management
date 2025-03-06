@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_06_142152) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_06_212542) do
   create_table "people", force: :cascade do |t|
     t.string "lastname", null: false
     t.string "firstname", null: false
@@ -51,6 +51,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_06_142152) do
     t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "isDeleted", default: false
   end
 
   create_table "subjects_teachers", id: false, force: :cascade do |t|

@@ -2,7 +2,7 @@ class SubjectsController < ApplicationController
   include Authorization
   
   before_action :authenticate_person!
-  before_action :authorize_dean, only: [:new, :create, :edit, :update, :destroy]
+  before_action :authorize_dean, except: [:index, :show]
   before_action :set_subject, only: [:show, :edit, :update, :destroy]
 
   # GET /subjects or /subjects.json
@@ -53,10 +53,10 @@ class SubjectsController < ApplicationController
 
   # DELETE /subjects/1 or /subjects/1.json
   def destroy
-    @subject.destroy!
+    @subject.soft_delete
 
     respond_to do |format|
-      format.html { redirect_to subjects_url, notice: "Subject was successfully destroyed." }
+      format.html { redirect_to subjects_url, notice: "Subject was successfully deleted." }
       format.json { head :no_content }
     end
   end
