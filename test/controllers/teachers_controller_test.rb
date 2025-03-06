@@ -249,12 +249,13 @@ class TeachersControllerTest < ActionDispatch::IntegrationTest
     teacher = create_teacher
     sign_in dean
     
-    assert_no_difference("Teacher.count") do
+    # We need to use unscoped count because the default scope excludes soft-deleted records
+    assert_difference("Teacher.unscoped.where(isDeleted: true).count", 1) do
       delete teacher_url(teacher)
     end
     
     assert_redirected_to people_url
-    assert_equal "Teacher was successfully destroyed.", flash[:notice]
+    assert_equal "Teacher was successfully deleted.", flash[:notice]
     
     # Verify the teacher is soft deleted
     teacher.reload
