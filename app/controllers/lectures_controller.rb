@@ -41,10 +41,12 @@ class LecturesController < ApplicationController
   # PATCH/PUT /lectures/1 or /lectures/1.json
   def update
     respond_to do |format|
-      if @lecture.update(lecture_params)
-        format.html { redirect_to lecture_url(@lecture), notice: "Lecture was successfully updated." }
-        format.json { render :show, status: :ok, location: @lecture }
-      else
+      begin
+        if @lecture.update!(lecture_params)
+          format.html { redirect_to lecture_url(@lecture), notice: "Lecture was successfully updated." }
+          format.json { render :show, status: :ok, location: @lecture }
+        end
+      rescue ActiveRecord::RecordInvalid
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @lecture.errors, status: :unprocessable_entity }
       end

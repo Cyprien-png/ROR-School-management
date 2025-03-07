@@ -108,12 +108,27 @@ class ActiveSupport::TestCase
     trimester = create_trimester
     teacher = create_teacher
     teacher.subjects << subject unless teacher.subjects.include?(subject)
+    
+    # Create a school class for the lecture
+    school_class = SchoolClass.create!(
+      name: "Test Class #{@timestamp}-#{SecureRandom.hex(4)}",
+      grade: 1,
+      year: Year.create!(
+        first_trimester: create_trimester,
+        second_trimester: create_trimester(Date.new(2024,11,1), Date.new(2025,1,31)),
+        third_trimester: create_trimester(Date.new(2025,2,1), Date.new(2025,4,30)),
+        fourth_trimester: create_trimester(Date.new(2025,5,1), Date.new(2025,7,31))
+      ),
+      teacher: teacher
+    )
+    
     Lecture.create!(
       start_time: "09:00",
       end_time: "10:30",
       week_day: "monday",
       subject: subject,
       teacher: teacher,
+      school_class: school_class,
       trimesters: [trimester]
     )
   end

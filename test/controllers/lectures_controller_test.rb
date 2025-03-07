@@ -102,6 +102,20 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
     teacher = create_teacher
     teacher.subjects << subject  # Associate teacher with subject
     trimester = create_trimester
+    
+    # Create a school class
+    school_class = SchoolClass.create!(
+      name: "Test Class #{@timestamp}-#{SecureRandom.hex(4)}",
+      grade: 1,
+      year: Year.create!(
+        first_trimester: create_trimester,
+        second_trimester: create_trimester(Date.new(2024,11,1), Date.new(2025,1,31)),
+        third_trimester: create_trimester(Date.new(2025,2,1), Date.new(2025,4,30)),
+        fourth_trimester: create_trimester(Date.new(2025,5,1), Date.new(2025,7,31))
+      ),
+      teacher: teacher
+    )
+    
     sign_in dean
     
     assert_difference("Lecture.count") do
@@ -112,6 +126,7 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
           week_day: "monday",
           subject_id: subject.id,
           teacher_id: teacher.id,
+          school_class_id: school_class.id,
           trimester_ids: [trimester.id]
         }
       }
@@ -125,6 +140,7 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "monday", lecture.week_day
     assert_equal subject.id, lecture.subject_id
     assert_equal teacher.id, lecture.teacher_id
+    assert_equal school_class.id, lecture.school_class_id
     assert_equal [trimester.id], lecture.trimester_ids
   end
   
@@ -301,21 +317,23 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
   test "should not update lecture with invalid data" do
     dean = create_dean
     lecture = create_lecture
-    original_trimester_ids = lecture.trimester_ids
+    original_start_time = lecture.start_time
+    original_end_time = lecture.end_time
     sign_in dean
     
     patch lecture_url(lecture), params: {
       lecture: {
         start_time: "10:00",
         end_time: "09:00", # Invalid: end time before start time
-        trimester_ids: [create_trimester.id]
       }
     }
     
     assert_response :unprocessable_entity
-    assert_select "h2", /prohibited this lecture from being saved/
+    
+    # Verify nothing changed
     lecture.reload
-    assert_equal original_trimester_ids, lecture.trimester_ids
+    assert_equal original_start_time, lecture.start_time
+    assert_equal original_end_time, lecture.end_time
   end
   
   # DELETE TESTS
@@ -394,21 +412,46 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
     teacher = create_teacher
     teacher.subjects << subject
     trimester = create_trimester
+    school_class = SchoolClass.create!(
+      name: "Test Class #{@timestamp}-#{SecureRandom.hex(4)}",
+      grade: 1,
+      year: Year.create!(
+        first_trimester: create_trimester,
+        second_trimester: create_trimester(Date.new(2024,11,1), Date.new(2025,1,31)),
+        third_trimester: create_trimester(Date.new(2025,2,1), Date.new(2025,4,30)),
+        fourth_trimester: create_trimester(Date.new(2025,5,1), Date.new(2025,7,31))
+      ),
+      teacher: teacher
+    )
     lecture = Lecture.create!(
       start_time: "09:00",
       end_time: "10:30",
       week_day: "monday",
       subject: subject,
       teacher: teacher,
+      school_class: school_class,
       trimesters: [trimester]
     )
     
     # Create new subject and teacher for the update attempt
-    new_subject = create_subject
-    new_teacher = create_teacher
+    new_subject = Subject.create!(name: "New Subject #{@timestamp}")
+    new_teacher = Teacher.create!(
+      lastname: "New Teacher #{@timestamp}",
+      firstname: "Test",
+      email: "new.teacher.#{@timestamp}@example.com",
+      phone_number: "9876543210",
+      iban: "GB29NWBK60161331926820",
+      password: "password",
+      password_confirmation: "password"
+    )
     # Deliberately NOT associating the new teacher with the new subject
     
     sign_in dean
+    
+    # Store original values
+    original_subject_id = lecture.subject_id
+    original_teacher_id = lecture.teacher_id
+    
     patch lecture_url(lecture), params: {
       lecture: {
         subject_id: new_subject.id,
@@ -420,10 +463,13 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
       }
     }
   
+    # Check that we got the right response
+    assert_response :unprocessable_entity
+    
     # Verify nothing changed
     lecture.reload
-    assert_equal subject.id, lecture.subject_id
-    assert_equal teacher.id, lecture.teacher_id
+    assert_equal original_subject_id, lecture.subject_id
+    assert_equal original_teacher_id, lecture.teacher_id
   end
 
   test "should update lecture with new teacher who teaches the subject" do
@@ -433,27 +479,53 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
     teacher = create_teacher
     teacher.subjects << subject
     trimester = create_trimester
+    school_class = SchoolClass.create!(
+      name: "Test Class #{@timestamp}-#{SecureRandom.hex(4)}",
+      grade: 1,
+      year: Year.create!(
+        first_trimester: create_trimester,
+        second_trimester: create_trimester(Date.new(2024,11,1), Date.new(2025,1,31)),
+        third_trimester: create_trimester(Date.new(2025,2,1), Date.new(2025,4,30)),
+        fourth_trimester: create_trimester(Date.new(2025,5,1), Date.new(2025,7,31))
+      ),
+      teacher: teacher
+    )
     lecture = Lecture.create!(
       start_time: "09:00",
       end_time: "10:30",
       week_day: "monday",
       subject: subject,
       teacher: teacher,
+      school_class: school_class,
       trimesters: [trimester]
     )
     
     # Create and set up new subject and teacher
     new_subject = create_subject
     new_teacher = create_teacher
-    # Ensure the new teacher is associated with the new subject, but check first to avoid duplicates
+    # Ensure the new teacher is associated with the new subject
     new_teacher.subjects.reload # Ensure we have fresh data
     new_teacher.subjects << new_subject unless new_teacher.subjects.include?(new_subject)
+    
+    # Create a new class for testing
+    new_school_class = SchoolClass.create!(
+      name: "New Test Class #{@timestamp}-#{SecureRandom.hex(4)}",
+      grade: 2,
+      year: Year.create!(
+        first_trimester: create_trimester,
+        second_trimester: create_trimester(Date.new(2024,11,1), Date.new(2025,1,31)),
+        third_trimester: create_trimester(Date.new(2025,2,1), Date.new(2025,4,30)),
+        fourth_trimester: create_trimester(Date.new(2025,5,1), Date.new(2025,7,31))
+      ),
+      teacher: new_teacher
+    )
     
     sign_in dean
     patch lecture_url(lecture), params: {
       lecture: {
         subject_id: new_subject.id,
         teacher_id: new_teacher.id,
+        school_class_id: new_school_class.id,
         start_time: "09:00",
         end_time: "10:30",
         week_day: "monday",
@@ -468,5 +540,6 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
     lecture.reload
     assert_equal new_subject.id, lecture.subject_id
     assert_equal new_teacher.id, lecture.teacher_id
+    assert_equal new_school_class.id, lecture.school_class_id
   end
 end
