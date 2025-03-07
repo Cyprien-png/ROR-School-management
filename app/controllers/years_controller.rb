@@ -1,4 +1,8 @@
 class YearsController < ApplicationController
+  include Authorization
+  
+  before_action :authenticate_person!
+  before_action :authorize_dean, except: [:index, :show]
   before_action :set_year, only: %i[ show edit update destroy ]
 
   # GET /years or /years.json
