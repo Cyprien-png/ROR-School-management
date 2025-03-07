@@ -90,7 +90,7 @@ class1 = SchoolClass.create!(
 class2 = SchoolClass.create!(
   name: "Class B",
   grade: 1,
-  year: year_2024_2025,
+  year: year_2025_2026,
   teacher: teacher2
 )
 

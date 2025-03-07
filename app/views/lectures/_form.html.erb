@@ -47,18 +47,24 @@
     <%= form.collection_select :school_class_id,
         SchoolClass.all,
         :id, :name,
-        { prompt: "Select a class" } %>
+        { prompt: "Select a class" },
+        { onchange: "updateTrimesters(this.value)" } %>
   </div>
 
   <div>
     <%= form.label :trimester_ids, "Trimesters", style: "display: block" %>
     <div class="select-wrapper">
       <%= form.collection_select :trimester_ids, 
-          Trimester.all.order(start_date: :asc), 
+          lecture.school_class&.year ? [
+            lecture.school_class.year.first_trimester,
+            lecture.school_class.year.second_trimester,
+            lecture.school_class.year.third_trimester,
+            lecture.school_class.year.fourth_trimester
+          ].sort_by(&:start_date) : [],
           :id, 
           ->(trimester) { "#{trimester.start_date.strftime('%B %d, %Y')} - #{trimester.end_date.strftime('%B %d, %Y')}" },
           { prompt: "Select trimesters" }, 
-          { multiple: true, size: 5 } %>
+          { multiple: true, size: 5, id: "trimester_select" } %>
     </div>
   </div>
 
@@ -86,6 +92,28 @@ function updateTeachers(subjectId) {
         option.value = teacher.id;
         option.textContent = `${teacher.firstname} ${teacher.lastname}`;
         teacherSelect.appendChild(option);
+      });
+    });
+}
+
+function updateTrimesters(classId) {
+  if (!classId) {
+    const trimesterSelect = document.getElementById('trimester_select');
+    trimesterSelect.innerHTML = '<option value="">Select trimesters</option>';
+    return;
+  }
+
+  fetch(`/school_classes/${classId}/year_trimesters`)
+    .then(response => response.json())
+    .then(trimesters => {
+      const trimesterSelect = document.getElementById('trimester_select');
+      trimesterSelect.innerHTML = '';
+      
+      trimesters.forEach(trimester => {
+        const option = document.createElement('option');
+        option.value = trimester.id;
+        option.textContent = `${new Date(trimester.start_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} - ${new Date(trimester.end_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
+        trimesterSelect.appendChild(option);
       });
     });
 }

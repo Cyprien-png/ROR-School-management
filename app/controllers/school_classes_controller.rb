@@ -75,6 +75,19 @@ class SchoolClassesController < ApplicationController
     end
   end
 
+  def year_trimesters
+    @school_class = SchoolClass.find(params[:id])
+    year = @school_class.year
+    trimesters = [
+      year.first_trimester,
+      year.second_trimester,
+      year.third_trimester,
+      year.fourth_trimester
+    ]
+    
+    render json: trimesters.map { |t| { id: t.id, start_date: t.start_date, end_date: t.end_date } }
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_school_class

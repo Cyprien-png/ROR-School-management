@@ -8,6 +8,7 @@ Rails.application.routes.draw do
     member do
       post :add_student
       delete :remove_student
+      get :year_trimesters
     end
   end
   devise_for :people, skip: [:registrations]
