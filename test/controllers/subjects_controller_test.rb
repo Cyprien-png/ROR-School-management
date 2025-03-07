@@ -285,18 +285,16 @@ class SubjectsControllerTest < ActionDispatch::IntegrationTest
     subject = create_subject
     sign_in dean
     
-    assert_difference("Subject.unscoped.where(isDeleted: true).count", 1) do
+    assert_no_difference("Subject.with_deleted.count") do
       delete subject_url(subject)
     end
     
     assert_redirected_to subjects_url
-    assert_equal "Subject was successfully deleted.", flash[:notice]
+    assert_equal "Subject was successfully destroyed.", flash[:notice]
     
     # Verify the subject is soft deleted
     subject.reload
-    assert subject.isDeleted
-    
-    # Verify the subject is not returned in normal queries
+    assert subject.isDeleted?
     assert_not Subject.exists?(subject.id)
     assert Subject.with_deleted.exists?(subject.id)
   end
@@ -342,28 +340,28 @@ class SubjectsControllerTest < ActionDispatch::IntegrationTest
     subject = create_subject
     teacher1 = create_teacher
     teacher2 = Teacher.create!(
-      lastname: "Johnson",
-      firstname: "Mary",
-      email: "mary.johnson-#{@timestamp}-#{SecureRandom.hex(4)}@test.com",
-      phone_number: "5551234567",
+      lastname: "Doe",
+      firstname: "Jane",
+      email: "teacher2-#{@timestamp}-#{SecureRandom.hex(4)}@test.com",
+      phone_number: "5555555555",
       iban: "GB29NWBK60161331926820",
       password: "password",
       password_confirmation: "password"
     )
-    
     sign_in dean
     
-    patch subject_url(subject), params: {
-      subject: {
-        teacher_ids: [teacher1.id, teacher2.id]
+    assert_difference -> { subject.teachers.count }, 2 do
+      patch subject_url(subject), params: {
+        subject: {
+          name: subject.name,
+          teacher_ids: [teacher1.id, teacher2.id]
+        }
       }
-    }
+    end
     
-    subject.reload
     assert_redirected_to subject_url(subject)
     assert_equal "Subject was successfully updated.", flash[:notice]
-    assert_equal 2, subject.teachers.count
-    assert subject.teachers.include?(teacher1)
-    assert subject.teachers.include?(teacher2)
+    assert_includes subject.teachers, teacher1
+    assert_includes subject.teachers, teacher2
   end
 end

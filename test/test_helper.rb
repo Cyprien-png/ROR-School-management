@@ -107,7 +107,7 @@ class ActiveSupport::TestCase
     subject ||= create_subject
     trimester = create_trimester
     teacher = create_teacher
-    teacher.subjects << subject
+    teacher.subjects << subject unless teacher.subjects.include?(subject)
     Lecture.create!(
       start_time: "09:00",
       end_time: "10:30",

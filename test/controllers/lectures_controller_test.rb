@@ -99,6 +99,8 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
   test "should create lecture when signed in as dean" do
     dean = create_dean
     subject = create_subject
+    teacher = create_teacher
+    teacher.subjects << subject  # Associate teacher with subject
     trimester = create_trimester
     sign_in dean
     
@@ -109,6 +111,7 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
           end_time: "10:30",
           week_day: "monday",
           subject_id: subject.id,
+          teacher_id: teacher.id,
           trimester_ids: [trimester.id]
         }
       }
@@ -121,6 +124,7 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "10:30", lecture.end_time.strftime("%H:%M")
     assert_equal "monday", lecture.week_day
     assert_equal subject.id, lecture.subject_id
+    assert_equal teacher.id, lecture.teacher_id
     assert_equal [trimester.id], lecture.trimester_ids
   end
   
@@ -225,6 +229,8 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
     dean = create_dean
     lecture = create_lecture
     new_subject = Subject.create!(name: "New Subject #{@timestamp}")
+    new_teacher = create_teacher
+    new_teacher.subjects << new_subject  # Associate new teacher with new subject
     new_trimester = create_trimester(Date.new(2024,11,1), Date.new(2025,1,31))
     sign_in dean
     
@@ -234,6 +240,7 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
         end_time: "12:30",
         week_day: "tuesday",
         subject_id: new_subject.id,
+        teacher_id: new_teacher.id,
         trimester_ids: [new_trimester.id]
       }
     }
@@ -245,6 +252,7 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "12:30", lecture.end_time.strftime("%H:%M")
     assert_equal "tuesday", lecture.week_day
     assert_equal new_subject.id, lecture.subject_id
+    assert_equal new_teacher.id, lecture.teacher_id
     assert_equal [new_trimester.id], lecture.trimester_ids
   end
   
