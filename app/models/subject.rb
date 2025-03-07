@@ -1,5 +1,6 @@
 class Subject < ApplicationRecord
   has_and_belongs_to_many :teachers, join_table: 'subjects_teachers'
+  has_many :lectures, dependent: :destroy
 
   validates :name, presence: true, uniqueness: true
 

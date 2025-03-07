@@ -1,17 +1,22 @@
 <div id="<%= dom_id lecture %>">
   <p>
     <strong>Start time:</strong>
-    <%= lecture.start_time %>
+    <%= lecture.start_time.strftime("%H:%M") %>
   </p>
 
   <p>
     <strong>End time:</strong>
-    <%= lecture.end_time %>
+    <%= lecture.end_time.strftime("%H:%M") %>
   </p>
 
   <p>
     <strong>Week day:</strong>
-    <%= lecture.week_day %>
+    <%= lecture.week_day.capitalize %>
+  </p>
+
+  <p>
+    <strong>Subject:</strong>
+    <%= lecture.subject.name %>
   </p>
 
 </div>

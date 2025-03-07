@@ -23,7 +23,12 @@
 
   <div>
     <%= form.label :week_day, style: "display: block" %>
-    <%= form.number_field :week_day %>
+    <%= form.select :week_day, Lecture.week_days.keys.map { |day| [day.capitalize, day] } %>
+  </div>
+
+  <div>
+    <%= form.label :subject_id, "Subject", style: "display: block" %>
+    <%= form.collection_select :subject_id, Subject.all, :id, :name, { prompt: "Select a subject" } %>
   </div>
 
   <div>
