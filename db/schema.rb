@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_07_080649) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_07_180435) do
   create_table "lectures", force: :cascade do |t|
     t.time "start_time"
     t.time "end_time"
@@ -88,6 +88,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_07_080649) do
     t.integer "fourth_trimester_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "isDeleted", default: false
     t.index ["first_trimester_id"], name: "index_years_on_first_trimester_id"
     t.index ["fourth_trimester_id"], name: "index_years_on_fourth_trimester_id"
     t.index ["second_trimester_id"], name: "index_years_on_second_trimester_id"

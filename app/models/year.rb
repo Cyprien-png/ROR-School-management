@@ -8,13 +8,23 @@ class Year < ApplicationRecord
 
   validate :validate_trimester_dates
 
+  # Add default scope to exclude soft deleted records
+  default_scope { where(isDeleted: false) }
+  # Add scope to include soft deleted records when needed
+  scope :with_deleted, -> { unscope(where: :isDeleted) }
+
+  # Soft delete method
+  def soft_delete
+    update_column(:isDeleted, true)
+  end
+
   private
 
   def validate_trimester_dates
     trimesters = [first_trimester, second_trimester, third_trimester, fourth_trimester]
     
     trimesters.each_cons(2) do |prev_trimester, next_trimester|
-      if prev_trimester.end_date > next_trimester.start_date
+      if prev_trimester.end_date >= next_trimester.start_date
         errors.add(:base, "Trimester dates must be sequential and not overlap")
       end
     end
