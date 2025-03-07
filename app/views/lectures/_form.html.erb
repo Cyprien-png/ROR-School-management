@@ -28,7 +28,18 @@
 
   <div>
     <%= form.label :subject_id, "Subject", style: "display: block" %>
-    <%= form.collection_select :subject_id, Subject.all, :id, :name, { prompt: "Select a subject" } %>
+    <%= form.collection_select :subject_id, Subject.all, :id, :name, 
+        { prompt: "Select a subject" }, 
+        { onchange: "updateTeachers(this.value)" } %>
+  </div>
+
+  <div>
+    <%= form.label :teacher_id, "Teacher", style: "display: block" %>
+    <%= form.collection_select :teacher_id, 
+        lecture.subject ? lecture.subject.teachers : [], 
+        :id, ->(teacher) { "#{teacher.firstname} #{teacher.lastname}" }, 
+        { prompt: "Select a teacher" },
+        { id: "teacher_select" } %>
   </div>
 
   <div>
@@ -47,3 +58,27 @@
     <%= form.submit class: "button" %>
   </div>
 <% end %>
+
+<script>
+function updateTeachers(subjectId) {
+  if (!subjectId) {
+    const teacherSelect = document.getElementById('teacher_select');
+    teacherSelect.innerHTML = '<option value="">Select a teacher</option>';
+    return;
+  }
+
+  fetch(`/subjects/${subjectId}/teachers`)
+    .then(response => response.json())
+    .then(teachers => {
+      const teacherSelect = document.getElementById('teacher_select');
+      teacherSelect.innerHTML = '<option value="">Select a teacher</option>';
+      
+      teachers.forEach(teacher => {
+        const option = document.createElement('option');
+        option.value = teacher.id;
+        option.textContent = `${teacher.firstname} ${teacher.lastname}`;
+        teacherSelect.appendChild(option);
+      });
+    });
+}
+</script>

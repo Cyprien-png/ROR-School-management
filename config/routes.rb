@@ -1,7 +1,9 @@
 Rails.application.routes.draw do
   resources :years
   resources :lectures
-  resources :subjects
+  resources :subjects do
+    get 'teachers', on: :member
+  end
   resources :school_classes do
     member do
       post :add_student

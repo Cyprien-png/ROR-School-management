@@ -106,11 +106,14 @@ class ActiveSupport::TestCase
   def create_lecture(subject = nil)
     subject ||= create_subject
     trimester = create_trimester
+    teacher = create_teacher
+    teacher.subjects << subject
     Lecture.create!(
       start_time: "09:00",
       end_time: "10:30",
       week_day: "monday",
       subject: subject,
+      teacher: teacher,
       trimesters: [trimester]
     )
   end

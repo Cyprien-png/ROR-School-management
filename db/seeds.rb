@@ -96,6 +96,24 @@ class2 = SchoolClass.create!(
 class1.students << students[0..4]  # First 5 students
 class2.students << students[5..9]  # Last 5 students
 
+# Create lectures for each subject with their respective teachers
+subjects.each_with_index do |subject, index|
+  teacher = subject.teachers.first # Get the first teacher who teaches this subject
+  next unless teacher # Skip if no teacher is assigned to this subject
+  
+  # Create 2 lectures per subject
+  2.times do |i|
+    Lecture.create!(
+      start_time: "#{9 + i}:00",
+      end_time: "#{10 + i}:30",
+      week_day: i.even? ? :monday : :wednesday,
+      subject: subject,
+      teacher: teacher,
+      trimesters: [year_2024_2025.first_trimester]
+    )
+  end
+end
+
 puts "Seed data created successfully!"
 puts "Created:"
 puts "- 1 Dean"
@@ -104,3 +122,4 @@ puts "- 5 Subjects"
 puts "- 10 Students"
 puts "- 2 Academic Years (2024-2025 and 2025-2026)"
 puts "- 2 Classes with 5 students each"
+puts "- #{Lecture.count} Lectures"

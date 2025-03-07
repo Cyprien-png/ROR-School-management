@@ -2,8 +2,13 @@ class SubjectsController < ApplicationController
   include Authorization
   
   before_action :authenticate_person!
-  before_action :authorize_dean, except: [:index, :show]
-  before_action :set_subject, only: [:show, :edit, :update, :destroy]
+  before_action :authorize_dean, except: [:index, :show, :teachers]
+  before_action :set_subject, only: [:show, :edit, :update, :destroy, :teachers]
+
+  # GET /subjects/1/teachers
+  def teachers
+    render json: @subject.teachers.select(:id, :firstname, :lastname)
+  end
 
   # GET /subjects or /subjects.json
   def index
@@ -53,10 +58,10 @@ class SubjectsController < ApplicationController
 
   # DELETE /subjects/1 or /subjects/1.json
   def destroy
-    @subject.soft_delete
+    @subject.destroy!
 
     respond_to do |format|
-      format.html { redirect_to subjects_url, notice: "Subject was successfully deleted." }
+      format.html { redirect_to subjects_url, notice: "Subject was successfully destroyed." }
       format.json { head :no_content }
     end
   end
@@ -69,6 +74,6 @@ class SubjectsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def subject_params
-      params.require(:subject).permit(:name, teacher_ids: [])
+      params.require(:subject).permit(:name)
     end
 end
