@@ -69,6 +69,6 @@ class LecturesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def lecture_params
-      params.require(:lecture).permit(:start_time, :end_time, :week_day, :subject_id)
+      params.require(:lecture).permit(:start_time, :end_time, :week_day, :subject_id, trimester_ids: [])
     end
 end

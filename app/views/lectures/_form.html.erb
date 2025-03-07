@@ -32,6 +32,18 @@
   </div>
 
   <div>
+    <%= form.label :trimester_ids, "Trimesters", style: "display: block" %>
+    <div class="select-wrapper">
+      <%= form.collection_select :trimester_ids, 
+          Trimester.all.order(start_date: :asc), 
+          :id, 
+          ->(trimester) { "#{trimester.start_date.strftime('%B %d, %Y')} - #{trimester.end_date.strftime('%B %d, %Y')}" },
+          { prompt: "Select trimesters" }, 
+          { multiple: true, size: 5 } %>
+    </div>
+  </div>
+
+  <div>
     <%= form.submit class: "button" %>
   </div>
 <% end %>

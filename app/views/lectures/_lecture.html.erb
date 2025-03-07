@@ -1,12 +1,7 @@
 <div id="<%= dom_id lecture %>">
   <p>
-    <strong>Start time:</strong>
-    <%= lecture.start_time.strftime("%H:%M") %>
-  </p>
-
-  <p>
-    <strong>End time:</strong>
-    <%= lecture.end_time.strftime("%H:%M") %>
+    <strong>Subject:</strong>
+    <%= lecture.subject.name %>
   </p>
 
   <p>
@@ -15,8 +10,20 @@
   </p>
 
   <p>
-    <strong>Subject:</strong>
-    <%= lecture.subject.name %>
+    <strong>Time:</strong>
+    <%= lecture.start_time.strftime("%H:%M") %> - <%= lecture.end_time.strftime("%H:%M") %>
   </p>
 
+  <p>
+    <strong>Trimesters:</strong>
+    <% if lecture.trimesters.any? %>
+      <ul>
+        <% lecture.trimesters.order(start_date: :asc).each do |trimester| %>
+          <li><%= "#{trimester.start_date.strftime('%B %d, %Y')} - #{trimester.end_date.strftime('%B %d, %Y')}" %></li>
+        <% end %>
+      </ul>
+    <% else %>
+      <em>No trimesters assigned</em>
+    <% end %>
+  </p>
 </div>

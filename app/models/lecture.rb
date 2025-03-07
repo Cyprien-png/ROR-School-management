@@ -1,10 +1,12 @@
 class Lecture < ApplicationRecord
   belongs_to :subject
+  has_and_belongs_to_many :trimesters
   
   # Validations
   validates :start_time, presence: true
   validates :end_time, presence: true
   validates :week_day, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 6 }, if: -> { week_day.is_a?(Integer) }
+  validates :trimesters, presence: true
   validate :end_time_after_start_time
   
   # Enum for week days (0: Sunday, 1: Monday, ..., 6: Saturday)
