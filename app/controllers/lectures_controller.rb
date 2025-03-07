@@ -7,7 +7,7 @@ class LecturesController < ApplicationController
 
   # GET /lectures or /lectures.json
   def index
-    @lectures = Lecture.all
+    @lectures = Lecture.all.order(:week_day, :start_time)
   end
 
   # GET /lectures/1 or /lectures/1.json

@@ -23,7 +23,7 @@
 
   <div>
     <%= form.label :week_day, style: "display: block" %>
-    <%= form.select :week_day, Lecture.week_days.keys.map { |day| [day.capitalize, day] } %>
+    <%= form.select :week_day, Lecture.week_days.map { |day, _| [day.capitalize, day] } %>
   </div>
 
   <div>
@@ -32,6 +32,6 @@
   </div>
 
   <div>
-    <%= form.submit %>
+    <%= form.submit class: "button" %>
   </div>
 <% end %>
