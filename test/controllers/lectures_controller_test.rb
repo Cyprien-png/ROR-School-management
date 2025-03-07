@@ -358,4 +358,115 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
     assert_equal "Only deans are allowed to perform this action.", flash[:alert]
   end
+
+  # TEACHER-SUBJECT VALIDATION TESTS
+  
+  test "should not create lecture with teacher who doesn't teach the subject" do
+    dean = create_dean
+    subject = create_subject
+    teacher = create_teacher
+    # Deliberately NOT associating the teacher with the subject
+    trimester = create_trimester
+    sign_in dean
+    
+    assert_no_difference("Lecture.count") do
+      post lectures_url, params: {
+        lecture: {
+          start_time: "09:00",
+          end_time: "10:30",
+          week_day: "monday",
+          subject_id: subject.id,
+          teacher_id: teacher.id,
+          trimester_ids: [trimester.id]
+        }
+      }
+    end
+    
+    assert_response :unprocessable_entity
+    assert_select "h2", /prohibited this lecture from being saved/
+    assert_select "li", "Teacher must teach this subject"
+  end
+
+  test "should not update lecture to assign teacher who doesn't teach the subject" do
+    dean = create_dean
+    # Create initial lecture with proper associations
+    subject = create_subject
+    teacher = create_teacher
+    teacher.subjects << subject
+    trimester = create_trimester
+    lecture = Lecture.create!(
+      start_time: "09:00",
+      end_time: "10:30",
+      week_day: "monday",
+      subject: subject,
+      teacher: teacher,
+      trimesters: [trimester]
+    )
+    
+    # Create new subject and teacher for the update attempt
+    new_subject = create_subject
+    new_teacher = create_teacher
+    # Deliberately NOT associating the new teacher with the new subject
+    
+    sign_in dean
+    patch lecture_url(lecture), params: {
+      lecture: {
+        subject_id: new_subject.id,
+        teacher_id: new_teacher.id,
+        start_time: "09:00",
+        end_time: "10:30",
+        week_day: "monday",
+        trimester_ids: [trimester.id]
+      }
+    }
+  
+    # Verify nothing changed
+    lecture.reload
+    assert_equal subject.id, lecture.subject_id
+    assert_equal teacher.id, lecture.teacher_id
+  end
+
+  test "should update lecture with new teacher who teaches the subject" do
+    dean = create_dean
+    # Create initial lecture with proper associations
+    subject = create_subject
+    teacher = create_teacher
+    teacher.subjects << subject
+    trimester = create_trimester
+    lecture = Lecture.create!(
+      start_time: "09:00",
+      end_time: "10:30",
+      week_day: "monday",
+      subject: subject,
+      teacher: teacher,
+      trimesters: [trimester]
+    )
+    
+    # Create and set up new subject and teacher
+    new_subject = create_subject
+    new_teacher = create_teacher
+    # Ensure the new teacher is associated with the new subject, but check first to avoid duplicates
+    new_teacher.subjects.reload # Ensure we have fresh data
+    new_teacher.subjects << new_subject unless new_teacher.subjects.include?(new_subject)
+    
+    sign_in dean
+    patch lecture_url(lecture), params: {
+      lecture: {
+        subject_id: new_subject.id,
+        teacher_id: new_teacher.id,
+        start_time: "09:00",
+        end_time: "10:30",
+        week_day: "monday",
+        trimester_ids: [trimester.id]
+      }
+    }
+    
+    assert_redirected_to lecture_url(lecture)
+    assert_equal "Lecture was successfully updated.", flash[:notice]
+    
+    # Verify changes were applied
+    lecture.reload
+    assert_equal new_subject.id, lecture.subject_id
+    assert_equal new_teacher.id, lecture.teacher_id
+  end
 end
