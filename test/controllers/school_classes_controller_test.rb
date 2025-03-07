@@ -41,11 +41,20 @@ class SchoolClassesControllerTest < ActionDispatch::IntegrationTest
     )
   end
 
+  def create_academic_year
+    Year.create!(
+      first_trimester: Trimester.create!(start_date: Date.new(2024,8,1), end_date: Date.new(2024,10,31)),
+      second_trimester: Trimester.create!(start_date: Date.new(2024,11,1), end_date: Date.new(2025,1,31)),
+      third_trimester: Trimester.create!(start_date: Date.new(2025,2,1), end_date: Date.new(2025,4,30)),
+      fourth_trimester: Trimester.create!(start_date: Date.new(2025,5,1), end_date: Date.new(2025,7,31))
+    )
+  end
+
   def create_school_class(teacher)
     SchoolClass.create!(
       name: "Test Class",
       grade: 1,
-      year: 2025,
+      year: create_academic_year,
       teacher: teacher
     )
   end
@@ -220,6 +229,7 @@ class SchoolClassesControllerTest < ActionDispatch::IntegrationTest
   test "should create school_class when dean" do
     dean = create_dean
     teacher = create_teacher
+    year = create_academic_year
     sign_in dean
     
     assert_difference("SchoolClass.count") do
@@ -227,7 +237,7 @@ class SchoolClassesControllerTest < ActionDispatch::IntegrationTest
         school_class: {
           name: "New Class",
           grade: 2,
-          year: 2025,
+          year_id: year.id,
           teacher_id: teacher.id
         }
       }
@@ -238,6 +248,7 @@ class SchoolClassesControllerTest < ActionDispatch::IntegrationTest
 
   test "should not create school_class when teacher" do
     teacher = create_teacher
+    year = create_academic_year
     sign_in teacher
     
     assert_no_difference("SchoolClass.count") do
@@ -245,11 +256,33 @@ class SchoolClassesControllerTest < ActionDispatch::IntegrationTest
         school_class: {
           name: "New Class",
           grade: 2,
-          year: 2025,
+          year_id: year.id,
           teacher_id: teacher.id
         }
       }
     end
+
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+  end
+
+  test "should not create school_class when student" do
+    student = create_student
+    teacher = create_teacher
+    year = create_academic_year
+    sign_in student
+    
+    assert_no_difference("SchoolClass.count") do
+      post school_classes_url, params: {
+        school_class: {
+          name: "New Class",
+          grade: 2,
+          year_id: year.id,
+          teacher_id: teacher.id
+        }
+      }
+    end
+
     assert_redirected_to root_path
     assert_equal "Only deans are allowed to perform this action.", flash[:alert]
   end
@@ -301,33 +334,46 @@ class SchoolClassesControllerTest < ActionDispatch::IntegrationTest
   test "should update school_class when dean" do
     dean = create_dean
     teacher = create_teacher
+    new_teacher = create_teacher
     school_class = create_school_class(teacher)
+    year = create_academic_year
     
     sign_in dean
     patch school_class_url(school_class), params: {
       school_class: {
         name: "Updated Class",
         grade: 3,
-        year: 2026,
-        teacher_id: teacher.id
+        year_id: year.id,
+        teacher_id: new_teacher.id
       }
     }
+    
     assert_redirected_to school_class_url(school_class)
+    
+    # Verify changes
+    school_class.reload
+    assert_equal "Updated Class", school_class.name
+    assert_equal 3, school_class.grade
+    assert_equal year, school_class.year
+    assert_equal new_teacher, school_class.teacher
   end
 
   test "should not update school_class when teacher" do
     teacher = create_teacher
+    new_teacher = create_teacher
     school_class = create_school_class(teacher)
+    year = create_academic_year
     
     sign_in teacher
     patch school_class_url(school_class), params: {
       school_class: {
         name: "Updated Class",
         grade: 3,
-        year: 2026,
-        teacher_id: teacher.id
+        year_id: year.id,
+        teacher_id: new_teacher.id
       }
     }
+    
     assert_redirected_to root_path
     assert_equal "Only deans are allowed to perform this action.", flash[:alert]
   end
@@ -353,6 +399,7 @@ class SchoolClassesControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference("SchoolClass.count") do
       delete school_class_url(school_class)
     end
+
     assert_redirected_to root_path
     assert_equal "Only deans are allowed to perform this action.", flash[:alert]
   end
