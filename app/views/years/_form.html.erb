@@ -1,0 +1,42 @@
+<%= form_with(model: year) do |form| %>
+  <% if year.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(year.errors.count, "error") %> prohibited this year from being saved:</h2>
+
+      <ul>
+        <% year.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :name, style: "display: block" %>
+    <%= form.text_field :name %>
+  </div>
+
+  <div>
+    <%= form.label :first_trimester_id, style: "display: block" %>
+    <%= form.text_field :first_trimester_id %>
+  </div>
+
+  <div>
+    <%= form.label :second_trimester_id, style: "display: block" %>
+    <%= form.text_field :second_trimester_id %>
+  </div>
+
+  <div>
+    <%= form.label :third_trimester_id, style: "display: block" %>
+    <%= form.text_field :third_trimester_id %>
+  </div>
+
+  <div>
+    <%= form.label :fourth_trimester_id, style: "display: block" %>
+    <%= form.text_field :fourth_trimester_id %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>

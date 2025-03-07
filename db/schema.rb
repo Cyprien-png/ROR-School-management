@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_07_080553) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_07_080649) do
   create_table "lectures", force: :cascade do |t|
     t.time "start_time"
     t.time "end_time"
@@ -80,8 +80,26 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_07_080553) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "years", force: :cascade do |t|
+    t.string "name"
+    t.integer "first_trimester_id", null: false
+    t.integer "second_trimester_id", null: false
+    t.integer "third_trimester_id", null: false
+    t.integer "fourth_trimester_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["first_trimester_id"], name: "index_years_on_first_trimester_id"
+    t.index ["fourth_trimester_id"], name: "index_years_on_fourth_trimester_id"
+    t.index ["second_trimester_id"], name: "index_years_on_second_trimester_id"
+    t.index ["third_trimester_id"], name: "index_years_on_third_trimester_id"
+  end
+
   add_foreign_key "lectures", "subjects"
   add_foreign_key "school_classes", "people", column: "teacher_id"
   add_foreign_key "school_classes_students", "people", column: "student_id"
   add_foreign_key "school_classes_students", "school_classes"
+  add_foreign_key "years", "first_trimesters"
+  add_foreign_key "years", "fourth_trimesters"
+  add_foreign_key "years", "second_trimesters"
+  add_foreign_key "years", "third_trimesters"
 end
