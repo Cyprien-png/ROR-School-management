@@ -1,22 +1,49 @@
 <div id="<%= dom_id year %>">
-  <p>
-    <strong>First trimester:</strong>
-    <%= year.first_trimester_id %>
-  </p>
+  <div class="trimester">
+    <h3>First Trimester</h3>
+    <p>
+      <strong>Start date:</strong>
+      <%= year.first_trimester.start_date.strftime("%B %d, %Y") %>
+    </p>
+    <p>
+      <strong>End date:</strong>
+      <%= year.first_trimester.end_date.strftime("%B %d, %Y") %>
+    </p>
+  </div>
 
-  <p>
-    <strong>Second trimester:</strong>
-    <%= year.second_trimester_id %>
-  </p>
+  <div class="trimester">
+    <h3>Second Trimester</h3>
+    <p>
+      <strong>Start date:</strong>
+      <%= year.second_trimester.start_date.strftime("%B %d, %Y") %>
+    </p>
+    <p>
+      <strong>End date:</strong>
+      <%= year.second_trimester.end_date.strftime("%B %d, %Y") %>
+    </p>
+  </div>
 
-  <p>
-    <strong>Third trimester:</strong>
-    <%= year.third_trimester_id %>
-  </p>
+  <div class="trimester">
+    <h3>Third Trimester</h3>
+    <p>
+      <strong>Start date:</strong>
+      <%= year.third_trimester.start_date.strftime("%B %d, %Y") %>
+    </p>
+    <p>
+      <strong>End date:</strong>
+      <%= year.third_trimester.end_date.strftime("%B %d, %Y") %>
+    </p>
+  </div>
 
-  <p>
-    <strong>Fourth trimester:</strong>
-    <%= year.fourth_trimester_id %>
-  </p>
-
+  <div class="trimester">
+    <h3>Fourth Trimester</h3>
+    <p>
+      <strong>Start date:</strong>
+      <%= year.fourth_trimester.start_date.strftime("%B %d, %Y") %>
+    </p>
+    <p>
+      <strong>End date:</strong>
+      <%= year.fourth_trimester.end_date.strftime("%B %d, %Y") %>
+    </p>
+  </div>
 </div>

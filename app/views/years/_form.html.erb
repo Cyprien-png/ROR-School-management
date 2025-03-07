@@ -11,27 +11,67 @@
     </div>
   <% end %>
 
-  <div>
-    <%= form.label :first_trimester_id, style: "display: block" %>
-    <%= form.text_field :first_trimester_id %>
+  <div class="trimester-fields">
+    <h3>First Trimester</h3>
+    <%= form.fields_for :first_trimester do |trimester_form| %>
+      <div>
+        <%= trimester_form.label :start_date, style: "display: block" %>
+        <%= trimester_form.date_field :start_date %>
+      </div>
+
+      <div>
+        <%= trimester_form.label :end_date, style: "display: block" %>
+        <%= trimester_form.date_field :end_date %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="trimester-fields">
+    <h3>Second Trimester</h3>
+    <%= form.fields_for :second_trimester do |trimester_form| %>
+      <div>
+        <%= trimester_form.label :start_date, style: "display: block" %>
+        <%= trimester_form.date_field :start_date %>
+      </div>
+
+      <div>
+        <%= trimester_form.label :end_date, style: "display: block" %>
+        <%= trimester_form.date_field :end_date %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="trimester-fields">
+    <h3>Third Trimester</h3>
+    <%= form.fields_for :third_trimester do |trimester_form| %>
+      <div>
+        <%= trimester_form.label :start_date, style: "display: block" %>
+        <%= trimester_form.date_field :start_date %>
+      </div>
+
+      <div>
+        <%= trimester_form.label :end_date, style: "display: block" %>
+        <%= trimester_form.date_field :end_date %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="trimester-fields">
+    <h3>Fourth Trimester</h3>
+    <%= form.fields_for :fourth_trimester do |trimester_form| %>
+      <div>
+        <%= trimester_form.label :start_date, style: "display: block" %>
+        <%= trimester_form.date_field :start_date %>
+      </div>
+
+      <div>
+        <%= trimester_form.label :end_date, style: "display: block" %>
+        <%= trimester_form.date_field :end_date %>
+      </div>
+    <% end %>
   </div>
 
   <div>
-    <%= form.label :second_trimester_id, style: "display: block" %>
-    <%= form.text_field :second_trimester_id %>
-  </div>
-
-  <div>
-    <%= form.label :third_trimester_id, style: "display: block" %>
-    <%= form.text_field :third_trimester_id %>
-  </div>
-
-  <div>
-    <%= form.label :fourth_trimester_id, style: "display: block" %>
-    <%= form.text_field :fourth_trimester_id %>
-  </div>
-
-  <div>
-    <%= form.submit %>
+    <%= form.submit class: "button" %>
   </div>
 <% end %>

@@ -13,6 +13,10 @@ class YearsController < ApplicationController
   # GET /years/new
   def new
     @year = Year.new
+    @year.build_first_trimester
+    @year.build_second_trimester
+    @year.build_third_trimester
+    @year.build_fourth_trimester
   end
 
   # GET /years/1/edit
@@ -25,7 +29,7 @@ class YearsController < ApplicationController
 
     respond_to do |format|
       if @year.save
-        format.html { redirect_to @year, notice: "Year was successfully created." }
+        format.html { redirect_to year_url(@year), notice: "Year was successfully created." }
         format.json { render :show, status: :created, location: @year }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -38,7 +42,7 @@ class YearsController < ApplicationController
   def update
     respond_to do |format|
       if @year.update(year_params)
-        format.html { redirect_to @year, notice: "Year was successfully updated." }
+        format.html { redirect_to year_url(@year), notice: "Year was successfully updated." }
         format.json { render :show, status: :ok, location: @year }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -65,6 +69,11 @@ class YearsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def year_params
-      params.require(:year).permit(:first_trimester_id, :second_trimester_id, :third_trimester_id, :fourth_trimester_id)
+      params.require(:year).permit(
+        first_trimester_attributes: [:id, :start_date, :end_date],
+        second_trimester_attributes: [:id, :start_date, :end_date],
+        third_trimester_attributes: [:id, :start_date, :end_date],
+        fourth_trimester_attributes: [:id, :start_date, :end_date]
+      )
     end
 end

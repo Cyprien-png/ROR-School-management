@@ -100,8 +100,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_07_080649) do
   add_foreign_key "school_classes_students", "school_classes"
   add_foreign_key "subjects_teachers", "people", column: "teacher_id"
   add_foreign_key "subjects_teachers", "subjects"
-  add_foreign_key "years", "first_trimesters"
-  add_foreign_key "years", "fourth_trimesters"
-  add_foreign_key "years", "second_trimesters"
-  add_foreign_key "years", "third_trimesters"
+  add_foreign_key "years", "trimesters", column: "first_trimester_id"
+  add_foreign_key "years", "trimesters", column: "fourth_trimester_id"
+  add_foreign_key "years", "trimesters", column: "second_trimester_id"
+  add_foreign_key "years", "trimesters", column: "third_trimester_id"
 end
