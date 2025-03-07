@@ -4,6 +4,8 @@ ActiveRecord::Base.connection.execute("DELETE FROM subjects_teachers")
 SchoolClass.delete_all
 Subject.delete_all
 Person.with_deleted.delete_all  # Use with_deleted to ensure we clean up soft-deleted records too
+Year.delete_all
+Trimester.delete_all
 
 # Create a Dean
 dean = Dean.create!(
@@ -13,6 +15,21 @@ dean = Dean.create!(
   phone_number: "5551234567",
   password: "password",
   password_confirmation: "password"
+)
+
+# Create Academic Years
+year_2024_2025 = Year.create!(
+  first_trimester: Trimester.create!(start_date: Date.new(2024,8,1), end_date: Date.new(2024,10,31)),
+  second_trimester: Trimester.create!(start_date: Date.new(2024,11,1), end_date: Date.new(2025,1,31)),
+  third_trimester: Trimester.create!(start_date: Date.new(2025,2,1), end_date: Date.new(2025,4,30)),
+  fourth_trimester: Trimester.create!(start_date: Date.new(2025,5,1), end_date: Date.new(2025,7,31))
+)
+
+year_2025_2026 = Year.create!(
+  first_trimester: Trimester.create!(start_date: Date.new(2025,8,1), end_date: Date.new(2025,10,31)),
+  second_trimester: Trimester.create!(start_date: Date.new(2025,11,1), end_date: Date.new(2026,1,31)),
+  third_trimester: Trimester.create!(start_date: Date.new(2026,2,1), end_date: Date.new(2026,4,30)),
+  fourth_trimester: Trimester.create!(start_date: Date.new(2026,5,1), end_date: Date.new(2026,7,31))
 )
 
 # Create Subjects
@@ -64,14 +81,14 @@ end
 class1 = SchoolClass.create!(
   name: "Mathematics 101",
   grade: 1,
-  year: "2025",
+  year: year_2024_2025,
   teacher: teacher1
 )
 
 class2 = SchoolClass.create!(
   name: "Physics 101",
   grade: 1,
-  year: "2025",
+  year: year_2025_2026,
   teacher: teacher2
 )
 
@@ -85,4 +102,5 @@ puts "- 1 Dean"
 puts "- 2 Teachers"
 puts "- 5 Subjects"
 puts "- 10 Students"
+puts "- 2 Academic Years (2024-2025 and 2025-2026)"
 puts "- 2 Classes with 5 students each"

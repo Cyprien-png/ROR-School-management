@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_07_180435) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_07_182359) do
   create_table "lectures", force: :cascade do |t|
     t.time "start_time"
     t.time "end_time"
@@ -43,11 +43,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_07_180435) do
   create_table "school_classes", force: :cascade do |t|
     t.string "name", null: false
     t.integer "grade", null: false
-    t.string "year", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "teacher_id", null: false
+    t.integer "year_id"
     t.index ["teacher_id"], name: "index_school_classes_on_teacher_id"
+    t.index ["year_id"], name: "index_school_classes_on_year_id"
   end
 
   create_table "school_classes_students", force: :cascade do |t|
@@ -97,6 +98,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_07_180435) do
 
   add_foreign_key "lectures", "subjects"
   add_foreign_key "school_classes", "people", column: "teacher_id"
+  add_foreign_key "school_classes", "years"
   add_foreign_key "school_classes_students", "people", column: "student_id"
   add_foreign_key "school_classes_students", "school_classes"
   add_foreign_key "subjects_teachers", "people", column: "teacher_id"
