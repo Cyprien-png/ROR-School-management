@@ -24,7 +24,11 @@
   <div>
     <%= form.label :year_id, "Academic Year", style: "display: block" %>
     <%= form.collection_select :year_id, Year.all, :id, ->(year) { 
-      "#{year.first_trimester.start_date.year}-#{year.fourth_trimester.end_date.year}"
+      if year&.first_trimester && year&.fourth_trimester
+        "#{year.first_trimester.start_date.year}-#{year.fourth_trimester.end_date.year}"
+      else
+        "Invalid Year"
+      end
     }, { prompt: "Select an academic year" } %>
   </div>
 

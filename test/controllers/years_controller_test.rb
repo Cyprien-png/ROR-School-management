@@ -125,16 +125,53 @@ class YearsControllerTest < ActionDispatch::IntegrationTest
 
   test "should update year if dean" do
     sign_in @dean
-    patch year_url(@year), params: { 
+    
+    # Create a fresh year specifically for this test
+    year = Year.create!(
+      first_trimester: Trimester.create!(start_date: Date.new(2024,8,1), end_date: Date.new(2024,10,31)),
+      second_trimester: Trimester.create!(start_date: Date.new(2024,11,1), end_date: Date.new(2025,1,31)),
+      third_trimester: Trimester.create!(start_date: Date.new(2025,2,1), end_date: Date.new(2025,4,30)),
+      fourth_trimester: Trimester.create!(start_date: Date.new(2025,5,1), end_date: Date.new(2025,7,31))
+    )
+    
+    # Update with new dates
+    patch year_url(year), params: { 
       year: {
         first_trimester_attributes: { 
-          id: @year.first_trimester.id,
-          start_date: Date.new(2024,8,1), 
-          end_date: Date.new(2024,10,31) 
+          id: year.first_trimester.id, 
+          start_date: Date.new(2024,9,1), 
+          end_date: Date.new(2024,11,30) 
+        },
+        second_trimester_attributes: { 
+          id: year.second_trimester.id, 
+          start_date: Date.new(2024,12,1), 
+          end_date: Date.new(2025,2,28) 
+        },
+        third_trimester_attributes: { 
+          id: year.third_trimester.id, 
+          start_date: Date.new(2025,3,1), 
+          end_date: Date.new(2025,5,31) 
+        },
+        fourth_trimester_attributes: { 
+          id: year.fourth_trimester.id, 
+          start_date: Date.new(2025,6,1), 
+          end_date: Date.new(2025,8,31) 
         }
       }
     }
-    assert_redirected_to year_url(@year)
+    
+    assert_redirected_to year_url(year)
+    
+    # Verify the changes were saved
+    year.reload
+    assert_equal Date.new(2024,9,1), year.first_trimester.start_date
+    assert_equal Date.new(2024,11,30), year.first_trimester.end_date
+    assert_equal Date.new(2024,12,1), year.second_trimester.start_date
+    assert_equal Date.new(2025,2,28), year.second_trimester.end_date
+    assert_equal Date.new(2025,3,1), year.third_trimester.start_date
+    assert_equal Date.new(2025,5,31), year.third_trimester.end_date
+    assert_equal Date.new(2025,6,1), year.fourth_trimester.start_date
+    assert_equal Date.new(2025,8,31), year.fourth_trimester.end_date
   end
 
   test "should not destroy year if not dean" do

@@ -99,6 +99,7 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
   test "should create lecture when signed in as dean" do
     dean = create_dean
     subject = create_subject
+    trimester = create_trimester
     sign_in dean
     
     assert_difference("Lecture.count") do
@@ -107,7 +108,8 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
           start_time: "09:00",
           end_time: "10:30",
           week_day: "monday",
-          subject_id: subject.id
+          subject_id: subject.id,
+          trimester_ids: [trimester.id]
         }
       }
     end
@@ -119,11 +121,13 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "10:30", lecture.end_time.strftime("%H:%M")
     assert_equal "monday", lecture.week_day
     assert_equal subject.id, lecture.subject_id
+    assert_equal [trimester.id], lecture.trimester_ids
   end
   
   test "should not create lecture when signed in as teacher" do
     teacher = create_teacher
     subject = create_subject
+    trimester = create_trimester
     sign_in teacher
     
     assert_no_difference("Lecture.count") do
@@ -132,7 +136,8 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
           start_time: "09:00",
           end_time: "10:30",
           week_day: "monday",
-          subject_id: subject.id
+          subject_id: subject.id,
+          trimester_ids: [trimester.id]
         }
       }
     end
@@ -144,6 +149,7 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
   test "should not create lecture when signed in as student" do
     student = create_student
     subject = create_subject
+    trimester = create_trimester
     sign_in student
     
     assert_no_difference("Lecture.count") do
@@ -152,7 +158,8 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
           start_time: "09:00",
           end_time: "10:30",
           week_day: "monday",
-          subject_id: subject.id
+          subject_id: subject.id,
+          trimester_ids: [trimester.id]
         }
       }
     end
@@ -164,6 +171,7 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
   test "should not create lecture with invalid data" do
     dean = create_dean
     subject = create_subject
+    trimester = create_trimester
     sign_in dean
     
     assert_no_difference("Lecture.count") do
@@ -172,7 +180,8 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
           start_time: "10:00",
           end_time: "09:00", # Invalid: end time before start time
           week_day: "monday",
-          subject_id: subject.id
+          subject_id: subject.id,
+          trimester_ids: [trimester.id]
         }
       }
     end
@@ -216,6 +225,7 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
     dean = create_dean
     lecture = create_lecture
     new_subject = Subject.create!(name: "New Subject #{@timestamp}")
+    new_trimester = create_trimester(Date.new(2024,11,1), Date.new(2025,1,31))
     sign_in dean
     
     patch lecture_url(lecture), params: {
@@ -223,7 +233,8 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
         start_time: "11:00",
         end_time: "12:30",
         week_day: "tuesday",
-        subject_id: new_subject.id
+        subject_id: new_subject.id,
+        trimester_ids: [new_trimester.id]
       }
     }
     
@@ -234,17 +245,20 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "12:30", lecture.end_time.strftime("%H:%M")
     assert_equal "tuesday", lecture.week_day
     assert_equal new_subject.id, lecture.subject_id
+    assert_equal [new_trimester.id], lecture.trimester_ids
   end
   
   test "should not update lecture when signed in as teacher" do
     teacher = create_teacher
     lecture = create_lecture
     original_start_time = lecture.start_time
+    original_trimester_ids = lecture.trimester_ids
     sign_in teacher
     
     patch lecture_url(lecture), params: {
       lecture: {
-        start_time: "11:00"
+        start_time: "11:00",
+        trimester_ids: [create_trimester.id]
       }
     }
     
@@ -252,17 +266,20 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Only deans are allowed to perform this action.", flash[:alert]
     lecture.reload
     assert_equal original_start_time, lecture.start_time
+    assert_equal original_trimester_ids, lecture.trimester_ids
   end
   
   test "should not update lecture when signed in as student" do
     student = create_student
     lecture = create_lecture
     original_start_time = lecture.start_time
+    original_trimester_ids = lecture.trimester_ids
     sign_in student
     
     patch lecture_url(lecture), params: {
       lecture: {
-        start_time: "11:00"
+        start_time: "11:00",
+        trimester_ids: [create_trimester.id]
       }
     }
     
@@ -270,22 +287,27 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Only deans are allowed to perform this action.", flash[:alert]
     lecture.reload
     assert_equal original_start_time, lecture.start_time
+    assert_equal original_trimester_ids, lecture.trimester_ids
   end
   
   test "should not update lecture with invalid data" do
     dean = create_dean
     lecture = create_lecture
+    original_trimester_ids = lecture.trimester_ids
     sign_in dean
     
     patch lecture_url(lecture), params: {
       lecture: {
         start_time: "10:00",
-        end_time: "09:00" # Invalid: end time before start time
+        end_time: "09:00", # Invalid: end time before start time
+        trimester_ids: [create_trimester.id]
       }
     }
     
     assert_response :unprocessable_entity
     assert_select "h2", /prohibited this lecture from being saved/
+    lecture.reload
+    assert_equal original_trimester_ids, lecture.trimester_ids
   end
   
   # DELETE TESTS

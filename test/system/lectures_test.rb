@@ -2,7 +2,11 @@ require "application_system_test_case"
 
 class LecturesTest < ApplicationSystemTestCase
   setup do
-    @lecture = lectures(:one)
+    @dean = create_dean
+    @subject = create_subject
+    @trimester = create_trimester
+    @lecture = create_lecture(@subject)
+    sign_in @dean
   end
 
   test "visiting the index" do
@@ -14,9 +18,12 @@ class LecturesTest < ApplicationSystemTestCase
     visit lectures_url
     click_on "New lecture"
 
-    fill_in "End time", with: @lecture.end_time
-    fill_in "Start time", with: @lecture.start_time
-    fill_in "Week day", with: @lecture.week_day
+    fill_in "Start time", with: "09:00"
+    fill_in "End time", with: "10:30"
+    select "Monday", from: "Week day"
+    select @subject.name, from: "Subject"
+    select "#{@trimester.start_date.strftime('%B %d, %Y')} - #{@trimester.end_date.strftime('%B %d, %Y')}", from: "Trimesters"
+
     click_on "Create Lecture"
 
     assert_text "Lecture was successfully created"
@@ -27,9 +34,14 @@ class LecturesTest < ApplicationSystemTestCase
     visit lecture_url(@lecture)
     click_on "Edit this lecture", match: :first
 
-    fill_in "End time", with: @lecture.end_time.to_s
-    fill_in "Start time", with: @lecture.start_time.to_s
-    fill_in "Week day", with: @lecture.week_day
+    fill_in "Start time", with: "11:00"
+    fill_in "End time", with: "12:30"
+    select "Tuesday", from: "Week day"
+    
+    # Create a new trimester for testing update
+    new_trimester = create_trimester(Date.new(2024,11,1), Date.new(2025,1,31))
+    select "#{new_trimester.start_date.strftime('%B %d, %Y')} - #{new_trimester.end_date.strftime('%B %d, %Y')}", from: "Trimesters"
+
     click_on "Update Lecture"
 
     assert_text "Lecture was successfully updated"

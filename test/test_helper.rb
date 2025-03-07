@@ -12,10 +12,12 @@ class ActiveSupport::TestCase
     ActiveRecord::Base.connection.disable_referential_integrity do
       SchoolClassesStudent.delete_all
       ActiveRecord::Base.connection.execute("DELETE FROM subjects_teachers")
+      ActiveRecord::Base.connection.execute("DELETE FROM lectures_trimesters")
       SchoolClass.delete_all
       Subject.delete_all
       Person.unscoped.delete_all
       Lecture.delete_all
+      Trimester.delete_all
     end
     
     # Initialize timestamp for unique emails
@@ -27,10 +29,12 @@ class ActiveSupport::TestCase
     ActiveRecord::Base.connection.disable_referential_integrity do
       SchoolClassesStudent.delete_all
       ActiveRecord::Base.connection.execute("DELETE FROM subjects_teachers")
+      ActiveRecord::Base.connection.execute("DELETE FROM lectures_trimesters")
       SchoolClass.delete_all
       Subject.delete_all
       Person.unscoped.delete_all
       Lecture.delete_all
+      Trimester.delete_all
     end
   end
   
@@ -88,14 +92,26 @@ class ActiveSupport::TestCase
     )
   end
   
+  # Helper method for creating a trimester
+  def create_trimester(start_date = nil, end_date = nil)
+    start_date ||= Date.new(2024,8,1)
+    end_date ||= Date.new(2024,10,31)
+    Trimester.create!(
+      start_date: start_date,
+      end_date: end_date
+    )
+  end
+  
   # Helper method for creating a lecture
   def create_lecture(subject = nil)
     subject ||= create_subject
+    trimester = create_trimester
     Lecture.create!(
       start_time: "09:00",
       end_time: "10:30",
       week_day: "monday",
-      subject: subject
+      subject: subject,
+      trimesters: [trimester]
     )
   end
 end
