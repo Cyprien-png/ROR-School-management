@@ -17,7 +17,7 @@ class YearsControllerTest < ActionDispatch::IntegrationTest
 
   test "should create year" do
     assert_difference("Year.count") do
-      post years_url, params: { year: { first_trimester_id: @year.first_trimester_id, fourth_trimester_id: @year.fourth_trimester_id, name: @year.name, second_trimester_id: @year.second_trimester_id, third_trimester_id: @year.third_trimester_id } }
+      post years_url, params: { year: { first_trimester_id: @year.first_trimester_id, fourth_trimester_id: @year.fourth_trimester_id, second_trimester_id: @year.second_trimester_id, third_trimester_id: @year.third_trimester_id } }
     end
 
     assert_redirected_to year_url(Year.last)
@@ -34,7 +34,7 @@ class YearsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update year" do
-    patch year_url(@year), params: { year: { first_trimester_id: @year.first_trimester_id, fourth_trimester_id: @year.fourth_trimester_id, name: @year.name, second_trimester_id: @year.second_trimester_id, third_trimester_id: @year.third_trimester_id } }
+    patch year_url(@year), params: { year: { first_trimester_id: @year.first_trimester_id, fourth_trimester_id: @year.fourth_trimester_id, second_trimester_id: @year.second_trimester_id, third_trimester_id: @year.third_trimester_id } }
     assert_redirected_to year_url(@year)
   end
 

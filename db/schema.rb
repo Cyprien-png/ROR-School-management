@@ -64,13 +64,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_07_080649) do
     t.boolean "isDeleted", default: false
   end
 
-  create_table "subjects_teachers", id: false, force: :cascade do |t|
+  create_table "subjects_teachers", force: :cascade do |t|
     t.integer "teacher_id", null: false
     t.integer "subject_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["subject_id", "teacher_id"], name: "index_subjects_teachers_on_subject_id_and_teacher_id"
+    t.index ["subject_id"], name: "index_subjects_teachers_on_subject_id"
     t.index ["teacher_id", "subject_id"], name: "index_subjects_teachers_on_teacher_id_and_subject_id", unique: true
+    t.index ["teacher_id"], name: "index_subjects_teachers_on_teacher_id"
   end
 
   create_table "trimesters", force: :cascade do |t|
@@ -81,7 +82,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_07_080649) do
   end
 
   create_table "years", force: :cascade do |t|
-    t.string "name"
     t.integer "first_trimester_id", null: false
     t.integer "second_trimester_id", null: false
     t.integer "third_trimester_id", null: false
@@ -98,6 +98,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_07_080649) do
   add_foreign_key "school_classes", "people", column: "teacher_id"
   add_foreign_key "school_classes_students", "people", column: "student_id"
   add_foreign_key "school_classes_students", "school_classes"
+  add_foreign_key "subjects_teachers", "people", column: "teacher_id"
+  add_foreign_key "subjects_teachers", "subjects"
   add_foreign_key "years", "first_trimesters"
   add_foreign_key "years", "fourth_trimesters"
   add_foreign_key "years", "second_trimesters"

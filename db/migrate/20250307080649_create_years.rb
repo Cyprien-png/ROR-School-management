@@ -1,7 +1,6 @@
 class CreateYears < ActiveRecord::Migration[8.0]
   def change
     create_table :years do |t|
-      t.string :name
       t.references :first_trimester, null: false, foreign_key: true
       t.references :second_trimester, null: false, foreign_key: true
       t.references :third_trimester, null: false, foreign_key: true

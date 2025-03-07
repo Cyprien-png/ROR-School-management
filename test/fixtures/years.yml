@@ -1,14 +1,12 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  name: MyString
   first_trimester: one
   second_trimester: one
   third_trimester: one
   fourth_trimester: one
 
 two:
-  name: MyString
   first_trimester: two
   second_trimester: two
   third_trimester: two

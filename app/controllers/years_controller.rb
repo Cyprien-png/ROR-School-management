@@ -60,11 +60,11 @@ class YearsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_year
-      @year = Year.find(params.expect(:id))
+      @year = Year.find(params.require(:id))
     end
 
     # Only allow a list of trusted parameters through.
     def year_params
-      params.expect(year: [ :name, :first_trimester_id, :second_trimester_id, :third_trimester_id, :fourth_trimester_id ])
+      params.require(:year).permit(:first_trimester_id, :second_trimester_id, :third_trimester_id, :fourth_trimester_id)
     end
 end
