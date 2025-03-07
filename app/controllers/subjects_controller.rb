@@ -58,7 +58,7 @@ class SubjectsController < ApplicationController
 
   # DELETE /subjects/1 or /subjects/1.json
   def destroy
-    @subject.destroy!
+    @subject.soft_delete
 
     respond_to do |format|
       format.html { redirect_to subjects_url, notice: "Subject was successfully destroyed." }
@@ -74,6 +74,6 @@ class SubjectsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def subject_params
-      params.require(:subject).permit(:name)
+      params.require(:subject).permit(:name, teacher_ids: [])
     end
 end
