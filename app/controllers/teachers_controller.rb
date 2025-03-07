@@ -3,7 +3,7 @@ class TeachersController < PeopleController
   
   before_action :authenticate_person!
   before_action :authorize_dean, only: [:new, :create, :edit, :update, :destroy]
-  before_action :set_teacher, only: [:edit, :update, :destroy]
+  before_action :set_teacher, only: [:edit, :update, :destroy, :school_classes]
 
   def new
     @teacher = Teacher.new
@@ -46,6 +46,11 @@ class TeachersController < PeopleController
       format.html { redirect_to people_url, notice: "Teacher was successfully deleted." }
       format.json { head :no_content }
     end
+  end
+
+  def school_classes
+    @classes = @teacher.school_classes
+    render json: @classes
   end
 
   private

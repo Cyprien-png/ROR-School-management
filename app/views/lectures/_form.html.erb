@@ -43,6 +43,14 @@
   </div>
 
   <div>
+    <%= form.label :school_class_id, "Class", style: "display: block" %>
+    <%= form.collection_select :school_class_id,
+        SchoolClass.all,
+        :id, :name,
+        { prompt: "Select a class" } %>
+  </div>
+
+  <div>
     <%= form.label :trimester_ids, "Trimesters", style: "display: block" %>
     <div class="select-wrapper">
       <%= form.collection_select :trimester_ids, 

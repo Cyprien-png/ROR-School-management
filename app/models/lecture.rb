@@ -1,6 +1,7 @@
 class Lecture < ApplicationRecord
   belongs_to :subject
   belongs_to :teacher
+  belongs_to :school_class
   has_and_belongs_to_many :trimesters
   
   # Validations
@@ -9,6 +10,7 @@ class Lecture < ApplicationRecord
   validates :week_day, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 6 }, if: -> { week_day.is_a?(Integer) }
   validates :trimesters, presence: true
   validates :teacher, presence: true
+  validates :school_class, presence: true
   validate :teacher_must_teach_subject
   validate :end_time_after_start_time
   

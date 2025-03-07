@@ -1,8 +1,10 @@
 # Clean up existing data in the correct order
 ActiveRecord::Base.connection.execute("DELETE FROM school_classes_students")
 ActiveRecord::Base.connection.execute("DELETE FROM subjects_teachers")
+ActiveRecord::Base.connection.execute("DELETE FROM lectures_trimesters")
 SchoolClass.delete_all
 Subject.delete_all
+Lecture.delete_all
 Person.with_deleted.delete_all  # Use with_deleted to ensure we clean up soft-deleted records too
 Year.delete_all
 Trimester.delete_all
@@ -77,18 +79,18 @@ students = 10.times.map do |i|
   )
 end
 
-# Create 2 School Classes
+# Create School Classes
 class1 = SchoolClass.create!(
-  name: "Mathematics 101",
+  name: "Class A",
   grade: 1,
   year: year_2024_2025,
   teacher: teacher1
 )
 
 class2 = SchoolClass.create!(
-  name: "Physics 101",
+  name: "Class B",
   grade: 1,
-  year: year_2025_2026,
+  year: year_2024_2025,
   teacher: teacher2
 )
 
@@ -96,21 +98,34 @@ class2 = SchoolClass.create!(
 class1.students << students[0..4]  # First 5 students
 class2.students << students[5..9]  # Last 5 students
 
-# Create lectures for each subject with their respective teachers
-subjects.each_with_index do |subject, index|
-  teacher = subject.teachers.first # Get the first teacher who teaches this subject
-  next unless teacher # Skip if no teacher is assigned to this subject
-  
-  # Create 2 lectures per subject
-  2.times do |i|
-    Lecture.create!(
-      start_time: "#{9 + i}:00",
-      end_time: "#{10 + i}:30",
-      week_day: i.even? ? :monday : :wednesday,
-      subject: subject,
-      teacher: teacher,
-      trimesters: [year_2024_2025.first_trimester]
-    )
+# Create lectures with mixed class assignments
+[
+  # Class A follows both Math (from their teacher) and Chemistry (from another teacher)
+  { class: class1, lectures: [
+    { teacher: teacher1, subjects: subjects[0..0] },  # Math from teacher1
+    { teacher: teacher2, subjects: subjects[2..2] }   # Chemistry from teacher2
+  ]},
+  # Class B follows both Biology (from their teacher) and Physics (from another teacher)
+  { class: class2, lectures: [
+    { teacher: teacher2, subjects: subjects[3..3] },  # Biology from teacher2
+    { teacher: teacher1, subjects: subjects[1..1] }   # Physics from teacher1
+  ]}
+].each do |config|
+  config[:lectures].each do |lecture_config|
+    lecture_config[:subjects].each do |subject|
+      # Create 2 lectures per subject
+      2.times do |i|
+        Lecture.create!(
+          start_time: "#{9 + i}:00",
+          end_time: "#{10 + i}:30",
+          week_day: i.even? ? :monday : :wednesday,
+          subject: subject,
+          teacher: lecture_config[:teacher],
+          school_class: config[:class],
+          trimesters: [year_2024_2025.first_trimester]
+        )
+      end
+    end
   end
 end
 
