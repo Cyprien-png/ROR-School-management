@@ -1,0 +1,2 @@
+class Trimester < ApplicationRecord
+end
