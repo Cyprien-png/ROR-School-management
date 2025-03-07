@@ -1,48 +1,331 @@
 require "test_helper"
 
 class LecturesControllerTest < ActionDispatch::IntegrationTest
-  setup do
-    @lecture = lectures(:one)
+  def setup
+    super
   end
 
-  test "should get index" do
+  # INDEX TESTS
+  
+  test "should get index when signed in as dean" do
+    dean = create_dean
+    sign_in dean
     get lectures_url
     assert_response :success
+    assert_select "h1", "Lectures"
   end
-
-  test "should get new" do
+  
+  test "should get index when signed in as teacher" do
+    teacher = create_teacher
+    sign_in teacher
+    get lectures_url
+    assert_response :success
+    assert_select "h1", "Lectures"
+  end
+  
+  test "should get index when signed in as student" do
+    student = create_student
+    sign_in student
+    get lectures_url
+    assert_response :success
+    assert_select "h1", "Lectures"
+  end
+  
+  test "should redirect index when not signed in" do
+    get lectures_url
+    assert_redirected_to new_person_session_path
+  end
+  
+  # SHOW TESTS
+  
+  test "should show lecture when signed in as dean" do
+    dean = create_dean
+    lecture = create_lecture
+    sign_in dean
+    get lecture_url(lecture)
+    assert_response :success
+  end
+  
+  test "should show lecture when signed in as teacher" do
+    teacher = create_teacher
+    lecture = create_lecture
+    sign_in teacher
+    get lecture_url(lecture)
+    assert_response :success
+  end
+  
+  test "should show lecture when signed in as student" do
+    student = create_student
+    lecture = create_lecture
+    sign_in student
+    get lecture_url(lecture)
+    assert_response :success
+  end
+  
+  test "should redirect show when not signed in" do
+    lecture = create_lecture
+    get lecture_url(lecture)
+    assert_redirected_to new_person_session_path
+  end
+  
+  # NEW TESTS
+  
+  test "should get new when signed in as dean" do
+    dean = create_dean
+    sign_in dean
     get new_lecture_url
     assert_response :success
+    assert_select "h1", "New lecture"
   end
-
-  test "should create lecture" do
+  
+  test "should not get new when signed in as teacher" do
+    teacher = create_teacher
+    sign_in teacher
+    get new_lecture_url
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+  end
+  
+  test "should not get new when signed in as student" do
+    student = create_student
+    sign_in student
+    get new_lecture_url
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+  end
+  
+  # CREATE TESTS
+  
+  test "should create lecture when signed in as dean" do
+    dean = create_dean
+    subject = create_subject
+    sign_in dean
+    
     assert_difference("Lecture.count") do
-      post lectures_url, params: { lecture: { end_time: @lecture.end_time, start_time: @lecture.start_time, week_day: @lecture.week_day } }
+      post lectures_url, params: {
+        lecture: {
+          start_time: "09:00",
+          end_time: "10:30",
+          week_day: "monday",
+          subject_id: subject.id
+        }
+      }
     end
-
-    assert_redirected_to lecture_url(Lecture.last)
+    
+    lecture = Lecture.last
+    assert_redirected_to lecture_url(lecture)
+    assert_equal "Lecture was successfully created.", flash[:notice]
+    assert_equal "09:00", lecture.start_time.strftime("%H:%M")
+    assert_equal "10:30", lecture.end_time.strftime("%H:%M")
+    assert_equal "monday", lecture.week_day
+    assert_equal subject.id, lecture.subject_id
   end
-
-  test "should show lecture" do
-    get lecture_url(@lecture)
+  
+  test "should not create lecture when signed in as teacher" do
+    teacher = create_teacher
+    subject = create_subject
+    sign_in teacher
+    
+    assert_no_difference("Lecture.count") do
+      post lectures_url, params: {
+        lecture: {
+          start_time: "09:00",
+          end_time: "10:30",
+          week_day: "monday",
+          subject_id: subject.id
+        }
+      }
+    end
+    
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+  end
+  
+  test "should not create lecture when signed in as student" do
+    student = create_student
+    subject = create_subject
+    sign_in student
+    
+    assert_no_difference("Lecture.count") do
+      post lectures_url, params: {
+        lecture: {
+          start_time: "09:00",
+          end_time: "10:30",
+          week_day: "monday",
+          subject_id: subject.id
+        }
+      }
+    end
+    
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+  end
+  
+  test "should not create lecture with invalid data" do
+    dean = create_dean
+    subject = create_subject
+    sign_in dean
+    
+    assert_no_difference("Lecture.count") do
+      post lectures_url, params: {
+        lecture: {
+          start_time: "10:00",
+          end_time: "09:00", # Invalid: end time before start time
+          week_day: "monday",
+          subject_id: subject.id
+        }
+      }
+    end
+    
+    assert_response :unprocessable_entity
+    assert_select "h2", /prohibited this lecture from being saved/
+  end
+  
+  # EDIT TESTS
+  
+  test "should get edit when signed in as dean" do
+    dean = create_dean
+    lecture = create_lecture
+    sign_in dean
+    get edit_lecture_url(lecture)
     assert_response :success
+    assert_select "h1", "Editing lecture"
   end
-
-  test "should get edit" do
-    get edit_lecture_url(@lecture)
-    assert_response :success
+  
+  test "should not get edit when signed in as teacher" do
+    teacher = create_teacher
+    lecture = create_lecture
+    sign_in teacher
+    get edit_lecture_url(lecture)
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
   end
-
-  test "should update lecture" do
-    patch lecture_url(@lecture), params: { lecture: { end_time: @lecture.end_time, start_time: @lecture.start_time, week_day: @lecture.week_day } }
-    assert_redirected_to lecture_url(@lecture)
+  
+  test "should not get edit when signed in as student" do
+    student = create_student
+    lecture = create_lecture
+    sign_in student
+    get edit_lecture_url(lecture)
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
   end
-
-  test "should destroy lecture" do
+  
+  # UPDATE TESTS
+  
+  test "should update lecture when signed in as dean" do
+    dean = create_dean
+    lecture = create_lecture
+    new_subject = Subject.create!(name: "New Subject #{@timestamp}")
+    sign_in dean
+    
+    patch lecture_url(lecture), params: {
+      lecture: {
+        start_time: "11:00",
+        end_time: "12:30",
+        week_day: "tuesday",
+        subject_id: new_subject.id
+      }
+    }
+    
+    lecture.reload
+    assert_redirected_to lecture_url(lecture)
+    assert_equal "Lecture was successfully updated.", flash[:notice]
+    assert_equal "11:00", lecture.start_time.strftime("%H:%M")
+    assert_equal "12:30", lecture.end_time.strftime("%H:%M")
+    assert_equal "tuesday", lecture.week_day
+    assert_equal new_subject.id, lecture.subject_id
+  end
+  
+  test "should not update lecture when signed in as teacher" do
+    teacher = create_teacher
+    lecture = create_lecture
+    original_start_time = lecture.start_time
+    sign_in teacher
+    
+    patch lecture_url(lecture), params: {
+      lecture: {
+        start_time: "11:00"
+      }
+    }
+    
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+    lecture.reload
+    assert_equal original_start_time, lecture.start_time
+  end
+  
+  test "should not update lecture when signed in as student" do
+    student = create_student
+    lecture = create_lecture
+    original_start_time = lecture.start_time
+    sign_in student
+    
+    patch lecture_url(lecture), params: {
+      lecture: {
+        start_time: "11:00"
+      }
+    }
+    
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+    lecture.reload
+    assert_equal original_start_time, lecture.start_time
+  end
+  
+  test "should not update lecture with invalid data" do
+    dean = create_dean
+    lecture = create_lecture
+    sign_in dean
+    
+    patch lecture_url(lecture), params: {
+      lecture: {
+        start_time: "10:00",
+        end_time: "09:00" # Invalid: end time before start time
+      }
+    }
+    
+    assert_response :unprocessable_entity
+    assert_select "h2", /prohibited this lecture from being saved/
+  end
+  
+  # DELETE TESTS
+  
+  test "should destroy lecture when signed in as dean" do
+    dean = create_dean
+    lecture = create_lecture
+    sign_in dean
+    
     assert_difference("Lecture.count", -1) do
-      delete lecture_url(@lecture)
+      delete lecture_url(lecture)
     end
-
+    
     assert_redirected_to lectures_url
+    assert_equal "Lecture was successfully destroyed.", flash[:notice]
+  end
+  
+  test "should not destroy lecture when signed in as teacher" do
+    teacher = create_teacher
+    lecture = create_lecture
+    sign_in teacher
+    
+    assert_no_difference("Lecture.count") do
+      delete lecture_url(lecture)
+    end
+    
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+  end
+  
+  test "should not destroy lecture when signed in as student" do
+    student = create_student
+    lecture = create_lecture
+    sign_in student
+    
+    assert_no_difference("Lecture.count") do
+      delete lecture_url(lecture)
+    end
+    
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
   end
 end

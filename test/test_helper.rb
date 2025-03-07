@@ -15,6 +15,7 @@ class ActiveSupport::TestCase
       SchoolClass.delete_all
       Subject.delete_all
       Person.unscoped.delete_all
+      Lecture.delete_all
     end
     
     # Initialize timestamp for unique emails
@@ -29,6 +30,7 @@ class ActiveSupport::TestCase
       SchoolClass.delete_all
       Subject.delete_all
       Person.unscoped.delete_all
+      Lecture.delete_all
     end
   end
   
@@ -83,6 +85,17 @@ class ActiveSupport::TestCase
   def create_subject
     @subject ||= Subject.create!(
       name: "Test Subject #{@timestamp}-#{SecureRandom.hex(4)}"
+    )
+  end
+  
+  # Helper method for creating a lecture
+  def create_lecture(subject = nil)
+    subject ||= create_subject
+    Lecture.create!(
+      start_time: "09:00",
+      end_time: "10:30",
+      week_day: "monday",
+      subject: subject
     )
   end
 end
