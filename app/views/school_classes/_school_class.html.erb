@@ -10,8 +10,8 @@
   </p>
 
   <p>
-    <strong>Year:</strong>
-    <%= school_class.year %>
+    <strong>Academic Year:</strong>
+    <%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %>
   </p>
 
   <p>
@@ -37,11 +37,10 @@
     </div>
 
     <% if school_class.students.any? %>
-      <table>
+      <table class="students-table">
         <thead>
           <tr>
-            <th>Last Name</th>
-            <th>First Name</th>
+            <th>Name</th>
             <th>Email</th>
             <th>Status</th>
             <% if current_person.is_a?(Dean) %>
@@ -50,20 +49,18 @@
           </tr>
         </thead>
         <tbody>
-          <% school_class.students.order(:lastname, :firstname).each do |student| %>
+          <% school_class.students.each do |student| %>
             <tr>
-              <td><%= student.lastname %></td>
-              <td><%= student.firstname %></td>
+              <td><%= "#{student.lastname} #{student.firstname}" %></td>
               <td><%= student.email %></td>
               <td><%= student.status %></td>
               <% if current_person.is_a?(Dean) %>
                 <td>
                   <%= button_to "Remove", 
-                      remove_student_school_class_path(school_class, student_id: student.id), 
-                      method: :delete, 
-                      class: "button-small",
-                      form: { class: "inline-form" },
-                      data: { confirm: "Are you sure?" } %>
+                      remove_student_school_class_path(school_class, student_id: student.id),
+                      method: :delete,
+                      class: "button delete",
+                      form: { class: "inline-form" } %>
                 </td>
               <% end %>
             </tr>
@@ -71,7 +68,7 @@
         </tbody>
       </table>
     <% else %>
-      <p>No students enrolled in this class yet.</p>
+      <p>No students in this class yet.</p>
     <% end %>
   </div>
 </div>

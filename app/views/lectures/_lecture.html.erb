@@ -1,0 +1,39 @@
+<div id="<%= dom_id lecture %>">
+  <p>
+    <strong>Subject:</strong>
+    <%= lecture.subject.name %>
+  </p>
+
+  <p>
+    <strong>Teacher:</strong>
+    <%= "#{lecture.teacher.firstname} #{lecture.teacher.lastname}" %>
+  </p>
+
+  <p>
+    <strong>Class:</strong>
+    <%= lecture.school_class.name %>
+  </p>
+
+  <p>
+    <strong>Week day:</strong>
+    <%= lecture.week_day.capitalize %>
+  </p>
+
+  <p>
+    <strong>Time:</strong>
+    <%= lecture.start_time.strftime("%H:%M") %> - <%= lecture.end_time.strftime("%H:%M") %>
+  </p>
+
+  <p>
+    <strong>Trimesters:</strong>
+    <% if lecture.trimesters.any? %>
+      <ul>
+        <% lecture.trimesters.order(start_date: :asc).each do |trimester| %>
+          <li><%= "#{trimester.start_date.strftime('%B %d, %Y')} - #{trimester.end_date.strftime('%B %d, %Y')}" %></li>
+        <% end %>
+      </ul>
+    <% else %>
+      <em>No trimesters assigned</em>
+    <% end %>
+  </p>
+</div>

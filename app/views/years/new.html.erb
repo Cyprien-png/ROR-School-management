@@ -1,0 +1,11 @@
+<% content_for :title, "New year" %>
+
+<h1>New year</h1>
+
+<%= render "form", year: @year %>
+
+<br>
+
+<div>
+  <%= link_to "Back to years", years_path %>
+</div>

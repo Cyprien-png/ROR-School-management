@@ -37,6 +37,13 @@
   </div>
 
   <div class="field">
+    <%= form.label :subject_ids, "Subjects", style: "display: block" %>
+    <%= form.collection_select :subject_ids, Subject.all, :id, :name, 
+        { prompt: "Select subjects" }, 
+        { multiple: true, class: "multiple-select" } %>
+  </div>
+
+  <div class="field">
     <%= form.label :password, style: "display: block" %>
     <%= form.password_field :password %>
   </div>

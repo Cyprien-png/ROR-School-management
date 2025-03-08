@@ -1,0 +1,120 @@
+<%= form_with(model: lecture) do |form| %>
+  <% if lecture.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(lecture.errors.count, "error") %> prohibited this lecture from being saved:</h2>
+
+      <ul>
+        <% lecture.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :start_time, style: "display: block" %>
+    <%= form.time_field :start_time %>
+  </div>
+
+  <div>
+    <%= form.label :end_time, style: "display: block" %>
+    <%= form.time_field :end_time %>
+  </div>
+
+  <div>
+    <%= form.label :week_day, style: "display: block" %>
+    <%= form.select :week_day, Lecture.week_days.map { |day, _| [day.capitalize, day] } %>
+  </div>
+
+  <div>
+    <%= form.label :subject_id, "Subject", style: "display: block" %>
+    <%= form.collection_select :subject_id, Subject.all, :id, :name, 
+        { prompt: "Select a subject" }, 
+        { onchange: "updateTeachers(this.value)" } %>
+  </div>
+
+  <div>
+    <%= form.label :teacher_id, "Teacher", style: "display: block" %>
+    <%= form.collection_select :teacher_id, 
+        lecture.subject ? lecture.subject.teachers : [], 
+        :id, ->(teacher) { "#{teacher.firstname} #{teacher.lastname}" }, 
+        { prompt: "Select a teacher" },
+        { id: "teacher_select" } %>
+  </div>
+
+  <div>
+    <%= form.label :school_class_id, "Class", style: "display: block" %>
+    <%= form.collection_select :school_class_id,
+        SchoolClass.all,
+        :id, :name,
+        { prompt: "Select a class" },
+        { onchange: "updateTrimesters(this.value)" } %>
+  </div>
+
+  <div>
+    <%= form.label :trimester_ids, "Trimesters", style: "display: block" %>
+    <div class="select-wrapper">
+      <%= form.collection_select :trimester_ids, 
+          lecture.school_class&.year ? [
+            lecture.school_class.year.first_trimester,
+            lecture.school_class.year.second_trimester,
+            lecture.school_class.year.third_trimester,
+            lecture.school_class.year.fourth_trimester
+          ].sort_by(&:start_date) : [],
+          :id, 
+          ->(trimester) { "#{trimester.start_date.strftime('%B %d, %Y')} - #{trimester.end_date.strftime('%B %d, %Y')}" },
+          { prompt: "Select trimesters" }, 
+          { multiple: true, size: 5, id: "trimester_select" } %>
+    </div>
+  </div>
+
+  <div>
+    <%= form.submit class: "button" %>
+  </div>
+<% end %>
+
+<script>
+function updateTeachers(subjectId) {
+  if (!subjectId) {
+    const teacherSelect = document.getElementById('teacher_select');
+    teacherSelect.innerHTML = '<option value="">Select a teacher</option>';
+    return;
+  }
+
+  fetch(`/subjects/${subjectId}/teachers`)
+    .then(response => response.json())
+    .then(teachers => {
+      const teacherSelect = document.getElementById('teacher_select');
+      teacherSelect.innerHTML = '<option value="">Select a teacher</option>';
+      
+      teachers.forEach(teacher => {
+        const option = document.createElement('option');
+        option.value = teacher.id;
+        option.textContent = `${teacher.firstname} ${teacher.lastname}`;
+        teacherSelect.appendChild(option);
+      });
+    });
+}
+
+function updateTrimesters(classId) {
+  if (!classId) {
+    const trimesterSelect = document.getElementById('trimester_select');
+    trimesterSelect.innerHTML = '<option value="">Select trimesters</option>';
+    return;
+  }
+
+  fetch(`/school_classes/${classId}/year_trimesters`)
+    .then(response => response.json())
+    .then(trimesters => {
+      const trimesterSelect = document.getElementById('trimester_select');
+      trimesterSelect.innerHTML = '';
+      
+      trimesters.forEach(trimester => {
+        const option = document.createElement('option');
+        option.value = trimester.id;
+        option.textContent = `${new Date(trimester.start_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} - ${new Date(trimester.end_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
+        trimesterSelect.appendChild(option);
+      });
+    });
+}
+</script>

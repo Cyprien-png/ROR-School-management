@@ -1,7 +1,13 @@
-# Clean up existing data
-SchoolClass.all.each { |school_class| school_class.students.clear }
+# Clean up existing data in the correct order
+ActiveRecord::Base.connection.execute("DELETE FROM school_classes_students")
+ActiveRecord::Base.connection.execute("DELETE FROM subjects_teachers")
+ActiveRecord::Base.connection.execute("DELETE FROM lectures_trimesters")
 SchoolClass.delete_all
-Person.delete_all
+Subject.delete_all
+Lecture.delete_all
+Person.with_deleted.delete_all  # Use with_deleted to ensure we clean up soft-deleted records too
+Year.delete_all
+Trimester.delete_all
 
 # Create a Dean
 dean = Dean.create!(
@@ -13,7 +19,31 @@ dean = Dean.create!(
   password_confirmation: "password"
 )
 
-# Create Teachers
+# Create Academic Years
+year_2024_2025 = Year.create!(
+  first_trimester: Trimester.create!(start_date: Date.new(2024,8,1), end_date: Date.new(2024,10,31)),
+  second_trimester: Trimester.create!(start_date: Date.new(2024,11,1), end_date: Date.new(2025,1,31)),
+  third_trimester: Trimester.create!(start_date: Date.new(2025,2,1), end_date: Date.new(2025,4,30)),
+  fourth_trimester: Trimester.create!(start_date: Date.new(2025,5,1), end_date: Date.new(2025,7,31))
+)
+
+year_2025_2026 = Year.create!(
+  first_trimester: Trimester.create!(start_date: Date.new(2025,8,1), end_date: Date.new(2025,10,31)),
+  second_trimester: Trimester.create!(start_date: Date.new(2025,11,1), end_date: Date.new(2026,1,31)),
+  third_trimester: Trimester.create!(start_date: Date.new(2026,2,1), end_date: Date.new(2026,4,30)),
+  fourth_trimester: Trimester.create!(start_date: Date.new(2026,5,1), end_date: Date.new(2026,7,31))
+)
+
+# Create Subjects
+subjects = [
+  Subject.create!(name: "Mathematics"),
+  Subject.create!(name: "Physics"),
+  Subject.create!(name: "Chemistry"),
+  Subject.create!(name: "Biology"),
+  Subject.create!(name: "Computer Science")
+]
+
+# Create Teachers with subjects
 teacher1 = Teacher.create!(
   lastname: "Smith",
   firstname: "John",
@@ -23,6 +53,7 @@ teacher1 = Teacher.create!(
   password: "password",
   password_confirmation: "password"
 )
+teacher1.subjects << subjects[0..1] # Mathematics and Physics
 
 teacher2 = Teacher.create!(
   lastname: "Brown",
@@ -33,6 +64,7 @@ teacher2 = Teacher.create!(
   password: "password",
   password_confirmation: "password"
 )
+teacher2.subjects << subjects[2..3] # Chemistry and Biology
 
 # Create 10 Students
 students = 10.times.map do |i|
@@ -47,18 +79,18 @@ students = 10.times.map do |i|
   )
 end
 
-# Create 2 School Classes
+# Create School Classes
 class1 = SchoolClass.create!(
-  name: "Mathematics 101",
+  name: "Class A",
   grade: 1,
-  year: 2025,
+  year: year_2024_2025,
   teacher: teacher1
 )
 
 class2 = SchoolClass.create!(
-  name: "Physics 101",
+  name: "Class B",
   grade: 1,
-  year: 2025,
+  year: year_2025_2026,
   teacher: teacher2
 )
 
@@ -66,9 +98,43 @@ class2 = SchoolClass.create!(
 class1.students << students[0..4]  # First 5 students
 class2.students << students[5..9]  # Last 5 students
 
+# Create lectures with mixed class assignments
+[
+  # Class A follows both Math (from their teacher) and Chemistry (from another teacher)
+  { class: class1, lectures: [
+    { teacher: teacher1, subjects: subjects[0..0] },  # Math from teacher1
+    { teacher: teacher2, subjects: subjects[2..2] }   # Chemistry from teacher2
+  ]},
+  # Class B follows both Biology (from their teacher) and Physics (from another teacher)
+  { class: class2, lectures: [
+    { teacher: teacher2, subjects: subjects[3..3] },  # Biology from teacher2
+    { teacher: teacher1, subjects: subjects[1..1] }   # Physics from teacher1
+  ]}
+].each do |config|
+  config[:lectures].each do |lecture_config|
+    lecture_config[:subjects].each do |subject|
+      # Create 2 lectures per subject
+      2.times do |i|
+        Lecture.create!(
+          start_time: "#{9 + i}:00",
+          end_time: "#{10 + i}:30",
+          week_day: i.even? ? :monday : :wednesday,
+          subject: subject,
+          teacher: lecture_config[:teacher],
+          school_class: config[:class],
+          trimesters: [year_2024_2025.first_trimester]
+        )
+      end
+    end
+  end
+end
+
 puts "Seed data created successfully!"
 puts "Created:"
 puts "- 1 Dean"
 puts "- 2 Teachers"
+puts "- 5 Subjects"
 puts "- 10 Students"
+puts "- 2 Academic Years (2024-2025 and 2025-2026)"
 puts "- 2 Classes with 5 students each"
+puts "- #{Lecture.count} Lectures"

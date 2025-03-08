@@ -1,0 +1,19 @@
+<div id="<%= dom_id subject %>">
+  <p>
+    <strong>Name:</strong>
+    <%= subject.name %>
+  </p>
+
+  <div class="teachers-list">
+    <strong>Teachers:</strong>
+    <% if subject.teachers.any? %>
+      <ul>
+        <% subject.teachers.each do |teacher| %>
+          <li><%= "#{teacher.firstname} #{teacher.lastname}" %></li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p>No teachers assigned yet.</p>
+    <% end %>
+  </div>
+</div>

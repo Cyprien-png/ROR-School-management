@@ -1,0 +1,77 @@
+<%= form_with(model: year) do |form| %>
+  <% if year.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(year.errors.count, "error") %> prohibited this year from being saved:</h2>
+
+      <ul>
+        <% year.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="trimester-fields">
+    <h3>First Trimester</h3>
+    <%= form.fields_for :first_trimester do |trimester_form| %>
+      <div>
+        <%= trimester_form.label :start_date, style: "display: block" %>
+        <%= trimester_form.date_field :start_date %>
+      </div>
+
+      <div>
+        <%= trimester_form.label :end_date, style: "display: block" %>
+        <%= trimester_form.date_field :end_date %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="trimester-fields">
+    <h3>Second Trimester</h3>
+    <%= form.fields_for :second_trimester do |trimester_form| %>
+      <div>
+        <%= trimester_form.label :start_date, style: "display: block" %>
+        <%= trimester_form.date_field :start_date %>
+      </div>
+
+      <div>
+        <%= trimester_form.label :end_date, style: "display: block" %>
+        <%= trimester_form.date_field :end_date %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="trimester-fields">
+    <h3>Third Trimester</h3>
+    <%= form.fields_for :third_trimester do |trimester_form| %>
+      <div>
+        <%= trimester_form.label :start_date, style: "display: block" %>
+        <%= trimester_form.date_field :start_date %>
+      </div>
+
+      <div>
+        <%= trimester_form.label :end_date, style: "display: block" %>
+        <%= trimester_form.date_field :end_date %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="trimester-fields">
+    <h3>Fourth Trimester</h3>
+    <%= form.fields_for :fourth_trimester do |trimester_form| %>
+      <div>
+        <%= trimester_form.label :start_date, style: "display: block" %>
+        <%= trimester_form.date_field :start_date %>
+      </div>
+
+      <div>
+        <%= trimester_form.label :end_date, style: "display: block" %>
+        <%= trimester_form.date_field :end_date %>
+      </div>
+    <% end %>
+  </div>
+
+  <div>
+    <%= form.submit class: "button" %>
+  </div>
+<% end %>

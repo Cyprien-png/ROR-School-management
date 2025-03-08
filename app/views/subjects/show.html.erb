@@ -1,0 +1,10 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render @subject %>
+
+<div class="actions mt-4">
+  <% if current_person.is_a?(Dean) %>
+    <%= link_to "Edit", edit_subject_path(@subject), class: "button" %>
+  <% end %>
+  <%= link_to "Back to subjects", subjects_path, class: "button" %>
+</div>

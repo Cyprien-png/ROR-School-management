@@ -1,57 +1,57 @@
 require "test_helper"
 
 class PeopleControllerTest < ActionDispatch::IntegrationTest
-  include Devise::Test::IntegrationHelpers
+  def setup
+    super
+    @timestamp = Time.current.to_f
+  end
 
-  setup do
-    # Create a dean for testing
-    @dean = Dean.create!(
+  def create_dean
+    Dean.create!(
       lastname: "Admin",
       firstname: "Test",
-      email: "admin@test.com",
+      email: "admin-#{@timestamp}-#{SecureRandom.hex(4)}@test.com",
       phone_number: "1234567890",
       password: "password",
       password_confirmation: "password"
     )
+  end
 
-    # Create a test person for show action
-    @person = Teacher.create!(
+  def create_teacher
+    Teacher.create!(
       lastname: "Doe",
       firstname: "John",
-      email: "john.doe@test.com",
+      email: "teacher-#{@timestamp}-#{SecureRandom.hex(4)}@test.com",
       phone_number: "0987654321",
       iban: "GB29NWBK60161331926819",
       password: "password",
       password_confirmation: "password"
     )
-
-    # Sign in before each test
-    sign_in_as(@dean)
-  end
-
-  teardown do
-    Person.delete_all
   end
 
   test "should get index" do
+    dean = create_dean
+    sign_in dean
     get people_url
     assert_response :success
   end
 
   test "should show person" do
-    get person_url(@person)
+    dean = create_dean
+    teacher = create_teacher
+    sign_in dean
+    get person_url(teacher)
     assert_response :success
   end
 
   test "should redirect index when not signed in" do
-    sign_out :person
     get people_url
     assert_redirected_to new_person_session_path
   end
 
   test "should redirect show when not signed in" do
-    sign_out :person
-    get person_url(@person)
+    teacher = create_teacher
+    get person_url(teacher)
     assert_redirected_to new_person_session_path
   end
 end
