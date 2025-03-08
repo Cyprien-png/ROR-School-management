@@ -8,6 +8,8 @@
   <h2>Your Grades</h2>
 <% elsif current_person.is_a?(Teacher) %>
   <h2>Grades for Your Subjects</h2>
+<% elsif current_person.is_a?(Dean) %>
+  <h2>All Grades</h2>
 <% end %>
 
 <div id="grades">
@@ -38,7 +40,7 @@
           <td><%= number_with_precision(grade.value, precision: 2) %></td>
           <td>
             <%= link_to "View", grade %>
-            <% if current_person.is_a?(Teacher) && can_grade?(grade.examination) %>
+            <% if can_grade?(grade.examination) %>
               |
               <%= link_to "Edit", edit_grade_path(grade) %>
               |
@@ -51,7 +53,7 @@
   </table>
 </div>
 
-<% if current_person.is_a?(Teacher) %>
+<% if can_manage_grades? %>
   <div class="actions">
     <%= link_to "New grade", new_grade_path, class: "button" %>
   </div>

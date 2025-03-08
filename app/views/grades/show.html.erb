@@ -4,7 +4,7 @@
   <%= render @grade %>
 
   <div class="actions">
-    <% if current_person.is_a?(Teacher) && can_grade?(@grade.examination) %>
+    <% if can_grade?(@grade.examination) %>
       <%= link_to "Edit this grade", edit_grade_path(@grade), class: "button" %>
       <%= button_to "Delete this grade", @grade, method: :delete, class: "button delete" %>
     <% end %>
