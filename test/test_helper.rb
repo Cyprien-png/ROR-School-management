@@ -105,23 +105,26 @@ class ActiveSupport::TestCase
   # Helper method for creating a lecture
   def create_lecture(subject = nil)
     subject ||= create_subject
-    trimester = create_trimester
     teacher = create_teacher
     teacher.subjects << subject unless teacher.subjects.include?(subject)
     
-    # Create a school class for the lecture
+    # Create a year with trimesters first
+    year = Year.create!(
+      first_trimester: create_trimester(Date.new(2024,8,1), Date.new(2024,10,31)),
+      second_trimester: create_trimester(Date.new(2024,11,1), Date.new(2025,1,31)),
+      third_trimester: create_trimester(Date.new(2025,2,1), Date.new(2025,4,30)),
+      fourth_trimester: create_trimester(Date.new(2025,5,1), Date.new(2025,7,31))
+    )
+    
+    # Create a school class with the year
     school_class = SchoolClass.create!(
       name: "Test Class #{@timestamp}-#{SecureRandom.hex(4)}",
       grade: 1,
-      year: Year.create!(
-        first_trimester: create_trimester,
-        second_trimester: create_trimester(Date.new(2024,11,1), Date.new(2025,1,31)),
-        third_trimester: create_trimester(Date.new(2025,2,1), Date.new(2025,4,30)),
-        fourth_trimester: create_trimester(Date.new(2025,5,1), Date.new(2025,7,31))
-      ),
+      year: year,
       teacher: teacher
     )
     
+    # Create lecture using a trimester from the school class's year
     Lecture.create!(
       start_time: "09:00",
       end_time: "10:30",
@@ -129,7 +132,7 @@ class ActiveSupport::TestCase
       subject: subject,
       teacher: teacher,
       school_class: school_class,
-      trimesters: [trimester]
+      trimesters: [year.first_trimester]  # Use the year's first trimester
     )
   end
 end
