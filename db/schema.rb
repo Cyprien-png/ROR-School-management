@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_08_130811) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_08_133704) do
   create_table "examinations", force: :cascade do |t|
     t.string "title"
     t.date "date"
@@ -27,6 +27,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_08_130811) do
     t.integer "student_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "isDeleted", default: false
     t.index ["examination_id"], name: "index_grades_on_examination_id"
     t.index ["student_id"], name: "index_grades_on_student_id"
   end

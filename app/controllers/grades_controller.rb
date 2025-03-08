@@ -94,10 +94,10 @@ class GradesController < ApplicationController
   # DELETE /grades/1 or /grades/1.json
   def destroy
     @grade.current_teacher = current_person
-    @grade.destroy!
+    @grade.soft_delete
 
     respond_to do |format|
-      format.html { redirect_to grades_url, notice: "Grade was successfully destroyed." }
+      format.html { redirect_to grades_url, notice: "Grade was successfully archived." }
       format.json { head :no_content }
     end
   end

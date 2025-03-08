@@ -15,6 +15,16 @@ class Grade < ApplicationRecord
   validate :student_must_be_in_lecture_class
   validate :teacher_must_teach_subject
   
+  # Add default scope to exclude soft deleted records
+  default_scope { where(isDeleted: false) }
+  # Add scope to include soft deleted records when needed
+  scope :with_deleted, -> { unscope(where: :isDeleted) }
+
+  # Soft delete method
+  def soft_delete
+    update_column(:isDeleted, true)
+  end
+  
   private
   
   def examination_not_deleted
