@@ -1,5 +1,9 @@
 Rails.application.routes.draw do
+  resources :grades
   resources :examinations do
+    member do
+      get 'students'
+    end
     collection do
       get 'available_dates/:lecture_id' => 'examinations#available_dates', as: :available_dates
     end

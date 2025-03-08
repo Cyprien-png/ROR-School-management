@@ -1,5 +1,6 @@
 class Examination < ApplicationRecord
   belongs_to :lecture, optional: true
+  has_many :grades, dependent: :destroy
   
   validates :title, presence: true
   validates :date, presence: true

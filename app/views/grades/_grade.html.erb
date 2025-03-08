@@ -1,0 +1,31 @@
+<div id="<%= dom_id grade %>">
+  <p>
+    <strong>Student:</strong>
+    <%= "#{grade.student.lastname} #{grade.student.firstname}" %>
+  </p>
+
+  <p>
+    <strong>Examination:</strong>
+    <%= grade.examination.title %>
+  </p>
+
+  <p>
+    <strong>Subject:</strong>
+    <%= grade.examination.lecture.subject.name %>
+  </p>
+
+  <p>
+    <strong>Class:</strong>
+    <%= grade.examination.lecture.school_class.name %>
+  </p>
+
+  <p>
+    <strong>Value:</strong>
+    <%= number_with_precision(grade.value, precision: 2) %>
+  </p>
+
+  <p>
+    <strong>Date:</strong>
+    <%= grade.examination.date.strftime("%B %d, %Y") %>
+  </p>
+</div>

@@ -3,7 +3,13 @@ class ExaminationsController < ApplicationController
   
   before_action :authenticate_person!
   before_action :authorize_dean_or_teacher, except: [:index, :show]
-  before_action :set_examination, only: %i[ show edit update destroy ]
+  before_action :set_examination, only: %i[ show edit update destroy students ]
+
+  # GET /examinations/1/students
+  def students
+    @students = @examination.lecture.school_class.students.order(:lastname, :firstname)
+    render json: @students.select(:id, :lastname, :firstname)
+  end
 
   # GET /examinations/available_dates/:lecture_id
   def available_dates
