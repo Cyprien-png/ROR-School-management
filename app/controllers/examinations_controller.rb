@@ -1,5 +1,31 @@
 class ExaminationsController < ApplicationController
+  include Authorization
+  
+  before_action :authenticate_person!
   before_action :set_examination, only: %i[ show edit update destroy ]
+
+  # GET /examinations/available_dates/:lecture_id
+  def available_dates
+    lecture = Lecture.includes(:trimesters).find(params[:lecture_id])
+    
+    # Get all dates within the trimesters that match the lecture's weekday
+    available_dates = []
+    lecture_wday = Date::DAYNAMES.map(&:downcase).index(lecture.week_day)
+    
+    lecture.trimesters.each do |trimester|
+      current_date = trimester.start_date
+      
+      while current_date <= trimester.end_date
+        # If the current date is the same weekday as the lecture
+        if current_date.wday == lecture_wday
+          available_dates << current_date
+        end
+        current_date += 1.day
+      end
+    end
+    
+    render json: available_dates
+  end
 
   # GET /examinations or /examinations.json
   def index

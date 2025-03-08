@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
-  resources :examinations
+  resources :examinations do
+    get 'available_dates/:lecture_id', action: :available_dates, on: :collection
+  end
   resources :years
   resources :lectures
   resources :subjects do
