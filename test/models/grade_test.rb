@@ -61,7 +61,7 @@ class GradeTest < ActiveSupport::TestCase
 
   test "should not create duplicate grade for same student and examination" do
     # First create a grade
-    Grade.create!(
+    first_grade = Grade.create!(
       value: 5.00,
       examination: @examination,
       student: @student,
@@ -77,11 +77,24 @@ class GradeTest < ActiveSupport::TestCase
     )
     
     assert_not duplicate_grade.valid?
-    assert_includes duplicate_grade.errors[:student], "already has a grade for this examination"
+    assert_includes duplicate_grade.errors.full_messages, "Student already has a grade for this examination"
   end
 
   test "should not create grade for student not in class" do
-    other_student = create_student
+    # Create a new student that is not in the class
+    other_student = Student.create!(
+      lastname: "Other",
+      firstname: "Student",
+      email: "other.student-#{Time.current.to_f}-#{SecureRandom.hex(4)}@test.com",
+      phone_number: "9999999999",
+      status: :in_formation,
+      password: "password",
+      password_confirmation: "password"
+    )
+    
+    # Verify the student is not in the class
+    assert_not @school_class.students.include?(other_student)
+    
     grade = Grade.new(
       value: 5.00,
       examination: @examination,
@@ -94,7 +107,20 @@ class GradeTest < ActiveSupport::TestCase
   end
 
   test "should not create grade if teacher doesn't teach subject" do
-    other_teacher = create_teacher
+    # Create a new teacher that doesn't teach the subject
+    other_teacher = Teacher.create!(
+      lastname: "Other",
+      firstname: "Teacher",
+      email: "other.teacher-#{Time.current.to_f}-#{SecureRandom.hex(4)}@test.com",
+      phone_number: "8888888888",
+      iban: "GB29NWBK60161331926819",
+      password: "password",
+      password_confirmation: "password"
+    )
+    
+    # Verify the teacher doesn't teach the subject
+    assert_not other_teacher.subjects.include?(@subject)
+    
     grade = Grade.new(
       value: 5.00,
       examination: @examination,

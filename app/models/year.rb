@@ -10,12 +10,13 @@ class Year < ApplicationRecord
 
   # Add default scope to exclude soft deleted records
   default_scope { where(isDeleted: false) }
+  
   # Add scope to include soft deleted records when needed
-  scope :with_deleted, -> { unscope(where: :isDeleted) }
+  scope :with_deleted, -> { unscoped }
 
   # Soft delete method
   def soft_delete
-    update_column(:isDeleted, true)
+    update!(isDeleted: true)
   end
 
   private

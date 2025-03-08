@@ -10,14 +10,17 @@ class ActiveSupport::TestCase
   def setup
     # Clean up database in correct order to avoid foreign key constraints
     ActiveRecord::Base.connection.disable_referential_integrity do
-      SchoolClassesStudent.delete_all
+      ActiveRecord::Base.connection.execute("DELETE FROM school_classes_students")
       ActiveRecord::Base.connection.execute("DELETE FROM subjects_teachers")
       ActiveRecord::Base.connection.execute("DELETE FROM lectures_trimesters")
-      SchoolClass.delete_all
-      Subject.delete_all
+      Grade.unscoped.delete_all
+      Examination.unscoped.delete_all
+      Lecture.unscoped.delete_all
+      SchoolClass.unscoped.delete_all
+      Subject.unscoped.delete_all
       Person.unscoped.delete_all
-      Lecture.delete_all
-      Trimester.delete_all
+      Year.unscoped.delete_all
+      Trimester.unscoped.delete_all
     end
     
     # Initialize timestamp for unique emails
@@ -27,14 +30,17 @@ class ActiveSupport::TestCase
   def teardown
     # Clean up database in correct order to avoid foreign key constraints
     ActiveRecord::Base.connection.disable_referential_integrity do
-      SchoolClassesStudent.delete_all
+      ActiveRecord::Base.connection.execute("DELETE FROM school_classes_students")
       ActiveRecord::Base.connection.execute("DELETE FROM subjects_teachers")
       ActiveRecord::Base.connection.execute("DELETE FROM lectures_trimesters")
-      SchoolClass.delete_all
-      Subject.delete_all
+      Grade.unscoped.delete_all
+      Examination.unscoped.delete_all
+      Lecture.unscoped.delete_all
+      SchoolClass.unscoped.delete_all
+      Subject.unscoped.delete_all
       Person.unscoped.delete_all
-      Lecture.delete_all
-      Trimester.delete_all
+      Year.unscoped.delete_all
+      Trimester.unscoped.delete_all
     end
   end
   
@@ -74,17 +80,6 @@ class ActiveSupport::TestCase
     )
   end
   
-  # Helper method for creating a school class
-  def create_school_class(teacher = nil)
-    teacher ||= create_teacher
-    SchoolClass.create!(
-      name: "Test Class",
-      grade: 1,
-      year: 2025,
-      teacher: teacher
-    )
-  end
-  
   # Helper method for creating a subject
   def create_subject
     @subject ||= Subject.create!(
@@ -102,29 +97,36 @@ class ActiveSupport::TestCase
     )
   end
   
-  # Helper method for creating a lecture
-  def create_lecture(subject = nil)
-    subject ||= create_subject
-    teacher = create_teacher
-    teacher.subjects << subject unless teacher.subjects.include?(subject)
-    
-    # Create a year with trimesters first
-    year = Year.create!(
+  # Helper method for creating a year
+  def create_year
+    @year ||= Year.create!(
       first_trimester: create_trimester(Date.new(2024,8,1), Date.new(2024,10,31)),
       second_trimester: create_trimester(Date.new(2024,11,1), Date.new(2025,1,31)),
       third_trimester: create_trimester(Date.new(2025,2,1), Date.new(2025,4,30)),
       fourth_trimester: create_trimester(Date.new(2025,5,1), Date.new(2025,7,31))
     )
+  end
+  
+  # Helper method for creating a school class
+  def create_school_class(teacher = nil, year = nil)
+    teacher ||= create_teacher
+    year ||= create_year
     
-    # Create a school class with the year
-    school_class = SchoolClass.create!(
+    SchoolClass.create!(
       name: "Test Class #{@timestamp}-#{SecureRandom.hex(4)}",
       grade: 1,
       year: year,
       teacher: teacher
     )
+  end
+  
+  # Helper method for creating a lecture
+  def create_lecture(subject = nil, teacher = nil, school_class = nil)
+    subject ||= create_subject
+    teacher ||= create_teacher
+    teacher.subjects << subject unless teacher.subjects.include?(subject)
+    school_class ||= create_school_class(teacher)
     
-    # Create lecture using a trimester from the school class's year
     Lecture.create!(
       start_time: "09:00",
       end_time: "10:30",
@@ -132,7 +134,23 @@ class ActiveSupport::TestCase
       subject: subject,
       teacher: teacher,
       school_class: school_class,
-      trimesters: [year.first_trimester]  # Use the year's first trimester
+      trimesters: [school_class.year.first_trimester]
+    )
+  end
+  
+  # Helper method for creating an examination
+  def create_examination(lecture = nil)
+    lecture ||= create_lecture
+    
+    # Find the first Monday in the trimester
+    trimester = lecture.trimesters.first
+    date = trimester.start_date
+    date += 1.day until date.monday?
+    
+    Examination.create!(
+      title: "Test Examination #{@timestamp}-#{SecureRandom.hex(4)}",
+      date: date,
+      lecture: lecture
     )
   end
 end

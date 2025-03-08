@@ -4,17 +4,20 @@ class YearsControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
   setup do
+    # Clean up any existing data
+    Year.unscoped.delete_all
+    Trimester.unscoped.delete_all
+    
+    # Create test users
     @dean = create_dean
     @teacher = create_teacher
     @student = create_student
-    
-    # Create a year with trimesters
-    @year = Year.create!(
-      first_trimester: Trimester.create!(start_date: Date.new(2024,8,1), end_date: Date.new(2024,10,31)),
-      second_trimester: Trimester.create!(start_date: Date.new(2024,11,1), end_date: Date.new(2025,1,31)),
-      third_trimester: Trimester.create!(start_date: Date.new(2025,2,1), end_date: Date.new(2025,4,30)),
-      fourth_trimester: Trimester.create!(start_date: Date.new(2025,5,1), end_date: Date.new(2025,7,31))
-    )
+  end
+
+  teardown do
+    # Clean up test data
+    Year.unscoped.delete_all
+    Trimester.unscoped.delete_all
   end
 
   test "should get index when not logged in" do
@@ -89,52 +92,77 @@ class YearsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should show year when logged in" do
+    # GIVEN a year in the database
+    year = create_year
+    
+    # WHEN accessing the year as a student
     sign_in @student
-    get year_url(@year)
+    get year_url(year)
+    
+    # THEN the response should be successful
     assert_response :success
   end
 
   test "should not get edit if not dean" do
+    # GIVEN a year in the database
+    year = create_year
+    
+    # WHEN accessing edit as a teacher
     sign_in @teacher
-    get edit_year_url(@year)
+    get edit_year_url(year)
+    
+    # THEN access should be denied
     assert_redirected_to root_path
     assert_equal "Only deans are allowed to perform this action.", flash[:alert]
 
+    # WHEN accessing edit as a student
     sign_in @student
-    get edit_year_url(@year)
+    get edit_year_url(year)
+    
+    # THEN access should be denied
     assert_redirected_to root_path
     assert_equal "Only deans are allowed to perform this action.", flash[:alert]
   end
 
   test "should get edit if dean" do
+    # GIVEN a year in the database
+    year = create_year
+    
+    # WHEN accessing edit as a dean
     sign_in @dean
-    get edit_year_url(@year)
+    get edit_year_url(year)
+    
+    # THEN access should be granted
     assert_response :success
   end
 
   test "should not update year if not dean" do
+    # GIVEN a year in the database
+    year = create_year
+    
+    # WHEN trying to update as a teacher
     sign_in @teacher
-    patch year_url(@year), params: { 
+    patch year_url(year), params: { 
       year: {
-        first_trimester_attributes: { start_date: Date.new(2024,8,1), end_date: Date.new(2024,10,31) }
+        first_trimester_attributes: { 
+          id: year.first_trimester.id,
+          start_date: Date.new(2024,8,1), 
+          end_date: Date.new(2024,10,31) 
+        }
       }
     }
+    
+    # THEN access should be denied
     assert_redirected_to root_path
     assert_equal "Only deans are allowed to perform this action.", flash[:alert]
   end
 
   test "should update year if dean" do
+    # GIVEN a year in the database
+    year = create_year
+    
+    # WHEN updating as a dean
     sign_in @dean
-    
-    # Create a fresh year specifically for this test
-    year = Year.create!(
-      first_trimester: Trimester.create!(start_date: Date.new(2024,8,1), end_date: Date.new(2024,10,31)),
-      second_trimester: Trimester.create!(start_date: Date.new(2024,11,1), end_date: Date.new(2025,1,31)),
-      third_trimester: Trimester.create!(start_date: Date.new(2025,2,1), end_date: Date.new(2025,4,30)),
-      fourth_trimester: Trimester.create!(start_date: Date.new(2025,5,1), end_date: Date.new(2025,7,31))
-    )
-    
-    # Update with new dates
     patch year_url(year), params: { 
       year: {
         first_trimester_attributes: { 
@@ -160,9 +188,10 @@ class YearsControllerTest < ActionDispatch::IntegrationTest
       }
     }
     
+    # THEN the update should succeed
     assert_redirected_to year_url(year)
     
-    # Verify the changes were saved
+    # And the changes should be saved
     year.reload
     assert_equal Date.new(2024,9,1), year.first_trimester.start_date
     assert_equal Date.new(2024,11,30), year.first_trimester.end_date
@@ -175,21 +204,39 @@ class YearsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should not destroy year if not dean" do
+    # GIVEN a year in the database
+    year = create_year
+    
+    # WHEN trying to delete as a teacher
     sign_in @teacher
     assert_no_difference("Year.count") do
-      delete year_url(@year)
+      delete year_url(year)
     end
+    
+    # THEN access should be denied
     assert_redirected_to root_path
     assert_equal "Only deans are allowed to perform this action.", flash[:alert]
   end
 
   test "should soft delete year if dean" do
+    # GIVEN a year in the database
+    year = create_year
+    initial_count = Year.count
+    initial_total = Year.unscoped.count
+    
+    # WHEN deleting as a dean
     sign_in @dean
-    assert_no_difference("Year.with_deleted.count") do
-      delete year_url(@year)
-    end
-    assert_not Year.exists?(@year.id)
-    assert Year.with_deleted.exists?(@year.id)
+    delete year_url(year)
+    
+    # THEN the year should be soft deleted
     assert_redirected_to years_url
+    assert_equal initial_count - 1, Year.count, "Year should be removed from default scope"
+    assert_equal initial_total, Year.unscoped.count, "Total number of years should not change"
+    assert_not Year.exists?(year.id), "Year should not be found in default scope"
+    assert Year.unscoped.exists?(year.id), "Year should still exist in database"
+    
+    # And it should be marked as deleted
+    year.reload
+    assert year.isDeleted, "Year should be marked as deleted"
   end
 end 
