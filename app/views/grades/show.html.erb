@@ -1,10 +1,13 @@
-<p style="color: green"><%= notice %></p>
+<div class="grade-details">
+  <h1>Grade Details</h1>
 
-<%= render @grade %>
+  <%= render @grade %>
 
-<div>
-  <%= link_to "Edit this grade", edit_grade_path(@grade) %> |
-  <%= link_to "Back to grades", grades_path %>
-
-  <%= button_to "Destroy this grade", @grade, method: :delete %>
+  <div class="actions">
+    <% if current_person.is_a?(Teacher) && can_grade?(@grade.examination) %>
+      <%= link_to "Edit this grade", edit_grade_path(@grade), class: "button" %>
+      <%= button_to "Delete this grade", @grade, method: :delete, class: "button delete" %>
+    <% end %>
+    <%= link_to "Back to grades", grades_path, class: "button" %>
+  </div>
 </div>

@@ -2,13 +2,24 @@ class GradesController < ApplicationController
   include Authorization
   
   before_action :authenticate_person!
-  before_action :authorize_teacher, except: [:index, :show]
+  before_action :authorize_teacher, only: [:new, :create, :edit, :update, :destroy]
   before_action :set_grade, only: %i[ show edit update destroy ]
   before_action :authorize_teacher_for_grade, only: [:edit, :update, :destroy]
+  before_action :authorize_access_to_grade, only: [:show]
 
   # GET /grades or /grades.json
   def index
-    @grades = Grade.includes(:student, examination: { lecture: [:subject, :school_class, :teacher] }).all
+    @grades = if current_person.is_a?(Student)
+      Grade.includes(:student, examination: { lecture: [:subject, :school_class, :teacher] })
+          .where(student: current_person)
+    elsif current_person.is_a?(Teacher)
+      Grade.includes(:student, examination: { lecture: [:subject, :school_class, :teacher] })
+          .joins(examination: { lecture: :subject })
+          .joins("INNER JOIN subjects_teachers ON subjects_teachers.subject_id = subjects.id")
+          .where(subjects_teachers: { teacher_id: current_person.id })
+    else
+      Grade.includes(:student, examination: { lecture: [:subject, :school_class, :teacher] }).all
+    end
   end
 
   # GET /grades/1 or /grades/1.json
@@ -128,5 +139,18 @@ class GradesController < ApplicationController
     def teacher_can_grade?(examination)
       return false unless current_person.is_a?(Teacher) && examination&.lecture&.subject
       current_person.subjects.include?(examination.lecture.subject)
+    end
+
+    def authorize_access_to_grade
+      unless can_access_grade?(@grade)
+        redirect_to grades_url, alert: "You are not authorized to view this grade."
+      end
+    end
+
+    def can_access_grade?(grade)
+      return true if current_person.is_a?(Dean)
+      return grade.student_id == current_person.id if current_person.is_a?(Student)
+      return teacher_can_grade?(grade.examination) if current_person.is_a?(Teacher)
+      false
     end
 end
