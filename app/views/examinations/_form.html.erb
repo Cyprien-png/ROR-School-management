@@ -17,23 +17,88 @@
   </div>
 
   <div>
-    <%= form.label :date, style: "display: block" %>
-    <%= form.date_field :date %>
-  </div>
-
-  <div>
     <%= form.label :lecture_id, "Associated Lecture", style: "display: block" %>
     <%= form.collection_select :lecture_id, 
-        Lecture.includes(:subject, :school_class).order('subjects.name, school_classes.name'), 
+        Lecture.includes(:subject, :school_class, :trimesters).order('subjects.name, school_classes.name'), 
         :id, 
         ->(lecture) { 
           "#{lecture.subject.name} - #{lecture.school_class.name} (#{lecture.week_day.capitalize} #{lecture.start_time.strftime("%H:%M")})" 
         },
         { prompt: "Select a lecture" },
-        { class: "select-input" } %>
+        { class: "select-input", onchange: "updateAvailableDates(this.value)" } %>
+  </div>
+
+  <div>
+    <%= form.label :date, style: "display: block" %>
+    <div id="date-wrapper">
+      <%= form.select :date,
+          [],
+          { prompt: "Select a date" },
+          { class: "date-select", disabled: true } %>
+      <div id="no-dates-message" style="display: none; color: #666; margin-top: 0.5em; font-style: italic;">
+        No available dates for this lecture
+      </div>
+    </div>
   </div>
 
   <div>
     <%= form.submit class: "button" %>
   </div>
 <% end %>
+
+<script>
+function formatDate(dateString) {
+  return new Date(dateString).toLocaleDateString('en-US', { 
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+}
+
+function updateAvailableDates(lectureId) {
+  const dateSelect = document.querySelector('.date-select');
+  const noDateMessage = document.getElementById('no-dates-message');
+  
+  // Reset the select
+  dateSelect.innerHTML = '<option value="">Select a date</option>';
+  dateSelect.disabled = true;
+  noDateMessage.style.display = 'none';
+
+  if (!lectureId) {
+    return;
+  }
+
+  fetch(`/examinations/available_dates/${lectureId}`)
+    .then(response => response.json())
+    .then(dates => {
+      if (dates.length === 0) {
+        noDateMessage.style.display = 'block';
+        return;
+      }
+
+      dates.forEach(date => {
+        const option = document.createElement('option');
+        option.value = date;
+        option.textContent = formatDate(date);
+        dateSelect.appendChild(option);
+      });
+      
+      dateSelect.disabled = false;
+
+      // If there's a previously selected date, try to select it
+      const currentDate = '<%= @examination.date&.to_s %>';
+      if (currentDate && dates.includes(currentDate)) {
+        dateSelect.value = currentDate;
+      }
+    });
+}
+
+// Call the function if a lecture is already selected
+document.addEventListener('DOMContentLoaded', function() {
+  const lectureSelect = document.querySelector('.select-input');
+  if (lectureSelect.value) {
+    updateAvailableDates(lectureSelect.value);
+  }
+});
+</script>
