@@ -3,7 +3,7 @@ class ExaminationsController < ApplicationController
 
   # GET /examinations or /examinations.json
   def index
-    @examinations = Examination.all
+    @examinations = Examination.includes(lecture: [:subject, :school_class, :teacher]).all
   end
 
   # GET /examinations/1 or /examinations/1.json
@@ -25,7 +25,7 @@ class ExaminationsController < ApplicationController
 
     respond_to do |format|
       if @examination.save
-        format.html { redirect_to @examination, notice: "Examination was successfully created." }
+        format.html { redirect_to examination_url(@examination), notice: "Examination was successfully created." }
         format.json { render :show, status: :created, location: @examination }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -38,7 +38,7 @@ class ExaminationsController < ApplicationController
   def update
     respond_to do |format|
       if @examination.update(examination_params)
-        format.html { redirect_to @examination, notice: "Examination was successfully updated." }
+        format.html { redirect_to examination_url(@examination), notice: "Examination was successfully updated." }
         format.json { render :show, status: :ok, location: @examination }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -52,7 +52,7 @@ class ExaminationsController < ApplicationController
     @examination.destroy!
 
     respond_to do |format|
-      format.html { redirect_to examinations_path, status: :see_other, notice: "Examination was successfully destroyed." }
+      format.html { redirect_to examinations_url, notice: "Examination was successfully destroyed." }
       format.json { head :no_content }
     end
   end
@@ -60,11 +60,11 @@ class ExaminationsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_examination
-      @examination = Examination.find(params.expect(:id))
+      @examination = Examination.includes(lecture: [:subject, :school_class, :teacher]).find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.
     def examination_params
-      params.expect(examination: [ :title, :date ])
+      params.require(:examination).permit(:title, :date, :lecture_id)
     end
 end

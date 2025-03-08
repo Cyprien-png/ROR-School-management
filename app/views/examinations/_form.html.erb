@@ -22,6 +22,18 @@
   </div>
 
   <div>
-    <%= form.submit %>
+    <%= form.label :lecture_id, "Associated Lecture", style: "display: block" %>
+    <%= form.collection_select :lecture_id, 
+        Lecture.includes(:subject, :school_class).order('subjects.name, school_classes.name'), 
+        :id, 
+        ->(lecture) { 
+          "#{lecture.subject.name} - #{lecture.school_class.name} (#{lecture.week_day.capitalize} #{lecture.start_time.strftime("%H:%M")})" 
+        },
+        { prompt: "Select a lecture" },
+        { class: "select-input" } %>
+  </div>
+
+  <div>
+    <%= form.submit class: "button" %>
   </div>
 <% end %>
