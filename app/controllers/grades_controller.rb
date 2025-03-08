@@ -8,7 +8,7 @@ class GradesController < ApplicationController
 
   # GET /grades or /grades.json
   def index
-    @grades = Grade.includes(examination: { lecture: [:subject, :school_class, :teacher] }).all
+    @grades = Grade.includes(:student, examination: { lecture: [:subject, :school_class, :teacher] }).all
   end
 
   # GET /grades/1 or /grades/1.json
@@ -105,7 +105,7 @@ class GradesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_grade
-      @grade = Grade.includes(examination: { lecture: [:subject, :school_class, :teacher] }).find(params[:id])
+      @grade = Grade.includes(:student, examination: { lecture: [:subject, :school_class, :teacher] }).find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.
@@ -126,7 +126,7 @@ class GradesController < ApplicationController
     end
 
     def teacher_can_grade?(examination)
-      return false unless current_person.is_a?(Teacher)
+      return false unless current_person.is_a?(Teacher) && examination&.lecture&.subject
       current_person.subjects.include?(examination.lecture.subject)
     end
 end
