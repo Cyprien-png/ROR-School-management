@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :examinations
   resources :years
   resources :lectures
   resources :subjects do
