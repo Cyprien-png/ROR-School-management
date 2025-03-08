@@ -1,0 +1,123 @@
+<div class="grade-report">
+  <h1>Grade Report for <%= "#{@student.firstname} #{@student.lastname}" %></h1>
+  <h2><%= "#{@school_class.name} - #{@year.first_trimester.start_date.year}-#{@year.fourth_trimester.end_date.year}" %></h2>
+
+  <div class="semester-selector">
+    <%= link_to "First Semester", grade_report_student_path(@student, semester: :first_semester), 
+                class: "button #{@semester == :first_semester ? 'primary' : 'secondary'}" %>
+    <%= link_to "Second Semester", grade_report_student_path(@student, semester: :second_semester), 
+                class: "button #{@semester == :second_semester ? 'primary' : 'secondary'}" %>
+  </div>
+
+  <% if @subject_grades.any? %>
+    <div class="grade-table-wrapper">
+      <table class="grade-table">
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <% @examinations.each do |exam| %>
+              <th class="grade-column"></th>
+            <% end %>
+            <th>Average</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @subject_grades.each do |subject, data| %>
+            <tr>
+              <td><%= subject.name %></td>
+              <% data[:examinations].each_with_index do |exam, index| %>
+                <td class="grade-column" title="<%= exam.title %> (<%= exam.date.strftime('%B %d, %Y') %>)">
+                  <%= format_grade(data[:grades][index]) %>
+                </td>
+              <% end %>
+              <td class="average-column">
+                <%= format_grade(calculate_subject_average(data[:grades])) %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="promotion-status <%= promotion_status_color(@promoted) %>">
+      <%= promotion_status_message(@promoted) %>
+    </div>
+  <% else %>
+    <p class="no-grades">No grades available for this semester.</p>
+  <% end %>
+
+  <div class="actions">
+    <%= link_to "Back to Student", person_path(@student), class: "button" %>
+  </div>
+</div>
+
+<% content_for :styles do %>
+  <style>
+    .grade-report {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .semester-selector {
+      margin: 2rem 0;
+    }
+
+    .grade-table-wrapper {
+      overflow-x: auto;
+      margin: 2rem 0;
+    }
+
+    .grade-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .grade-table th,
+    .grade-table td {
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+
+    .grade-table th {
+      background-color: #f8f9fa;
+      font-weight: bold;
+    }
+
+    .grade-column {
+      min-width: 80px;
+    }
+
+    .average-column {
+      font-weight: bold;
+      background-color: #f8f9fa;
+    }
+
+    .promotion-status {
+      margin: 2rem 0;
+      padding: 1rem;
+      border-radius: 4px;
+      background-color: #f8f9fa;
+    }
+
+    .text-black {
+      color: black;
+    }
+
+    .text-red-600 {
+      color: #dc2626;
+    }
+
+    .no-grades {
+      text-align: center;
+      padding: 2rem;
+      color: #666;
+      font-style: italic;
+    }
+
+    .actions {
+      margin-top: 2rem;
+    }
+  </style>
+<% end %> 

@@ -1,0 +1,47 @@
+<div id="<%= dom_id student %>">
+  <p>
+    <strong>Name:</strong>
+    <%= "#{student.lastname} #{student.firstname}" %>
+  </p>
+
+  <p>
+    <strong>Email:</strong>
+    <%= student.email %>
+  </p>
+
+  <p>
+    <strong>Phone number:</strong>
+    <%= student.phone_number %>
+  </p>
+
+  <p>
+    <strong>Status:</strong>
+    <%= student.status %>
+  </p>
+
+  <div class="classes-list">
+    <h3>Classes:</h3>
+    <% if student.school_classes.any? %>
+      <ul>
+        <% student.school_classes.each do |school_class| %>
+          <li>
+            <%= link_to school_class.name, school_class_path(school_class) %>
+            (<%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %>)
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p><em>Not assigned to any class</em></p>
+    <% end %>
+  </div>
+
+  <% if current_person.is_a?(Dean) %>
+    <div class="actions">
+      <%= link_to "Edit", edit_student_path(student), class: "button" %>
+      <%= button_to "Delete", student_path(student), method: :delete, class: "button delete" %>
+      <% if student.school_classes.any? %>
+        <%= link_to "View Grade Report", grade_report_student_path(student), class: "button" %>
+      <% end %>
+    </div>
+  <% end %>
+</div> 

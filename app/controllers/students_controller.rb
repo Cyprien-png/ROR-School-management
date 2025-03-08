@@ -1,9 +1,10 @@
 class StudentsController < PeopleController
   include Authorization
+  include GradeReportsHelper
   
   before_action :authenticate_person!
-  before_action :authorize_dean, only: [:new, :create, :edit, :update, :destroy]
-  before_action :set_student, only: [:edit, :update, :destroy]
+  before_action :authorize_dean, only: [:new, :create, :edit, :update, :destroy, :grade_report]
+  before_action :set_student, only: [:edit, :update, :destroy, :grade_report]
 
   def new
     @student = Student.new
@@ -46,6 +47,24 @@ class StudentsController < PeopleController
       format.html { redirect_to people_url, notice: "Student was successfully deleted." }
       format.json { head :no_content }
     end
+  end
+
+  def grade_report
+    @school_class = @student.school_classes.last
+    
+    if @school_class.nil?
+      redirect_to people_url, alert: "Student is not assigned to any class."
+      return
+    end
+
+    @year = @school_class.year
+    @semesters = group_trimesters_by_semester(@year)
+    @semester = params[:semester]&.to_sym || :first_semester
+    
+    semester_trimesters = @semesters[@semester]
+    @examinations = get_semester_examinations(@student, semester_trimesters)
+    @subject_grades = get_subject_grades(@student, @examinations)
+    @promoted = promoted?(@subject_grades)
   end
 
   private
