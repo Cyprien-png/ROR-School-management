@@ -10,12 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_08_101836) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_08_103240) do
   create_table "examinations", force: :cascade do |t|
     t.string "title"
     t.date "date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "lecture_id"
+    t.index ["lecture_id"], name: "index_examinations_on_lecture_id"
   end
 
   create_table "lectures", force: :cascade do |t|
@@ -114,6 +116,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_08_101836) do
     t.index ["third_trimester_id"], name: "index_years_on_third_trimester_id"
   end
 
+  add_foreign_key "examinations", "lectures"
   add_foreign_key "lectures", "people", column: "teacher_id"
   add_foreign_key "lectures", "school_classes"
   add_foreign_key "lectures", "subjects"

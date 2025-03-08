@@ -1,13 +1,16 @@
 # Clean up existing data in the correct order
-ActiveRecord::Base.connection.execute("DELETE FROM school_classes_students")
-ActiveRecord::Base.connection.execute("DELETE FROM subjects_teachers")
-ActiveRecord::Base.connection.execute("DELETE FROM lectures_trimesters")
-SchoolClass.delete_all
-Subject.delete_all
-Lecture.delete_all
-Person.with_deleted.delete_all  # Use with_deleted to ensure we clean up soft-deleted records too
-Year.delete_all
-Trimester.delete_all
+ActiveRecord::Base.connection.disable_referential_integrity do
+  ActiveRecord::Base.connection.execute("DELETE FROM school_classes_students")
+  ActiveRecord::Base.connection.execute("DELETE FROM subjects_teachers")
+  ActiveRecord::Base.connection.execute("DELETE FROM lectures_trimesters")
+  Examination.delete_all
+  SchoolClass.delete_all
+  Subject.delete_all
+  Lecture.delete_all
+  Person.with_deleted.delete_all  # Use with_deleted to ensure we clean up soft-deleted records too
+  Year.delete_all
+  Trimester.delete_all
+end
 
 # Create a Dean
 dean = Dean.create!(
@@ -101,15 +104,23 @@ class2.students << students[5..9]  # Last 5 students
 # Create lectures with mixed class assignments
 [
   # Class A follows both Math (from their teacher) and Chemistry (from another teacher)
-  { class: class1, lectures: [
-    { teacher: teacher1, subjects: subjects[0..0] },  # Math from teacher1
-    { teacher: teacher2, subjects: subjects[2..2] }   # Chemistry from teacher2
-  ]},
+  { 
+    class: class1, 
+    year: year_2024_2025,
+    lectures: [
+      { teacher: teacher1, subjects: subjects[0..0] },  # Math from teacher1
+      { teacher: teacher2, subjects: subjects[2..2] }   # Chemistry from teacher2
+    ]
+  },
   # Class B follows both Biology (from their teacher) and Physics (from another teacher)
-  { class: class2, lectures: [
-    { teacher: teacher2, subjects: subjects[3..3] },  # Biology from teacher2
-    { teacher: teacher1, subjects: subjects[1..1] }   # Physics from teacher1
-  ]}
+  { 
+    class: class2,
+    year: year_2025_2026,
+    lectures: [
+      { teacher: teacher2, subjects: subjects[3..3] },  # Biology from teacher2
+      { teacher: teacher1, subjects: subjects[1..1] }   # Physics from teacher1
+    ]
+  }
 ].each do |config|
   config[:lectures].each do |lecture_config|
     lecture_config[:subjects].each do |subject|
@@ -122,10 +133,33 @@ class2.students << students[5..9]  # Last 5 students
           subject: subject,
           teacher: lecture_config[:teacher],
           school_class: config[:class],
-          trimesters: [year_2024_2025.first_trimester]
+          trimesters: [config[:year].first_trimester]  # Use the correct year's trimester
         )
       end
     end
+  end
+end
+
+# Create examinations for each subject in different trimesters
+subjects.each_with_index do |subject, index|
+  # Mid-trimester examination
+  Examination.create!(
+    title: "#{subject.name} Mid-Trimester Exam",
+    date: year_2024_2025.first_trimester.start_date + 1.month
+  )
+  
+  # End of trimester examination
+  Examination.create!(
+    title: "#{subject.name} Final Exam",
+    date: year_2024_2025.first_trimester.end_date - 1.week
+  )
+  
+  # Special examination for some subjects in the second trimester
+  if index < 3 # Only for Mathematics, Physics, and Chemistry
+    Examination.create!(
+      title: "#{subject.name} Advanced Topics",
+      date: year_2024_2025.second_trimester.start_date + 6.weeks
+    )
   end
 end
 
@@ -138,3 +172,4 @@ puts "- 10 Students"
 puts "- 2 Academic Years (2024-2025 and 2025-2026)"
 puts "- 2 Classes with 5 students each"
 puts "- #{Lecture.count} Lectures"
+puts "- #{Examination.count} Examinations"
