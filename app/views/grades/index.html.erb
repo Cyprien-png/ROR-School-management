@@ -1,0 +1,58 @@
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Grades" %>
+
+<h1>Grades</h1>
+
+<% if current_person.is_a?(Student) %>
+  <h2>Your Grades</h2>
+<% elsif current_person.is_a?(Teacher) %>
+  <h2>Grades for Your Subjects</h2>
+<% end %>
+
+<div id="grades">
+  <table class="grades-table">
+    <thead>
+      <tr>
+        <% unless current_person.is_a?(Student) %>
+          <th>Student</th>
+        <% end %>
+        <th>Subject</th>
+        <th>Class</th>
+        <th>Examination</th>
+        <th>Date</th>
+        <th>Grade</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @grades.each do |grade| %>
+        <tr>
+          <% unless current_person.is_a?(Student) %>
+            <td><%= "#{grade.student.lastname} #{grade.student.firstname}" %></td>
+          <% end %>
+          <td><%= grade.examination.lecture.subject.name %></td>
+          <td><%= grade.examination.lecture.school_class.name %></td>
+          <td><%= grade.examination.title %></td>
+          <td><%= grade.examination.date.strftime("%B %d, %Y") %></td>
+          <td><%= number_with_precision(grade.value, precision: 2) %></td>
+          <td>
+            <%= link_to "View", grade %>
+            <% if current_person.is_a?(Teacher) && can_grade?(grade.examination) %>
+              |
+              <%= link_to "Edit", edit_grade_path(grade) %>
+              |
+              <%= button_to "Delete", grade, method: :delete, class: "button delete", form: { class: "inline-form" } %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<% if current_person.is_a?(Teacher) %>
+  <div class="actions">
+    <%= link_to "New grade", new_grade_path, class: "button" %>
+  </div>
+<% end %>

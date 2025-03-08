@@ -1,0 +1,30 @@
+<div id="<%= dom_id examination %>">
+  <p>
+    <strong>Title:</strong>
+    <%= examination.title %>
+  </p>
+
+  <p>
+    <strong>Date:</strong>
+    <%= examination.date.strftime("%B %d, %Y") %>
+  </p>
+
+  <% if examination.lecture %>
+    <p>
+      <strong>Associated Lecture:</strong>
+      <%= "#{examination.lecture.subject.name} - #{examination.lecture.school_class.name}" %>
+    </p>
+    <p>
+      <strong>Schedule:</strong>
+      <%= "#{examination.lecture.week_day.capitalize} at #{examination.lecture.start_time.strftime("%H:%M")}" %>
+    </p>
+    <p>
+      <strong>Teacher:</strong>
+      <%= "#{examination.lecture.teacher.firstname} #{examination.lecture.teacher.lastname}" %>
+    </p>
+  <% else %>
+    <p>
+      <em>No lecture associated</em>
+    </p>
+  <% end %>
+</div>

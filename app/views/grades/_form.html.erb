@@ -1,0 +1,90 @@
+<%= form_with(model: grade) do |form| %>
+  <% if grade.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(grade.errors.count, "error") %> prohibited this grade from being saved:</h2>
+
+      <ul>
+        <% grade.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :examination_id, "Examination", style: "display: block" %>
+    <%= form.collection_select :examination_id, 
+        @available_examinations,
+        :id,
+        ->(exam) { "#{exam.title} - #{exam.lecture.subject.name} (#{exam.lecture.school_class.name})" },
+        { prompt: "Select an examination" },
+        { class: "select-input", onchange: "updateStudentsList(this.value)" } %>
+  </div>
+
+  <div>
+    <%= form.label :student_id, "Student", style: "display: block" %>
+    <div id="student-select-wrapper">
+      <%= form.collection_select :student_id,
+          grade.examination&.lecture&.school_class&.students || [],
+          :id,
+          ->(student) { "#{student.lastname} #{student.firstname}" },
+          { prompt: "Select a student" },
+          { class: "student-select", disabled: grade.examination.nil? } %>
+      <div id="no-students-message" style="display: none; color: #666; margin-top: 0.5em; font-style: italic;">
+        No students in this class
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :value, style: "display: block" %>
+    <%= form.number_field :value, step: "0.01", min: 0, max: 9.99 %>
+  </div>
+
+  <div>
+    <%= form.submit class: "button" %>
+  </div>
+<% end %>
+
+<script>
+function updateStudentsList(examinationId) {
+  const studentSelect = document.querySelector('.student-select');
+  const noStudentsMessage = document.getElementById('no-students-message');
+  
+  // Reset the select
+  studentSelect.innerHTML = '<option value="">Select a student</option>';
+  studentSelect.disabled = true;
+  noStudentsMessage.style.display = 'none';
+
+  if (!examinationId) {
+    return;
+  }
+
+  // Fetch students for the selected examination's class
+  fetch(`/examinations/${examinationId}/students`)
+    .then(response => response.json())
+    .then(students => {
+      if (students.length === 0) {
+        noStudentsMessage.style.display = 'block';
+        return;
+      }
+
+      students.forEach(student => {
+        const option = document.createElement('option');
+        option.value = student.id;
+        option.textContent = `${student.lastname} ${student.firstname}`;
+        studentSelect.appendChild(option);
+      });
+      
+      studentSelect.disabled = false;
+    });
+}
+
+// Call the function if an examination is already selected
+document.addEventListener('DOMContentLoaded', function() {
+  const examinationSelect = document.querySelector('.select-input');
+  if (examinationSelect.value) {
+    updateStudentsList(examinationSelect.value);
+  }
+});
+</script>
