@@ -2,6 +2,7 @@ class ExaminationsController < ApplicationController
   include Authorization
   
   before_action :authenticate_person!
+  before_action :authorize_dean_or_teacher, except: [:index, :show]
   before_action :set_examination, only: %i[ show edit update destroy ]
 
   # GET /examinations/available_dates/:lecture_id
@@ -92,5 +93,11 @@ class ExaminationsController < ApplicationController
     # Only allow a list of trusted parameters through.
     def examination_params
       params.require(:examination).permit(:title, :date, :lecture_id)
+    end
+
+    def authorize_dean_or_teacher
+      unless current_person.is_a?(Dean) || current_person.is_a?(Teacher)
+        redirect_to root_path, alert: "You are not authorized to perform this action."
+      end
     end
 end
