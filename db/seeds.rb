@@ -143,33 +143,58 @@ end
 # Create examinations for each subject in different trimesters
 subjects.each_with_index do |subject, index|
   # Get all lectures for this subject
-  subject_lectures = Lecture.includes(:subject, :school_class)
+  subject_lectures = Lecture.includes(:subject, :school_class, :trimesters)
                           .where(subject: subject)
                           .order(:week_day, :start_time)
   
   next if subject_lectures.empty?
   
-  # Mid-trimester examination
-  Examination.create!(
-    title: "#{subject.name} Mid-Trimester Exam",
-    date: year_2024_2025.first_trimester.start_date + 1.month,
-    lecture: subject_lectures.first
-  )
-  
-  # End of trimester examination
-  Examination.create!(
-    title: "#{subject.name} Final Exam",
-    date: year_2024_2025.first_trimester.end_date - 1.week,
-    lecture: subject_lectures.last
-  )
-  
-  # Special examination for some subjects in the second trimester
-  if index < 3 # Only for Mathematics, Physics, and Chemistry
-    Examination.create!(
-      title: "#{subject.name} Advanced Topics",
-      date: year_2024_2025.second_trimester.start_date + 6.weeks,
-      lecture: subject_lectures.first
-    )
+  subject_lectures.each do |lecture|
+    lecture.trimesters.each do |trimester|
+      # Find the first date in the trimester that matches the lecture's weekday
+      current_date = trimester.start_date
+      while current_date <= trimester.end_date && current_date.strftime("%A").downcase != lecture.week_day
+        current_date += 1.day
+      end
+      
+      next if current_date > trimester.end_date
+      
+      # Create mid-trimester examination
+      mid_trimester_date = current_date
+      while mid_trimester_date <= trimester.end_date
+        if mid_trimester_date >= (trimester.start_date + 1.month) && 
+           mid_trimester_date <= (trimester.start_date + 2.months)
+          break
+        end
+        mid_trimester_date += 7.days
+      end
+      
+      if mid_trimester_date <= trimester.end_date
+        Examination.create!(
+          title: "#{subject.name} Mid-Trimester Exam",
+          date: mid_trimester_date,
+          lecture: lecture
+        )
+      end
+      
+      # Create end-of-trimester examination
+      final_exam_date = current_date
+      while final_exam_date <= trimester.end_date
+        if final_exam_date >= (trimester.end_date - 2.weeks) && 
+           final_exam_date <= (trimester.end_date - 1.week)
+          break
+        end
+        final_exam_date += 7.days
+      end
+      
+      if final_exam_date <= trimester.end_date
+        Examination.create!(
+          title: "#{subject.name} Final Exam",
+          date: final_exam_date,
+          lecture: lecture
+        )
+      end
+    end
   end
 end
 
