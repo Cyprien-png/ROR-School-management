@@ -142,23 +142,33 @@ end
 
 # Create examinations for each subject in different trimesters
 subjects.each_with_index do |subject, index|
+  # Get all lectures for this subject
+  subject_lectures = Lecture.includes(:subject, :school_class)
+                          .where(subject: subject)
+                          .order(:week_day, :start_time)
+  
+  next if subject_lectures.empty?
+  
   # Mid-trimester examination
   Examination.create!(
     title: "#{subject.name} Mid-Trimester Exam",
-    date: year_2024_2025.first_trimester.start_date + 1.month
+    date: year_2024_2025.first_trimester.start_date + 1.month,
+    lecture: subject_lectures.first
   )
   
   # End of trimester examination
   Examination.create!(
     title: "#{subject.name} Final Exam",
-    date: year_2024_2025.first_trimester.end_date - 1.week
+    date: year_2024_2025.first_trimester.end_date - 1.week,
+    lecture: subject_lectures.last
   )
   
   # Special examination for some subjects in the second trimester
   if index < 3 # Only for Mathematics, Physics, and Chemistry
     Examination.create!(
       title: "#{subject.name} Advanced Topics",
-      date: year_2024_2025.second_trimester.start_date + 6.weeks
+      date: year_2024_2025.second_trimester.start_date + 6.weeks,
+      lecture: subject_lectures.first
     )
   end
 end
