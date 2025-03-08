@@ -14,7 +14,7 @@
   <div>
     <%= form.label :examination_id, "Examination", style: "display: block" %>
     <%= form.collection_select :examination_id, 
-        Examination.includes(lecture: [:subject, :school_class]).all,
+        @available_examinations,
         :id,
         ->(exam) { "#{exam.title} - #{exam.lecture.subject.name} (#{exam.lecture.school_class.name})" },
         { prompt: "Select an examination" },
