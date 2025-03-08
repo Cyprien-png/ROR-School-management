@@ -10,13 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_08_103240) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_08_125904) do
   create_table "examinations", force: :cascade do |t|
     t.string "title"
     t.date "date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "lecture_id"
+    t.boolean "isDeleted", default: false
     t.index ["lecture_id"], name: "index_examinations_on_lecture_id"
   end
 

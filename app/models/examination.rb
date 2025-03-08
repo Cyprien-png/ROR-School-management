@@ -5,6 +5,16 @@ class Examination < ApplicationRecord
   validates :date, presence: true
   validate :date_matches_lecture_weekday, if: -> { lecture.present? && date.present? }
   
+  # Add default scope to exclude soft deleted records
+  default_scope { where(isDeleted: false) }
+  # Add scope to include soft deleted records when needed
+  scope :with_deleted, -> { unscope(where: :isDeleted) }
+
+  # Soft delete method
+  def soft_delete
+    update_column(:isDeleted, true)
+  end
+  
   private
   
   def date_matches_lecture_weekday

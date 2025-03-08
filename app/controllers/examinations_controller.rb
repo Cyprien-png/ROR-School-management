@@ -76,10 +76,10 @@ class ExaminationsController < ApplicationController
 
   # DELETE /examinations/1 or /examinations/1.json
   def destroy
-    @examination.destroy!
+    @examination.soft_delete
 
     respond_to do |format|
-      format.html { redirect_to examinations_url, notice: "Examination was successfully destroyed." }
+      format.html { redirect_to examinations_url, notice: "Examination was successfully archived." }
       format.json { head :no_content }
     end
   end

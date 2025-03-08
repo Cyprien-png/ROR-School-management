@@ -224,27 +224,45 @@ class ExaminationsControllerTest < ActionDispatch::IntegrationTest
 
   test "should destroy examination when signed in as dean" do
     sign_in @dean
-    assert_difference("Examination.count", -1) do
+    assert_no_difference("Examination.with_deleted.count") do
       delete examination_url(@examination)
     end
     assert_redirected_to examinations_url
+    assert_equal "Examination was successfully archived.", flash[:notice]
+    
+    # Verify the examination is soft deleted
+    @examination.reload
+    assert @examination.isDeleted
+    
+    # Verify the examination is not returned in normal queries
+    assert_not Examination.exists?(@examination.id)
+    assert Examination.with_deleted.exists?(@examination.id)
   end
 
   test "should destroy examination when signed in as teacher" do
     sign_in @teacher
-    assert_difference("Examination.count", -1) do
+    assert_no_difference("Examination.with_deleted.count") do
       delete examination_url(@examination)
     end
     assert_redirected_to examinations_url
+    assert_equal "Examination was successfully archived.", flash[:notice]
+    
+    # Verify the examination is soft deleted
+    @examination.reload
+    assert @examination.isDeleted
   end
 
   test "should not destroy examination when signed in as student" do
     sign_in @student
-    assert_no_difference("Examination.count") do
+    assert_no_difference("Examination.with_deleted.count") do
       delete examination_url(@examination)
     end
     assert_redirected_to root_path
     assert_equal "You are not authorized to perform this action.", flash[:alert]
+    
+    # Verify the examination is not deleted
+    @examination.reload
+    assert_not @examination.isDeleted
   end
 
   # Available Dates API Tests
