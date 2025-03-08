@@ -37,8 +37,8 @@
   </div>
 
   <div>
-    <%= form.label :value, style: "display: block" %>
-    <%= form.number_field :value, step: "0.01", min: 0, max: 9.99 %>
+    <%= form.label :value, "Grade (1.00 - 6.00)", style: "display: block" %>
+    <%= form.number_field :value, step: "0.01", min: 1.00, max: 6.00, placeholder: "Enter grade between 1.00 and 6.00" %>
   </div>
 
   <div>

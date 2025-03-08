@@ -213,7 +213,7 @@ subjects.each do |subject|
         next if rand < 0.1 # Skip 10% of students randomly
         
         Grade.create!(
-          value: rand(4.0..6.0).round(2),
+          value: rand(1.00..6.00).round(2),  # Swiss grading system: 1.00 to 6.00
           examination: examination,
           student: student,
           current_teacher: lecture.teacher

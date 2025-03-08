@@ -6,10 +6,14 @@ class Grade < ApplicationRecord
   
   validates :value, presence: true, 
                    numericality: { 
-                     greater_than_or_equal_to: 0.00,
-                     less_than_or_equal_to: 9.99
+                     greater_than_or_equal_to: 1.00,
+                     less_than_or_equal_to: 6.00,
+                     message: "must be between 1.00 and 6.00"
                    }
-  validates :examination_id, uniqueness: { scope: :student_id, message: "has already been graded for this student" }
+  validates :student_id, uniqueness: { 
+    scope: :examination_id, 
+    message: "already has a grade for this examination" 
+  }
   
   validate :examination_not_deleted
   validate :student_must_be_in_lecture_class
