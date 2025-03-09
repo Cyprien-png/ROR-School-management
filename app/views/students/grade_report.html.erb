@@ -85,10 +85,10 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <% @subject_grades.each do |subject_name, data| %>
+              <% @subject_grades.each do |subject, data| %>
                 <tr>
                   <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
-                    <%= subject_name %>
+                    <%= subject.name %>
                   </td>
                   
                   <% data[:grades].each do |grade| %>
@@ -110,12 +110,15 @@
                   <% end %>
                   
                   <td class="px-6 py-4 whitespace-nowrap font-medium">
-                    <% if data[:average].nil? %>
-                      <span class="text-gray-400 italic">//</span>
-                    <% elsif data[:average] < 4.0 %>
-                      <%= render 'shared/badge', text: format_grade(data[:average]), color: "red" %>
+                    <% if data[:count] > 0 %>
+                      <% average = (data[:total] / data[:count]).round(2) %>
+                      <% if average < 4.0 %>
+                        <%= render 'shared/badge', text: format_grade(average), color: "red" %>
+                      <% else %>
+                        <%= render 'shared/badge', text: format_grade(average), color: "green" %>
+                      <% end %>
                     <% else %>
-                      <%= render 'shared/badge', text: format_grade(data[:average]), color: "green" %>
+                      <span class="text-gray-400 italic">//</span>
                     <% end %>
                   </td>
                 </tr>
