@@ -1,12 +1,105 @@
-<% content_for :title, "Editing student" %>
+<% content_for :title, "Editing Student" -%>
 
-<div class="container">
-  <h1>Editing student</h1>
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Editing Student</h1>
+    <div class="flex space-x-2">
+      <%= render 'shared/button', 
+        text: "Show this student", 
+        icon: "fa-solid fa-eye",
+        color: "outline-blue", 
+        href: person_path(@student) %>
+        
+      <%= render 'shared/button', 
+        text: "Back to people", 
+        icon: "fa-solid fa-arrow-left",
+        color: "outline-gray", 
+        href: people_path %>
+    </div>
+  </div>
 
-  <%= render "form", student: @student %>
+  <div class="overflow-hidden rounded-lg border border-blue-200 shadow-sm mb-6">
+    <div class="bg-blue-50 px-4 py-5 sm:px-6 flex items-center">
+      <i class="fa-solid fa-user-graduate mr-3 text-xl"></i>
+      <h3 class="text-lg font-medium leading-6 text-blue-700">
+        Student Information
+      </h3>
+    </div>
+    <div class="border-t border-gray-200 bg-white px-4 py-5 sm:p-6">
+      <%= form_with(model: @student, class: "space-y-6") do |form| %>
+        <% if @student.errors.any? %>
+          <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-circle text-red-400"></i>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">
+                  <%= pluralize(@student.errors.count, "error") %> prohibited this student from being saved:
+                </h3>
+                <div class="mt-2 text-sm text-red-700">
+                  <ul class="list-disc pl-5 space-y-1">
+                    <% @student.errors.each do |error| %>
+                      <li><%= error.full_message %></li>
+                    <% end %>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
 
-  <div class="">
-    <%= link_to "Show this student", person_path(@student), class: "button" %> |
-    <%= link_to "Back to people", people_path, class: "button" %>
+        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+          <div>
+            <%= form.label :lastname, class: "block text-sm font-medium text-gray-700" %>
+            <%= form.text_field :lastname, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+          </div>
+
+          <div>
+            <%= form.label :firstname, class: "block text-sm font-medium text-gray-700" %>
+            <%= form.text_field :firstname, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+          </div>
+
+          <div>
+            <%= form.label :email, class: "block text-sm font-medium text-gray-700" %>
+            <%= form.email_field :email, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+          </div>
+
+          <div>
+            <%= form.label :phone_number, class: "block text-sm font-medium text-gray-700" %>
+            <%= form.text_field :phone_number, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+          </div>
+
+          <div>
+            <%= form.label :status, class: "block text-sm font-medium text-gray-700" %>
+            <%= form.select :status, 
+                Student.statuses.keys.map { |s| [s.humanize, s] }, 
+                {}, 
+                { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" } %>
+          </div>
+        </div>
+
+        <div class="border-t border-gray-200 pt-6">
+          <h3 class="text-lg font-medium text-gray-900">Password</h3>
+          <p class="mt-1 text-sm text-gray-500">Leave blank if you don't want to change the password</p>
+          
+          <div class="mt-4 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+            <div>
+              <%= form.label :password, class: "block text-sm font-medium text-gray-700" %>
+              <%= form.password_field :password, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+            </div>
+
+            <div>
+              <%= form.label :password_confirmation, class: "block text-sm font-medium text-gray-700" %>
+              <%= form.password_field :password_confirmation, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end">
+          <%= form.submit "Update Student", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+        </div>
+      <% end %>
+    </div>
   </div>
 </div>
