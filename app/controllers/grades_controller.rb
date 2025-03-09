@@ -2,9 +2,9 @@ class GradesController < ApplicationController
   include Authorization
   
   before_action :authenticate_person!
-  before_action :authorize_teacher, only: [:new, :create, :edit, :update, :destroy]
+  before_action :authorize_grade_manager, only: [:new, :create, :edit, :update, :destroy]
   before_action :set_grade, only: %i[ show edit update destroy ]
-  before_action :authorize_teacher_for_grade, only: [:edit, :update, :destroy]
+  before_action :authorize_grade_modification, only: [:edit, :update, :destroy]
   before_action :authorize_access_to_grade, only: [:show]
 
   # GET /grades or /grades.json
@@ -29,8 +29,10 @@ class GradesController < ApplicationController
   # GET /grades/new
   def new
     @grade = Grade.new
-    # Only show examinations for subjects the teacher teaches
-    @available_examinations = if current_person.is_a?(Teacher)
+    # Show all examinations for deans, only subject-specific ones for teachers
+    @available_examinations = if current_person.is_a?(Dean)
+      Examination.includes(lecture: [:subject, :school_class]).all
+    elsif current_person.is_a?(Teacher)
       Examination.includes(lecture: [:subject, :school_class])
                 .joins(lecture: :subject)
                 .joins("INNER JOIN subjects_teachers ON subjects_teachers.subject_id = subjects.id")
@@ -42,8 +44,10 @@ class GradesController < ApplicationController
 
   # GET /grades/1/edit
   def edit
-    # Only show examinations for subjects the teacher teaches
-    @available_examinations = if current_person.is_a?(Teacher)
+    # Show all examinations for deans, only subject-specific ones for teachers
+    @available_examinations = if current_person.is_a?(Dean)
+      Examination.includes(lecture: [:subject, :school_class]).all
+    elsif current_person.is_a?(Teacher)
       Examination.includes(lecture: [:subject, :school_class])
                 .joins(lecture: :subject)
                 .joins("INNER JOIN subjects_teachers ON subjects_teachers.subject_id = subjects.id")
@@ -58,9 +62,9 @@ class GradesController < ApplicationController
     @grade = Grade.new(grade_params)
     @grade.current_teacher = current_person
     
-    unless teacher_can_grade?(@grade.examination)
+    unless can_modify_grade?(@grade)
       respond_to do |format|
-        format.html { redirect_to grades_url, alert: "You can only create grades for subjects you teach." }
+        format.html { redirect_to grades_url, alert: unauthorized_message }
         format.json { render json: { error: "Unauthorized" }, status: :unauthorized }
       end
       return
@@ -72,10 +76,7 @@ class GradesController < ApplicationController
         format.json { render :show, status: :created, location: @grade }
       else
         # Reload available examinations on validation error
-        @available_examinations = Examination.includes(lecture: [:subject, :school_class])
-                                          .joins(lecture: :subject)
-                                          .joins("INNER JOIN subjects_teachers ON subjects_teachers.subject_id = subjects.id")
-                                          .where(subjects_teachers: { teacher_id: current_person.id })
+        load_available_examinations
         format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @grade.errors, status: :unprocessable_entity }
       end
@@ -92,10 +93,7 @@ class GradesController < ApplicationController
         format.json { render :show, status: :ok, location: @grade }
       else
         # Reload available examinations on validation error
-        @available_examinations = Examination.includes(lecture: [:subject, :school_class])
-                                          .joins(lecture: :subject)
-                                          .joins("INNER JOIN subjects_teachers ON subjects_teachers.subject_id = subjects.id")
-                                          .where(subjects_teachers: { teacher_id: current_person.id })
+        load_available_examinations
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @grade.errors, status: :unprocessable_entity }
       end
@@ -114,31 +112,30 @@ class GradesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
     def set_grade
       @grade = Grade.includes(:student, examination: { lecture: [:subject, :school_class, :teacher] }).find(params[:id])
     end
 
-    # Only allow a list of trusted parameters through.
     def grade_params
       params.require(:grade).permit(:value, :examination_id, :student_id)
     end
 
-    def authorize_teacher
-      unless current_person.is_a?(Teacher)
-        redirect_to root_path, alert: "Only teachers can manage grades."
+    def authorize_grade_manager
+      unless current_person.is_a?(Dean) || current_person.is_a?(Teacher)
+        redirect_to root_path, alert: "Only deans and teachers can manage grades."
       end
     end
 
-    def authorize_teacher_for_grade
-      unless teacher_can_grade?(@grade.examination)
-        redirect_to grades_url, alert: "You can only manage grades for subjects you teach."
+    def authorize_grade_modification
+      unless can_modify_grade?(@grade)
+        redirect_to grades_url, alert: unauthorized_message
       end
     end
 
-    def teacher_can_grade?(examination)
-      return false unless current_person.is_a?(Teacher) && examination&.lecture&.subject
-      current_person.subjects.include?(examination.lecture.subject)
+    def can_modify_grade?(grade)
+      return true if current_person.is_a?(Dean)
+      return false unless current_person.is_a?(Teacher) && grade.examination&.lecture&.subject
+      current_person.subjects.include?(grade.examination.lecture.subject)
     end
 
     def authorize_access_to_grade
@@ -150,7 +147,28 @@ class GradesController < ApplicationController
     def can_access_grade?(grade)
       return true if current_person.is_a?(Dean)
       return grade.student_id == current_person.id if current_person.is_a?(Student)
-      return teacher_can_grade?(grade.examination) if current_person.is_a?(Teacher)
+      return can_modify_grade?(grade) if current_person.is_a?(Teacher)
       false
+    end
+
+    def unauthorized_message
+      if current_person.is_a?(Teacher)
+        "You can only manage grades for subjects you teach."
+      else
+        "You are not authorized to perform this action."
+      end
+    end
+
+    def load_available_examinations
+      @available_examinations = if current_person.is_a?(Dean)
+        Examination.includes(lecture: [:subject, :school_class]).all
+      elsif current_person.is_a?(Teacher)
+        Examination.includes(lecture: [:subject, :school_class])
+                  .joins(lecture: :subject)
+                  .joins("INNER JOIN subjects_teachers ON subjects_teachers.subject_id = subjects.id")
+                  .where(subjects_teachers: { teacher_id: current_person.id })
+      else
+        []
+      end
     end
 end

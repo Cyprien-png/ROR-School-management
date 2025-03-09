@@ -262,4 +262,92 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
     assert_select "h2", /prohibited this student from being saved/
   end
+
+  test "should not access grade report if not dean" do
+    # Create necessary test data
+    student = create_student
+    teacher = create_teacher
+    year = create_year
+    school_class = create_school_class(teacher, year)
+    school_class.students << student
+    
+    # Try accessing as a teacher
+    sign_in teacher
+    get grade_report_student_path(student)
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+    
+    # Try accessing as a student
+    sign_in student
+    get grade_report_student_path(student)
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+    
+    # Try accessing without authentication
+    delete destroy_person_session_path
+    get grade_report_student_path(student)
+    assert_redirected_to new_person_session_path
+  end
+
+  test "should access grade report if dean" do
+    # Create necessary test data
+    dean = create_dean
+    student = create_student
+    teacher = create_teacher
+    year = create_year
+    school_class = create_school_class(teacher, year)
+    school_class.students << student
+    
+    # Try accessing as a dean
+    sign_in dean
+    get grade_report_student_path(student)
+    assert_response :success
+    assert_select "h1", text: "Grade Report for #{student.firstname} #{student.lastname}"
+  end
+
+  test "should redirect to people path if student has no class" do
+    # Create test data
+    dean = create_dean
+    student = create_student
+    
+    # Try accessing grade report for student without class
+    sign_in dean
+    get grade_report_student_path(student)
+    assert_redirected_to people_url
+    assert_equal "Student is not assigned to any class.", flash[:alert]
+  end
+
+  test "should handle year selection in grade report" do
+    # Create necessary test data
+    dean = create_dean
+    student = create_student
+    teacher = create_teacher
+    
+    # Create two different years and classes
+    year1 = create_year
+    year2 = Year.create!(
+      first_trimester: create_trimester(Date.new(2025,8,1), Date.new(2025,10,31)),
+      second_trimester: create_trimester(Date.new(2025,11,1), Date.new(2026,1,31)),
+      third_trimester: create_trimester(Date.new(2026,2,1), Date.new(2026,4,30)),
+      fourth_trimester: create_trimester(Date.new(2026,5,1), Date.new(2026,7,31))
+    )
+    
+    class1 = create_school_class(teacher, year1)
+    class2 = create_school_class(teacher, year2)
+    class1.students << student
+    class2.students << student
+    
+    # Access grade report as dean
+    sign_in dean
+    
+    # Test default year (should be latest)
+    get grade_report_student_path(student)
+    assert_response :success
+    assert_select "h2", /#{year2.first_trimester.start_date.year}-#{year2.fourth_trimester.end_date.year}/
+    
+    # Test specific year selection
+    get grade_report_student_path(student, year_id: year1.id)
+    assert_response :success
+    assert_select "h2", /#{year1.first_trimester.start_date.year}-#{year1.fourth_trimester.end_date.year}/
+  end
 end 

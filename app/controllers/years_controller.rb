@@ -57,10 +57,10 @@ class YearsController < ApplicationController
 
   # DELETE /years/1 or /years/1.json
   def destroy
-    @year.soft_delete
+    @year.update!(isDeleted: true)
 
     respond_to do |format|
-      format.html { redirect_to years_path, status: :see_other, notice: "Year was successfully archived." }
+      format.html { redirect_to years_url, notice: "Year was successfully archived." }
       format.json { head :no_content }
     end
   end
@@ -68,7 +68,7 @@ class YearsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_year
-      @year = Year.find(params.require(:id))
+      @year = Year.unscoped.find_by!(id: params[:id])
     end
 
     # Only allow a list of trusted parameters through.

@@ -22,7 +22,11 @@ Rails.application.routes.draw do
   end
   devise_for :people, skip: [:registrations]
   resources :people, only: [:index, :show]
-  resources :students
+  resources :students do
+    member do
+      get :grade_report
+    end
+  end
   resources :teachers do
     get 'school_classes', on: :member
   end
