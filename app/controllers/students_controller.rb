@@ -50,14 +50,23 @@ class StudentsController < PeopleController
   end
 
   def grade_report
-    @school_class = @student.school_classes.last
+    # Get all classes and years for the student
+    @available_years = @student.school_classes.includes(:year).map(&:year).uniq
+    
+    # If year_id is provided, use that year, otherwise use the latest year
+    if params[:year_id].present?
+      @year = @available_years.find { |y| y.id.to_s == params[:year_id] }
+      @school_class = @student.school_classes.find_by(year: @year)
+    else
+      @school_class = @student.school_classes.last
+      @year = @school_class&.year
+    end
     
     if @school_class.nil?
       redirect_to people_url, alert: "Student is not assigned to any class."
       return
     end
 
-    @year = @school_class.year
     @semesters = group_trimesters_by_semester(@year)
     @semester = params[:semester]&.to_sym || :first_semester
     

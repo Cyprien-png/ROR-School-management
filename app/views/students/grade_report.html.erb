@@ -1,4 +1,12 @@
 <div class="grade-report">
+  <div class="year-selector">
+    <% @available_years.each do |year| %>
+      <%= link_to "#{year.first_trimester.start_date.year}-#{year.fourth_trimester.end_date.year}", 
+          grade_report_student_path(@student, year_id: year.id, semester: @semester),
+          class: "button #{year.id == @year.id ? 'primary' : 'secondary'}" %>
+    <% end %>
+  </div>
+
   <h1>Grade Report for <%= "#{@student.firstname} #{@student.lastname}" %></h1>
   <h2><%= "#{@school_class.name} - #{@year.first_trimester.start_date.year}-#{@year.fourth_trimester.end_date.year}" %></h2>
 
@@ -227,6 +235,23 @@
     .empty-grade {
       color: #9ca3af;
       font-style: italic;
+    }
+
+    .year-selector {
+      margin: 1rem 0;
+      text-align: center;
+      padding: 1rem;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .year-selector .button {
+      margin: 0 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 500;
     }
   </style>
 <% end %> 
