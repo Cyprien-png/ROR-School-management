@@ -46,7 +46,7 @@
         <div>
           <%= form_with(url: add_student_school_class_path(school_class), method: :post, class: "flex items-center space-x-2") do |f| %>
             <%= f.collection_select :student_id, 
-                Student.where.not(id: school_class.student_ids), 
+                Student.where.not(id: school_class.student_ids).order(:lastname, :firstname), 
                 :id, 
                 ->(s) { "#{s.lastname} #{s.firstname}" }, 
                 { prompt: "Select a student to add" },
@@ -63,37 +63,37 @@
     </div>
     <div class="border-t border-gray-200">
       <% if school_class.students.any? %>
+        <% 
+          student_rows = school_class.students.order(:lastname, :firstname).map do |student|
+            row = [
+              link_to("#{student.lastname} #{student.firstname}", 
+                person_path(student), 
+                class: "text-blue-600 hover:text-blue-800 font-medium"),
+              student.email,
+              render('shared/badge', 
+                text: student.status, 
+                color: student.status == "active" ? "green" : "gray")
+            ]
+            
+            if current_person.is_a?(Dean)
+              row << render('shared/button', 
+                text: "Remove", 
+                icon: "fa-solid fa-user-minus",
+                color: "outline-red", 
+                size: "sm",
+                method: :delete,
+                confirm: "Are you sure you want to remove this student from the class?",
+                href: remove_student_school_class_path(school_class, student_id: student.id))
+            end
+            
+            row
+          end
+        %>
+        
         <%= render 'shared/table', 
           headers: ["Name", "Email", "Status", current_person.is_a?(Dean) ? "Actions" : nil].compact, 
-          striped: true do %>
-          <% school_class.students.order(:lastname, :firstname).each do |student| %>
-            <tr>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <%= link_to "#{student.lastname} #{student.firstname}", 
-                    person_path(student), 
-                    class: "text-blue-600 hover:text-blue-800 font-medium" %>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap"><%= student.email %></td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <%= render 'shared/badge', 
-                  text: student.status, 
-                  color: student.status == "active" ? "green" : "gray" %>
-              </td>
-              <% if current_person.is_a?(Dean) %>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <%= render 'shared/button', 
-                    text: "Remove", 
-                    icon: "fa-solid fa-user-minus",
-                    color: "outline-red", 
-                    size: "sm",
-                    method: :delete,
-                    confirm: "Are you sure you want to remove this student from the class?",
-                    href: remove_student_school_class_path(school_class, student_id: student.id) %>
-                </td>
-              <% end %>
-            </tr>
-          <% end %>
-        <% end %>
+          rows: student_rows,
+          striped: true %>
       <% else %>
         <div class="px-4 py-5 sm:px-6 text-center text-gray-500 italic">
           No students in this class yet.
