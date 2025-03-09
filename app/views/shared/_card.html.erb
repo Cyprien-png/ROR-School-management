@@ -1,13 +1,13 @@
-<%# 
+<%#
   Reusable card component
   Usage: 
-  <%= render 'shared/card', 
+  render 'shared/card', 
     title: "Card Title", 
     color: "blue", # Options: blue, green, indigo, purple, yellow, red, gray
     icon: "fa-solid fa-book", # Font Awesome icon class
-    content: capture do %>
+    content: capture do
       <!-- Your content here -->
-    <% end %>
+    end
 %>
 
 <% 
@@ -28,13 +28,13 @@
   
   # Set default icon if not provided
   icon = local_assigns.fetch(:icon, "fa-solid fa-square")
-%>
+-%>
 
 <div class="overflow-hidden rounded-lg border <%= color_class.include?('border') ? color_class.split(' ').select { |c| c.include?('border') }.join(' ') : 'border-gray-200' %> shadow-sm mb-6">
   <div class="<%= color_class.include?('bg') ? color_class.split(' ').select { |c| c.include?('bg') }.join(' ') : 'bg-white' %> px-4 py-5 sm:px-6 flex items-center">
-    <% if local_assigns.has_key?(:icon) %>
+    <% if local_assigns.has_key?(:icon) -%>
       <i class="<%= icon %> mr-3 text-xl"></i>
-    <% end %>
+    <% end -%>
     <h3 class="text-lg font-medium leading-6 <%= color_class.include?('text') ? color_class.split(' ').select { |c| c.include?('text') }.join(' ') : 'text-gray-900' %>">
       <%= local_assigns.fetch(:title, "Card Title") %>
     </h3>
@@ -42,9 +42,9 @@
   <div class="border-t border-gray-200 bg-white px-4 py-5 sm:p-6">
     <%= content %>
   </div>
-  <% if local_assigns.has_key?(:footer) %>
+  <% if local_assigns.has_key?(:footer) -%>
     <div class="border-t border-gray-200 bg-gray-50 px-4 py-4 sm:px-6">
       <%= footer %>
     </div>
-  <% end %>
+  <% end -%>
 </div> 

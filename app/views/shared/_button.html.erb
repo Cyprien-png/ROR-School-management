@@ -1,7 +1,7 @@
-<%# 
+<%#
   Reusable button component
   Usage: 
-  <%= render 'shared/button', 
+  render 'shared/button', 
     text: "Button Text", 
     color: "blue", # Options: blue, green, indigo, purple, yellow, red, gray
     icon: "fa-solid fa-plus", # Font Awesome icon class (optional)
@@ -12,7 +12,6 @@
     size: "md", # Options: sm, md, lg
     full_width: false, # true for full width button
     disabled: false # true to disable the button
-  %>
 %>
 
 <% 
@@ -59,9 +58,9 @@
   
   # Set icon if provided
   icon = local_assigns[:icon]
-%>
+-%>
 
-<% if local_assigns.has_key?(:href) %>
+<% if local_assigns.has_key?(:href) -%>
   <% 
     # For links
     method = local_assigns[:method]
@@ -69,25 +68,25 @@
     data_attributes = {}
     data_attributes[:turbo_method] = method if method
     data_attributes[:turbo_confirm] = confirm if confirm
-  %>
+  -%>
   
-  <%= link_to local_assigns[:href], class: button_class, data: data_attributes do %>
-    <% if icon %>
+  <%= link_to local_assigns[:href], class: button_class, data: data_attributes do -%>
+    <% if icon -%>
       <i class="<%= icon %> mr-2 -ml-1"></i>
-    <% end %>
+    <% end -%>
     <%= local_assigns.fetch(:text, "Button") %>
-  <% end %>
-<% else %>
+  <% end -%>
+<% else -%>
   <% 
     # For buttons
     type = local_assigns.fetch(:type, "button")
     disabled = local_assigns.fetch(:disabled, false)
-  %>
+  -%>
   
   <button type="<%= type %>" class="<%= button_class %>" <%= "disabled" if disabled %>>
-    <% if icon %>
+    <% if icon -%>
       <i class="<%= icon %> mr-2 -ml-1"></i>
-    <% end %>
+    <% end -%>
     <%= local_assigns.fetch(:text, "Button") %>
   </button>
-<% end %> 
+<% end -%> 

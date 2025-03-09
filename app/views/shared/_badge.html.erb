@@ -1,11 +1,10 @@
-<%# 
+<%#
   Reusable badge component
   Usage: 
-  <%= render 'shared/badge', 
+  render 'shared/badge', 
     text: "Active", 
     color: "green", # Options: blue, green, indigo, purple, yellow, red, gray
     size: "md" # Options: sm, md, lg
-  %>
 %>
 
 <% 
@@ -36,7 +35,7 @@
   
   # Combine all classes
   badge_class = "inline-flex items-center rounded-full #{color_class} #{size_class} font-medium"
-%>
+-%>
 
 <span class="<%= badge_class %>">
   <%= local_assigns.fetch(:text, "Badge") %>

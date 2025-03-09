@@ -1,50 +1,50 @@
-<%# 
+<%#
   Reusable table component
   Usage: 
-  <%= render 'shared/table', headers: ["Name", "Email", "Role"], striped: true do %>
+  render 'shared/table', headers: ["Name", "Email", "Role"], striped: true do
     <tr>
       <td class="px-6 py-4 whitespace-nowrap">John Doe</td>
       <td class="px-6 py-4 whitespace-nowrap">john@example.com</td>
       <td class="px-6 py-4 whitespace-nowrap">Admin</td>
     </tr>
     <!-- More rows... -->
-  <% end %>
+  end
 %>
 
 <div class="overflow-x-auto shadow-md sm:rounded-lg">
   <table class="min-w-full divide-y divide-gray-200">
     <thead class="bg-gray-50">
       <tr>
-        <% if local_assigns.has_key?(:headers) && headers.is_a?(Array) %>
-          <% headers.each do |header| %>
+        <% if local_assigns.has_key?(:headers) && headers.is_a?(Array) -%>
+          <% headers.each do |header| -%>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               <%= header %>
             </th>
-          <% end %>
-        <% end %>
+          <% end -%>
+        <% end -%>
       </tr>
     </thead>
     <tbody class="bg-white divide-y divide-gray-200">
-      <% if content.present? %>
-        <% if local_assigns.fetch(:striped, false) %>
-          <% content.to_s.split('</tr>').each_with_index do |row, index| %>
-            <% next if row.blank? %>
-            <% if index.even? %>
+      <% if content.present? -%>
+        <% if local_assigns.fetch(:striped, false) -%>
+          <% content.to_s.split('</tr>').each_with_index do |row, index| -%>
+            <% next if row.blank? -%>
+            <% if index.even? -%>
               <%= row.html_safe %></tr>
-            <% else %>
+            <% else -%>
               <%= row.gsub('<tr>', '<tr class="bg-gray-50">').html_safe %></tr>
-            <% end %>
-          <% end %>
-        <% else %>
+            <% end -%>
+          <% end -%>
+        <% else -%>
           <%= content %>
-        <% end %>
-      <% else %>
+        <% end -%>
+      <% else -%>
         <tr>
           <td colspan="<%= local_assigns.fetch(:headers, []).size %>" class="px-6 py-4 text-center text-sm text-gray-500">
             No data available
           </td>
         </tr>
-      <% end %>
+      <% end -%>
     </tbody>
   </table>
 </div> 
