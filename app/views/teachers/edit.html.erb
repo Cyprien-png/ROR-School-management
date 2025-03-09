@@ -2,16 +2,16 @@
 
 <div class="space-y-6">
   <div class="flex justify-between items-center">
-    <h1 class="text-2xl font-bold">Editing Teacher</h1>
+    <h1 class="text-2xl font-bold">Edit Teacher: <%= @teacher.firstname %> <%= @teacher.lastname %></h1>
     <div class="flex space-x-2">
       <%= render 'shared/button', 
-        text: "Show this teacher", 
+        text: "View Details", 
         icon: "fa-solid fa-eye",
         color: "outline-green", 
         href: person_path(@teacher) %>
         
       <%= render 'shared/button', 
-        text: "Back to people", 
+        text: "Back to People", 
         icon: "fa-solid fa-arrow-left",
         color: "outline-gray", 
         href: people_path %>
