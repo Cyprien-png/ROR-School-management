@@ -1,8 +1,152 @@
-<p style="color: green"><%= notice %></p>
+<% content_for :title, "#{@person.firstname} #{@person.lastname}" -%>
 
-<% partial_path = "#{@person.type.downcase.pluralize}/#{@person.type.downcase}" %>
-<%= render partial: partial_path, locals: { @person.type.downcase.to_sym => @person } %>
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Person Details</h1>
+    <div class="flex space-x-2">
+      <% if current_person.is_a?(Dean) && @person != current_person -%>
+        <% if @person.is_a?(Student) -%>
+          <%= render 'shared/button', 
+            text: "Edit", 
+            icon: "fa-solid fa-pencil",
+            color: "outline-blue", 
+            href: edit_student_path(@person) %>
+            
+          <%= render 'shared/button', 
+            text: "Delete", 
+            icon: "fa-solid fa-trash",
+            color: "red", 
+            method: :delete,
+            confirm: "Are you sure you want to delete this student?",
+            href: student_path(@person) %>
+            
+          <%= render 'shared/button', 
+            text: "Grade Report", 
+            icon: "fa-solid fa-chart-line",
+            color: "outline-purple", 
+            href: grade_report_student_path(@person) %>
+        <% elsif @person.is_a?(Teacher) -%>
+          <%= render 'shared/button', 
+            text: "Edit", 
+            icon: "fa-solid fa-pencil",
+            color: "outline-green", 
+            href: edit_teacher_path(@person) %>
+            
+          <%= render 'shared/button', 
+            text: "Delete", 
+            icon: "fa-solid fa-trash",
+            color: "red", 
+            method: :delete,
+            confirm: "Are you sure you want to delete this teacher?",
+            href: teacher_path(@person) %>
+            
+          <%= render 'shared/button', 
+            text: "Classes", 
+            icon: "fa-solid fa-chalkboard",
+            color: "outline-indigo", 
+            href: school_classes_teacher_path(@person) %>
+        <% end -%>
+      <% end -%>
+      
+      <%= render 'shared/button', 
+        text: "Back to People", 
+        icon: "fa-solid fa-arrow-left",
+        color: "outline-gray", 
+        href: people_path %>
+    </div>
+  </div>
 
-<div>
-  <%= link_to "Back to people", people_path, class: "button" %>
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 bg-<%= @person.is_a?(Dean) ? 'purple' : (@person.is_a?(Teacher) ? 'green' : 'blue') %>-50">
+      <div class="flex justify-between items-center">
+        <div>
+          <h3 class="text-lg leading-6 font-medium text-<%= @person.is_a?(Dean) ? 'purple' : (@person.is_a?(Teacher) ? 'green' : 'blue') %>-800">
+            <%= "#{@person.firstname} #{@person.lastname}" %>
+          </h3>
+          <p class="mt-1 max-w-2xl text-sm text-<%= @person.is_a?(Dean) ? 'purple' : (@person.is_a?(Teacher) ? 'green' : 'blue') %>-600">
+            Personal Information
+          </p>
+        </div>
+        <%= render 'shared/badge', 
+          text: @person.type, 
+          color: @person.is_a?(Dean) ? "purple" : (@person.is_a?(Teacher) ? "green" : "blue") %>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <dl>
+        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Full name</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <%= "#{@person.firstname} #{@person.lastname}" %>
+          </dd>
+        </div>
+        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Email address</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <a href="mailto:<%= @person.email %>" class="text-<%= @person.is_a?(Dean) ? 'purple' : (@person.is_a?(Teacher) ? 'green' : 'blue') %>-600 hover:text-<%= @person.is_a?(Dean) ? 'purple' : (@person.is_a?(Teacher) ? 'green' : 'blue') %>-800">
+              <%= @person.email %>
+            </a>
+          </dd>
+        </div>
+        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Phone number</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <a href="tel:<%= @person.phone_number %>" class="text-<%= @person.is_a?(Dean) ? 'purple' : (@person.is_a?(Teacher) ? 'green' : 'blue') %>-600 hover:text-<%= @person.is_a?(Dean) ? 'purple' : (@person.is_a?(Teacher) ? 'green' : 'blue') %>-800">
+              <%= @person.phone_number %>
+            </a>
+          </dd>
+        </div>
+        
+        <% if @person.is_a?(Student) && @person.respond_to?(:status) -%>
+          <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Status</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <%= @person.status %>
+            </dd>
+          </div>
+        <% end -%>
+        
+        <% if @person.is_a?(Teacher) && @person.respond_to?(:iban) -%>
+          <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">IBAN</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <%= @person.iban %>
+            </dd>
+          </div>
+        <% end -%>
+        
+        <% if @person.is_a?(Teacher) && @person.respond_to?(:subjects) && @person.subjects.any? -%>
+          <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Subjects</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <div class="flex flex-wrap gap-2">
+                <% @person.subjects.each do |subject| -%>
+                  <%= render 'shared/badge', 
+                    text: subject.name, 
+                    color: "purple", 
+                    size: "sm" %>
+                <% end -%>
+              </div>
+            </dd>
+          </div>
+        <% end -%>
+        
+        <% if @person.is_a?(Student) && @person.respond_to?(:school_classes) && @person.school_classes.any? -%>
+          <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Classes</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <div class="flex flex-wrap gap-2">
+                <% @person.school_classes.each do |school_class| -%>
+                  <%= link_to school_class_path(school_class), class: "inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800 hover:bg-indigo-200" do -%>
+                    <i class="fas fa-graduation-cap mr-1"></i>
+                    <%= school_class.name %>
+                  <% end -%>
+                <% end -%>
+              </div>
+            </dd>
+          </div>
+        <% end -%>
+      </dl>
+    </div>
+  </div>
 </div>
