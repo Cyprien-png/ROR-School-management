@@ -39,20 +39,19 @@
               </div>
               <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
                 <!-- Common navigation links for all users -->
+                <%= link_to "Lectures", lectures_path, class: "#{current_page?(lectures_path) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
                 <%= link_to "People", people_path, class: "#{current_page?(people_path) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
                 
                 <% if current_person.is_a?(Dean) %>
                   <!-- Dean-specific links -->
                   <%= link_to "School Classes", school_classes_path, class: "#{current_page?(school_classes_path) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
                   <%= link_to "Subjects", subjects_path, class: "#{current_page?(subjects_path) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <%= link_to "Lectures", lectures_path, class: "#{current_page?(lectures_path) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
                   <%= link_to "Examinations", examinations_path, class: "#{current_page?(examinations_path) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
                   <%= link_to "Grades", grades_path, class: "#{current_page?(grades_path) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
                   <%= link_to "Years", years_path, class: "#{current_page?(years_path) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
                 <% elsif current_person.is_a?(Teacher) %>
                   <!-- Teacher-specific links -->
                   <%= link_to "My Classes", school_classes_teacher_path(current_person), class: "#{current_page?(school_classes_teacher_path(current_person)) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <%= link_to "Lectures", lectures_path, class: "#{current_page?(lectures_path) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
                   <%= link_to "Examinations", examinations_path, class: "#{current_page?(examinations_path) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
                   <%= link_to "Grades", grades_path, class: "#{current_page?(grades_path) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
                 <% elsif current_person.is_a?(Student) %>
@@ -92,20 +91,19 @@
         <div class="hidden mobile-menu sm:hidden">
           <div class="pt-2 pb-3 space-y-1">
             <!-- Common navigation links for all users -->
+            <%= link_to "Lectures", lectures_path, class: "#{current_page?(lectures_path) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
             <%= link_to "People", people_path, class: "#{current_page?(people_path) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
             
             <% if current_person.is_a?(Dean) %>
               <!-- Dean-specific links -->
               <%= link_to "School Classes", school_classes_path, class: "#{current_page?(school_classes_path) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
               <%= link_to "Subjects", subjects_path, class: "#{current_page?(subjects_path) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
-              <%= link_to "Lectures", lectures_path, class: "#{current_page?(lectures_path) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
               <%= link_to "Examinations", examinations_path, class: "#{current_page?(examinations_path) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
               <%= link_to "Grades", grades_path, class: "#{current_page?(grades_path) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
               <%= link_to "Years", years_path, class: "#{current_page?(years_path) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
             <% elsif current_person.is_a?(Teacher) %>
               <!-- Teacher-specific links -->
               <%= link_to "My Classes", school_classes_teacher_path(current_person), class: "#{current_page?(school_classes_teacher_path(current_person)) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
-              <%= link_to "Lectures", lectures_path, class: "#{current_page?(lectures_path) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
               <%= link_to "Examinations", examinations_path, class: "#{current_page?(examinations_path) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
               <%= link_to "Grades", grades_path, class: "#{current_page?(grades_path) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
             <% elsif current_person.is_a?(Student) %>
