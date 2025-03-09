@@ -57,112 +57,115 @@
   </div>
 
   <!-- Grades Table -->
-  <%= render 'shared/card', 
-    title: "Academic Performance", 
-    color: "red", 
-    icon: "fa-solid fa-chart-simple",
-    content: capture do %>
-    
-    <% if @subject_grades.any? %>
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Subject
-              </th>
-              <% max_grades = @subject_grades.values.map { |data| data[:grades].count }.max %>
-              <% if max_grades > 0 %>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center" colspan="<%= max_grades %>">
-                  Grades
-                </th>
-              <% end %>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Average
-              </th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <% @subject_grades.each do |subject_name, data| %>
+  <div class="overflow-hidden rounded-lg border border-red-200 shadow-sm mb-6">
+    <div class="bg-red-50 px-4 py-5 sm:px-6 flex items-center">
+      <i class="fa-solid fa-chart-simple mr-3 text-xl"></i>
+      <h3 class="text-lg font-medium leading-6 text-red-700">
+        Academic Performance
+      </h3>
+    </div>
+    <div class="border-t border-gray-200 bg-white px-4 py-5 sm:p-6">
+      <% if @subject_grades.any? %>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
               <tr>
-                <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
-                  <%= subject_name %>
-                </td>
-                
-                <% data[:grades].each do |grade| %>
-                  <td class="px-6 py-4 whitespace-nowrap text-center">
-                    <% if grade.nil? %>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Subject
+                </th>
+                <% max_grades = @subject_grades.values.map { |data| data[:grades].count }.max %>
+                <% if max_grades > 0 %>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center" colspan="<%= max_grades %>">
+                    Grades
+                  </th>
+                <% end %>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Average
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% @subject_grades.each do |subject_name, data| %>
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                    <%= subject_name %>
+                  </td>
+                  
+                  <% data[:grades].each do |grade| %>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                      <% if grade.nil? %>
+                        <span class="text-gray-400 italic">//</span>
+                      <% elsif grade < 4.0 %>
+                        <%= render 'shared/badge', text: format_grade(grade), color: "red" %>
+                      <% else %>
+                        <%= render 'shared/badge', text: format_grade(grade), color: "green" %>
+                      <% end %>
+                    </td>
+                  <% end %>
+                  
+                  <% (max_grades - data[:grades].count).times do %>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
                       <span class="text-gray-400 italic">//</span>
-                    <% elsif grade < 4.0 %>
-                      <%= render 'shared/badge', text: format_grade(grade), color: "red" %>
+                    </td>
+                  <% end %>
+                  
+                  <td class="px-6 py-4 whitespace-nowrap font-medium">
+                    <% if data[:average].nil? %>
+                      <span class="text-gray-400 italic">//</span>
+                    <% elsif data[:average] < 4.0 %>
+                      <%= render 'shared/badge', text: format_grade(data[:average]), color: "red" %>
                     <% else %>
-                      <%= render 'shared/badge', text: format_grade(grade), color: "green" %>
+                      <%= render 'shared/badge', text: format_grade(data[:average]), color: "green" %>
                     <% end %>
                   </td>
-                <% end %>
-                
-                <% (max_grades - data[:grades].count).times do %>
-                  <td class="px-6 py-4 whitespace-nowrap text-center">
-                    <span class="text-gray-400 italic">//</span>
-                  </td>
-                <% end %>
-                
+                </tr>
+              <% end %>
+              
+              <!-- Overall Average Row -->
+              <tr class="bg-gray-50">
+                <td colspan="<%= max_grades + 1 %>" class="px-6 py-4 whitespace-nowrap text-right font-medium text-gray-900">
+                  Overall Average:
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap font-medium">
-                  <% if data[:average].nil? %>
+                  <% if @period_average.nil? %>
                     <span class="text-gray-400 italic">//</span>
-                  <% elsif data[:average] < 4.0 %>
-                    <%= render 'shared/badge', text: format_grade(data[:average]), color: "red" %>
+                  <% elsif @period_average < 4.0 %>
+                    <%= render 'shared/badge', text: format_grade(@period_average), color: "red", size: "lg" %>
                   <% else %>
-                    <%= render 'shared/badge', text: format_grade(data[:average]), color: "green" %>
+                    <%= render 'shared/badge', text: format_grade(@period_average), color: "green", size: "lg" %>
                   <% end %>
                 </td>
               </tr>
-            <% end %>
-            
-            <!-- Overall Average Row -->
-            <tr class="bg-gray-50">
-              <td colspan="<%= max_grades + 1 %>" class="px-6 py-4 whitespace-nowrap text-right font-medium text-gray-900">
-                Overall Average:
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap font-medium">
-                <% if @period_average.nil? %>
-                  <span class="text-gray-400 italic">//</span>
-                <% elsif @period_average < 4.0 %>
-                  <%= render 'shared/badge', text: format_grade(@period_average), color: "red", size: "lg" %>
-                <% else %>
-                  <%= render 'shared/badge', text: format_grade(@period_average), color: "green", size: "lg" %>
-                <% end %>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      
-      <!-- Promotion Status -->
-      <div class="mt-6 bg-gray-50 p-4 rounded-md border <%= @promoted ? 'border-green-200' : 'border-red-200' %>">
-        <div class="flex items-center">
-          <div class="flex-shrink-0">
-            <% if @promoted %>
-              <i class="fas fa-check-circle text-green-500 text-xl"></i>
-            <% else %>
-              <i class="fas fa-times-circle text-red-500 text-xl"></i>
-            <% end %>
-          </div>
-          <div class="ml-3">
-            <h3 class="text-lg font-medium <%= @promoted ? 'text-green-800' : 'text-red-800' %>">
-              <%= @promoted ? "Promoted" : "Not Promoted" %>
-            </h3>
-            <div class="mt-2 text-sm <%= @promoted ? 'text-green-700' : 'text-red-700' %>">
-              <%= promotion_status_message(@promoted) %>
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Promotion Status -->
+        <div class="mt-6 bg-gray-50 p-4 rounded-md border <%= @promoted ? 'border-green-200' : 'border-red-200' %>">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <% if @promoted %>
+                <i class="fas fa-check-circle text-green-500 text-xl"></i>
+              <% else %>
+                <i class="fas fa-times-circle text-red-500 text-xl"></i>
+              <% end %>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-lg font-medium <%= @promoted ? 'text-green-800' : 'text-red-800' %>">
+                <%= @promoted ? "Promoted" : "Not Promoted" %>
+              </h3>
+              <div class="mt-2 text-sm <%= @promoted ? 'text-green-700' : 'text-red-700' %>">
+                <%= promotion_status_message(@promoted) %>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    <% else %>
-      <div class="text-center py-8">
-        <i class="fas fa-info-circle text-blue-400 text-4xl mb-4"></i>
-        <p class="text-gray-500">No grades available for this semester.</p>
-      </div>
-    <% end %>
-  <% end %>
+      <% else %>
+        <div class="text-center py-8">
+          <i class="fas fa-info-circle text-blue-400 text-4xl mb-4"></i>
+          <p class="text-gray-500">No grades available for this semester.</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
 </div> 
