@@ -1,16 +1,50 @@
 <p style="color: green"><%= notice %></p>
 
-<% content_for :title, "School classes" %>
+<% content_for :title, "School Classes" %>
 
-<h1>School classes</h1>
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">School Classes</h1>
+    <% if current_person.is_a?(Dean) %>
+      <%= render 'shared/button', 
+        text: "New School Class", 
+        icon: "fa-solid fa-plus",
+        color: "blue", 
+        href: new_school_class_path %>
+    <% end %>
+  </div>
 
-<div id="school_classes">
-  <% @school_classes.each do |school_class| %>
-    <%= render school_class %>
-    <p>
-      <%= link_to "Show this school class", school_class %>
-    </p>
-  <% end %>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% @school_classes.each do |school_class| %>
+      <%= render 'shared/card', 
+        title: school_class.name, 
+        color: "blue", 
+        icon: "fa-solid fa-graduation-cap",
+        content: capture do %>
+        <div class="space-y-3">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-gray-500">Grade: <%= school_class.grade %></p>
+              <p class="text-gray-500">Academic Year: <%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %></p>
+            </div>
+            <%= render 'shared/badge', text: "#{school_class.students.count} Students", color: "indigo" %>
+          </div>
+          
+          <div>
+            <p class="font-medium text-gray-700">Teacher:</p>
+            <p class="text-gray-600"><%= "#{school_class.teacher.firstname} #{school_class.teacher.lastname}" %></p>
+          </div>
+          
+          <div class="pt-3 border-t border-gray-200">
+            <%= render 'shared/button', 
+              text: "View Details", 
+              icon: "fa-solid fa-eye",
+              color: "outline-blue", 
+              href: school_class_path(school_class),
+              full_width: true %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
 </div>
-
-<%= link_to "New school class", new_school_class_path %>

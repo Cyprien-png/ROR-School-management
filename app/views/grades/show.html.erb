@@ -1,13 +1,32 @@
-<div class="grade-details">
-  <h1>Grade Details</h1>
+<% content_for :title, "Grade Details" %>
+
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Grade Details</h1>
+    <div class="flex space-x-2">
+      <% if can_grade?(@grade.examination) %>
+        <%= render 'shared/button', 
+          text: "Edit", 
+          icon: "fa-solid fa-pencil",
+          color: "outline-red", 
+          href: edit_grade_path(@grade) %>
+          
+        <%= render 'shared/button', 
+          text: "Delete", 
+          icon: "fa-solid fa-trash",
+          color: "red", 
+          method: :delete,
+          confirm: "Are you sure you want to delete this grade?",
+          href: grade_path(@grade) %>
+      <% end %>
+      
+      <%= render 'shared/button', 
+        text: "Back to Grades", 
+        icon: "fa-solid fa-arrow-left",
+        color: "outline-gray", 
+        href: grades_path %>
+    </div>
+  </div>
 
   <%= render @grade %>
-
-  <div class="actions">
-    <% if can_grade?(@grade.examination) %>
-      <%= link_to "Edit this grade", edit_grade_path(@grade), class: "button" %>
-      <%= button_to "Delete this grade", @grade, method: :delete, class: "button delete" %>
-    <% end %>
-    <%= link_to "Back to grades", grades_path, class: "button" %>
-  </div>
 </div>

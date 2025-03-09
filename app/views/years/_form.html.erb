@@ -1,77 +1,97 @@
-<%= form_with(model: year) do |form| %>
+<%= form_with(model: year, class: "space-y-6") do |form| %>
   <% if year.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(year.errors.count, "error") %> prohibited this year from being saved:</h2>
-
-      <ul>
-        <% year.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-exclamation-circle text-red-400"></i>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">
+            <%= pluralize(year.errors.count, "error") %> prohibited this year from being saved:
+          </h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="list-disc pl-5 space-y-1">
+              <% year.errors.each do |error| %>
+                <li><%= error.full_message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   <% end %>
 
-  <div class="trimester-fields">
-    <h3>First Trimester</h3>
-    <%= form.fields_for :first_trimester do |trimester_form| %>
-      <div>
-        <%= trimester_form.label :start_date, style: "display: block" %>
-        <%= trimester_form.date_field :start_date %>
-      </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-indigo-50 p-4 rounded-lg shadow-sm">
+      <h3 class="text-lg font-medium text-indigo-800 mb-4">First Trimester</h3>
+      <%= form.fields_for :first_trimester do |trimester_form| %>
+        <div class="space-y-4">
+          <div>
+            <%= trimester_form.label :start_date, class: "block text-sm font-medium text-gray-700" %>
+            <%= trimester_form.date_field :start_date, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+          </div>
 
-      <div>
-        <%= trimester_form.label :end_date, style: "display: block" %>
-        <%= trimester_form.date_field :end_date %>
-      </div>
-    <% end %>
+          <div>
+            <%= trimester_form.label :end_date, class: "block text-sm font-medium text-gray-700" %>
+            <%= trimester_form.date_field :end_date, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="bg-indigo-50 p-4 rounded-lg shadow-sm">
+      <h3 class="text-lg font-medium text-indigo-800 mb-4">Second Trimester</h3>
+      <%= form.fields_for :second_trimester do |trimester_form| %>
+        <div class="space-y-4">
+          <div>
+            <%= trimester_form.label :start_date, class: "block text-sm font-medium text-gray-700" %>
+            <%= trimester_form.date_field :start_date, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+          </div>
+
+          <div>
+            <%= trimester_form.label :end_date, class: "block text-sm font-medium text-gray-700" %>
+            <%= trimester_form.date_field :end_date, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="bg-indigo-50 p-4 rounded-lg shadow-sm">
+      <h3 class="text-lg font-medium text-indigo-800 mb-4">Third Trimester</h3>
+      <%= form.fields_for :third_trimester do |trimester_form| %>
+        <div class="space-y-4">
+          <div>
+            <%= trimester_form.label :start_date, class: "block text-sm font-medium text-gray-700" %>
+            <%= trimester_form.date_field :start_date, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+          </div>
+
+          <div>
+            <%= trimester_form.label :end_date, class: "block text-sm font-medium text-gray-700" %>
+            <%= trimester_form.date_field :end_date, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="bg-indigo-50 p-4 rounded-lg shadow-sm">
+      <h3 class="text-lg font-medium text-indigo-800 mb-4">Fourth Trimester</h3>
+      <%= form.fields_for :fourth_trimester do |trimester_form| %>
+        <div class="space-y-4">
+          <div>
+            <%= trimester_form.label :start_date, class: "block text-sm font-medium text-gray-700" %>
+            <%= trimester_form.date_field :start_date, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+          </div>
+
+          <div>
+            <%= trimester_form.label :end_date, class: "block text-sm font-medium text-gray-700" %>
+            <%= trimester_form.date_field :end_date, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
   </div>
 
-  <div class="trimester-fields">
-    <h3>Second Trimester</h3>
-    <%= form.fields_for :second_trimester do |trimester_form| %>
-      <div>
-        <%= trimester_form.label :start_date, style: "display: block" %>
-        <%= trimester_form.date_field :start_date %>
-      </div>
-
-      <div>
-        <%= trimester_form.label :end_date, style: "display: block" %>
-        <%= trimester_form.date_field :end_date %>
-      </div>
-    <% end %>
-  </div>
-
-  <div class="trimester-fields">
-    <h3>Third Trimester</h3>
-    <%= form.fields_for :third_trimester do |trimester_form| %>
-      <div>
-        <%= trimester_form.label :start_date, style: "display: block" %>
-        <%= trimester_form.date_field :start_date %>
-      </div>
-
-      <div>
-        <%= trimester_form.label :end_date, style: "display: block" %>
-        <%= trimester_form.date_field :end_date %>
-      </div>
-    <% end %>
-  </div>
-
-  <div class="trimester-fields">
-    <h3>Fourth Trimester</h3>
-    <%= form.fields_for :fourth_trimester do |trimester_form| %>
-      <div>
-        <%= trimester_form.label :start_date, style: "display: block" %>
-        <%= trimester_form.date_field :start_date %>
-      </div>
-
-      <div>
-        <%= trimester_form.label :end_date, style: "display: block" %>
-        <%= trimester_form.date_field :end_date %>
-      </div>
-    <% end %>
-  </div>
-
-  <div>
-    <%= form.submit class: "button" %>
+  <div class="flex justify-end">
+    <%= form.submit class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
   </div>
 <% end %>

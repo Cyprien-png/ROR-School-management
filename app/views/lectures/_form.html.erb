@@ -1,75 +1,107 @@
-<%= form_with(model: lecture) do |form| %>
+<%= form_with(model: lecture, class: "space-y-6") do |form| %>
   <% if lecture.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(lecture.errors.count, "error") %> prohibited this lecture from being saved:</h2>
-
-      <ul>
-        <% lecture.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-exclamation-circle text-red-400"></i>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">
+            <%= pluralize(lecture.errors.count, "error") %> prohibited this lecture from being saved:
+          </h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="list-disc pl-5 space-y-1">
+              <% lecture.errors.each do |error| %>
+                <li><%= error.full_message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   <% end %>
 
-  <div>
-    <%= form.label :start_time, style: "display: block" %>
-    <%= form.time_field :start_time %>
-  </div>
-
-  <div>
-    <%= form.label :end_time, style: "display: block" %>
-    <%= form.time_field :end_time %>
-  </div>
-
-  <div>
-    <%= form.label :week_day, style: "display: block" %>
-    <%= form.select :week_day, Lecture.week_days.map { |day, _| [day.capitalize, day] } %>
-  </div>
-
-  <div>
-    <%= form.label :subject_id, "Subject", style: "display: block" %>
-    <%= form.collection_select :subject_id, Subject.all, :id, :name, 
-        { prompt: "Select a subject" }, 
-        { onchange: "updateTeachers(this.value)" } %>
-  </div>
-
-  <div>
-    <%= form.label :teacher_id, "Teacher", style: "display: block" %>
-    <%= form.collection_select :teacher_id, 
-        lecture.subject ? lecture.subject.teachers : [], 
-        :id, ->(teacher) { "#{teacher.firstname} #{teacher.lastname}" }, 
-        { prompt: "Select a teacher" },
-        { id: "teacher_select" } %>
-  </div>
-
-  <div>
-    <%= form.label :school_class_id, "Class", style: "display: block" %>
-    <%= form.collection_select :school_class_id,
-        SchoolClass.all,
-        :id, :name,
-        { prompt: "Select a class" },
-        { onchange: "updateTrimesters(this.value)" } %>
-  </div>
-
-  <div>
-    <%= form.label :trimester_ids, "Trimesters", style: "display: block" %>
-    <div class="select-wrapper">
-      <%= form.collection_select :trimester_ids, 
-          lecture.school_class&.year ? [
-            lecture.school_class.year.first_trimester,
-            lecture.school_class.year.second_trimester,
-            lecture.school_class.year.third_trimester,
-            lecture.school_class.year.fourth_trimester
-          ].sort_by(&:start_date) : [],
-          :id, 
-          ->(trimester) { "#{trimester.start_date.strftime('%B %d, %Y')} - #{trimester.end_date.strftime('%B %d, %Y')}" },
-          { prompt: "Select trimesters" }, 
-          { multiple: true, size: 5, id: "trimester_select" } %>
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 bg-green-50">
+      <h3 class="text-lg leading-6 font-medium text-green-800">
+        Lecture Information
+      </h3>
+      <p class="mt-1 max-w-2xl text-sm text-green-600">
+        Fill in the details for this lecture
+      </p>
     </div>
-  </div>
+    <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+      <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+        <div>
+          <%= form.label :subject_id, "Subject", class: "block text-sm font-medium text-gray-700" %>
+          <%= form.collection_select :subject_id, 
+              Subject.all, 
+              :id, 
+              :name, 
+              { prompt: "Select a subject" }, 
+              { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500", onchange: "updateTeachers(this.value)" } %>
+        </div>
 
-  <div>
-    <%= form.submit class: "button" %>
+        <div>
+          <%= form.label :teacher_id, "Teacher", class: "block text-sm font-medium text-gray-700" %>
+          <%= form.collection_select :teacher_id, 
+              lecture.subject ? lecture.subject.teachers : [], 
+              :id, 
+              ->(teacher) { "#{teacher.firstname} #{teacher.lastname}" }, 
+              { prompt: "Select a teacher" },
+              { id: "teacher_select", class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" } %>
+        </div>
+
+        <div>
+          <%= form.label :school_class_id, "Class", class: "block text-sm font-medium text-gray-700" %>
+          <%= form.collection_select :school_class_id,
+              SchoolClass.all,
+              :id, 
+              :name,
+              { prompt: "Select a class" },
+              { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500", onchange: "updateTrimesters(this.value)" } %>
+        </div>
+
+        <div>
+          <%= form.label :week_day, class: "block text-sm font-medium text-gray-700" %>
+          <%= form.select :week_day, 
+              Lecture.week_days.map { |day, _| [day.capitalize, day] },
+              {},
+              { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" } %>
+        </div>
+
+        <div>
+          <%= form.label :start_time, class: "block text-sm font-medium text-gray-700" %>
+          <%= form.time_field :start_time, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" %>
+        </div>
+
+        <div>
+          <%= form.label :end_time, class: "block text-sm font-medium text-gray-700" %>
+          <%= form.time_field :end_time, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" %>
+        </div>
+
+        <div class="sm:col-span-2">
+          <%= form.label :trimester_ids, "Trimesters", class: "block text-sm font-medium text-gray-700" %>
+          <div class="mt-1">
+            <%= form.collection_select :trimester_ids, 
+                lecture.school_class&.year ? [
+                  lecture.school_class.year.first_trimester,
+                  lecture.school_class.year.second_trimester,
+                  lecture.school_class.year.third_trimester,
+                  lecture.school_class.year.fourth_trimester
+                ].sort_by(&:start_date) : [],
+                :id, 
+                ->(trimester) { "#{trimester.start_date.strftime('%B %d, %Y')} - #{trimester.end_date.strftime('%B %d, %Y')}" },
+                { prompt: "Select trimesters" }, 
+                { multiple: true, size: 5, id: "trimester_select", class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" } %>
+          </div>
+          <p class="mt-2 text-sm text-gray-500">Hold Ctrl (or Cmd) to select multiple trimesters</p>
+        </div>
+      </div>
+    </div>
+    <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+      <%= form.submit class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" %>
+    </div>
   </div>
 <% end %>
 
