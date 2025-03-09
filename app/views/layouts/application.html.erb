@@ -131,32 +131,6 @@
 
     <main class="flex-grow">
       <div class="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <% if notice %>
-          <div class="p-4 mb-6 bg-green-50 border-l-4 border-green-400">
-            <div class="flex">
-              <div class="flex-shrink-0">
-                <i class="text-green-400 fas fa-check-circle"></i>
-              </div>
-              <div class="ml-3">
-                <p class="text-sm text-green-700"><%= notice %></p>
-              </div>
-            </div>
-          </div>
-        <% end %>
-        
-        <% if alert %>
-          <div class="p-4 mb-6 bg-red-50 border-l-4 border-red-400">
-            <div class="flex">
-              <div class="flex-shrink-0">
-                <i class="text-red-400 fas fa-exclamation-circle"></i>
-              </div>
-              <div class="ml-3">
-                <p class="text-sm text-red-700"><%= alert %></p>
-              </div>
-            </div>
-          </div>
-        <% end %>
-        
         <%= yield %>
       </div>
     </main>
@@ -168,6 +142,15 @@
         </p>
       </div>
     </footer>
+
+    <!-- Flash messages as toasts -->
+    <% if notice %>
+      <%= render 'shared/toast', message: notice, type: "success" %>
+    <% end %>
+    
+    <% if alert %>
+      <%= render 'shared/toast', message: alert, type: "error" %>
+    <% end %>
 
     <script>
       document.addEventListener('DOMContentLoaded', function() {

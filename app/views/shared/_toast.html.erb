@@ -1,0 +1,98 @@
+<%#
+  Toast notification component
+  Usage: 
+  render 'shared/toast', 
+    message: "Your message here", 
+    type: "success", # Options: success, error, info, warning
+    dismissible: true # Optional, defaults to true
+%>
+
+<% 
+  # Default values
+  message = local_assigns.fetch(:message, "")
+  type = local_assigns.fetch(:type, "info")
+  dismissible = local_assigns.fetch(:dismissible, true)
+  
+  # Define color classes based on the type
+  color_classes = {
+    "success" => "bg-green-50 border-green-400 text-green-800",
+    "error" => "bg-red-50 border-red-400 text-red-800",
+    "warning" => "bg-yellow-50 border-yellow-400 text-yellow-800",
+    "info" => "bg-blue-50 border-blue-400 text-blue-800"
+  }
+  
+  # Define icon classes based on the type
+  icon_classes = {
+    "success" => "fa-check-circle text-green-400",
+    "error" => "fa-exclamation-circle text-red-400",
+    "warning" => "fa-exclamation-triangle text-yellow-400",
+    "info" => "fa-info-circle text-blue-400"
+  }
+  
+  # Set default color to info if not provided or invalid
+  color_class = color_classes[type] || color_classes["info"]
+  icon_class = icon_classes[type] || icon_classes["info"]
+  
+  # Generate a unique ID for this toast
+  toast_id = "toast-#{SecureRandom.hex(4)}"
+-%>
+
+<div id="<%= toast_id %>" class="toast-container fixed bottom-4 right-4 z-50 max-w-md transform transition-all duration-300 ease-in-out animate-fade-in-up">
+  <div class="rounded-md p-4 shadow-lg border-l-4 <%= color_class %> flex items-start">
+    <div class="flex-shrink-0">
+      <i class="fas <%= icon_class %> mt-0.5"></i>
+    </div>
+    <div class="ml-3 flex-1">
+      <p class="text-sm font-medium"><%= message %></p>
+    </div>
+    <% if dismissible %>
+      <div class="ml-4 flex-shrink-0 flex">
+        <button type="button" class="inline-flex text-gray-400 hover:text-gray-500 focus:outline-none" onclick="dismissToast('<%= toast_id %>')">
+          <span class="sr-only">Close</span>
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fade-in-up {
+    animation: fadeInUp 0.3s ease-out forwards;
+  }
+</style>
+
+<script>
+  // Immediately execute the script
+  (function() {
+    // Set a timeout to dismiss the toast after 5 seconds
+    setTimeout(function() {
+      dismissToast('<%= toast_id %>');
+    }, 5000);
+  })();
+  
+  function dismissToast(toastId) {
+    const toast = document.getElementById(toastId);
+    if (toast) {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(10px)';
+      
+      setTimeout(function() {
+        if (toast && toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 300);
+    }
+  }
+</script> 
