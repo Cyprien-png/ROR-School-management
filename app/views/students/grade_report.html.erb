@@ -46,9 +46,9 @@
     </div>
     <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
       <div class="flex flex-wrap gap-2">
-        <% ["first_semester", "second_semester"].each do |sem| %>
-          <% is_current = sem == @semester %>
-          <%= link_to sem.titleize.gsub('_', ' '), 
+        <% ["first_semester", "second_semester"].each_with_index do |sem, index| %>
+          <% is_current = sem == @semester.to_s %>
+          <%= link_to "Semester #{index + 1}", 
             grade_report_student_path(@student, year_id: @year.id, semester: sem), 
             class: "px-4 py-2 rounded-md text-sm font-medium #{is_current ? 'bg-blue-600 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'}" %>
         <% end %>
@@ -61,7 +61,7 @@
     <div class="bg-red-50 px-4 py-5 sm:px-6 flex items-center">
       <i class="fa-solid fa-chart-simple mr-3 text-xl"></i>
       <h3 class="text-lg font-medium leading-6 text-red-700">
-        Academic Performance
+        Academic Performance - Semester <%= @semester.to_s == "first_semester" ? "1" : "2" %>
       </h3>
     </div>
     <div class="border-t border-gray-200 bg-white px-4 py-5 sm:p-6">
@@ -91,10 +91,14 @@
                     <%= subject.name %>
                   </td>
                   
-                  <% data[:grades].each do |grade| %>
+                  <% data[:grades].each_with_index do |grade, index| %>
                     <td class="px-6 py-4 whitespace-nowrap text-center">
                       <% if grade.nil? %>
-                        <span class="text-gray-400 italic">//</span>
+                        <% if data[:examinations][index].present? %>
+                          <span class="text-gray-400 italic">//</span>
+                        <% else %>
+                          <!-- Empty cell for no examination -->
+                        <% end %>
                       <% elsif grade < 4.0 %>
                         <%= render 'shared/badge', text: format_grade(grade), color: "red" %>
                       <% else %>
@@ -105,7 +109,7 @@
                   
                   <% (max_grades - data[:grades].count).times do %>
                     <td class="px-6 py-4 whitespace-nowrap text-center">
-                      <span class="text-gray-400 italic">//</span>
+                      <!-- Empty cell for padding -->
                     </td>
                   <% end %>
                   
