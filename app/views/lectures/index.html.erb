@@ -22,40 +22,7 @@
       </h3>
     </div>
     <div class="border-t border-gray-200 bg-white px-4 py-5 sm:p-6">
-      <div class="overflow-x-auto">
-        <div class="min-w-full grid grid-cols-<%= ["monday", "tuesday", "wednesday", "thursday", "friday"].size %> gap-4">
-          <% ["monday", "tuesday", "wednesday", "thursday", "friday"].each_with_index do |day, index| %>
-            <div class="flex flex-col">
-              <div class="py-3 font-semibold text-center text-white bg-indigo-600 rounded-t-lg">
-                <%= day.capitalize %>
-              </div>
-              <div class="bg-white rounded-b-lg shadow-md flex-grow min-h-[300px] p-2">
-                <% day_lectures = @lectures.select { |l| l.week_day == day }.sort_by(&:start_time) %>
-                <% if day_lectures.any? %>
-                  <% day_lectures.each do |lecture| %>
-                    <div class="p-2 mb-2 bg-green-50 rounded-lg border border-green-200 shadow-sm transition-shadow duration-200 hover:shadow-md">
-                      <div class="font-semibold text-green-800"><%= lecture.subject.name %></div>
-                      <div class="text-sm text-gray-600">
-                        <%= lecture.start_time.strftime("%H:%M") %> - <%= lecture.end_time.strftime("%H:%M") %>
-                      </div>
-                      <div class="text-sm text-gray-600">
-                        <%= lecture.school_class.name %>
-                      </div>
-                      <div class="mt-1 text-xs text-gray-500">
-                        <%= "#{lecture.teacher.firstname} #{lecture.teacher.lastname}" %>
-                      </div>
-                    </div>
-                  <% end %>
-                <% else %>
-                  <div class="py-4 text-sm italic text-center text-gray-400">
-                    No lectures
-                  </div>
-                <% end %>
-              </div>
-            </div>
-          <% end %>
-        </div>
-      </div>
+      <%= render 'shared/schedule', lectures: @lectures, days: ["monday", "tuesday", "wednesday", "thursday", "friday"] %>
     </div>
   </div>
 
