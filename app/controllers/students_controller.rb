@@ -64,6 +64,7 @@ class StudentsController < PeopleController
     semester_trimesters = @semesters[@semester]
     @examinations = get_semester_examinations(@student, semester_trimesters)
     @subject_grades = get_subject_grades(@student, @examinations)
+    @period_average = calculate_period_average(@subject_grades)
     @promoted = promoted?(@subject_grades)
   end
 

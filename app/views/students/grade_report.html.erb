@@ -12,29 +12,39 @@
   <% if @subject_grades.any? %>
     <div class="grade-table-wrapper">
       <table class="grade-table">
+        <% max_grades = @subject_grades.values.map { |data| data[:grades].count }.max %>
         <thead>
           <tr>
-            <th>Subject</th>
-            <% @examinations.each do |exam| %>
-              <th class="grade-column"></th>
+            <th class="subject-header">Subject</th>
+            <% if max_grades > 0 %>
+              <th class="grade-header" colspan="<%= max_grades %>">Grades</th>
             <% end %>
-            <th>Average</th>
+            <th class="average-header">Average</th>
           </tr>
         </thead>
         <tbody>
           <% @subject_grades.each do |subject, data| %>
-            <tr>
-              <td><%= subject.name %></td>
-              <% data[:examinations].each_with_index do |exam, index| %>
-                <td class="grade-column" title="<%= exam.title %> (<%= exam.date.strftime('%B %d, %Y') %>)">
-                  <%= format_grade(data[:grades][index]) %>
+            <tr class="subject-row">
+              <td class="subject-name"><%= subject.name %></td>
+              <% data[:grades].each do |grade| %>
+                <td class="grade-cell <%= 'failing' if grade && grade < 4.00 %>">
+                  <%= format_grade(grade) %>
                 </td>
               <% end %>
-              <td class="average-column">
+              <% (max_grades - data[:grades].count).times do %>
+                <td class="grade-cell empty-grade">//</td>
+              <% end %>
+              <td class="average-cell <%= 'failing' if calculate_subject_average(data[:grades]) && calculate_subject_average(data[:grades]) < 4.00 %>">
                 <%= format_grade(calculate_subject_average(data[:grades])) %>
               </td>
             </tr>
           <% end %>
+          <tr class="overall-average">
+            <td colspan="<%= max_grades + 1 %>" class="overall-label">Overall Average</td>
+            <td class="overall-value <%= 'failing' if @period_average && @period_average < 4.00 %>">
+              <%= format_grade(@period_average) %>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -57,52 +67,128 @@
       max-width: 1200px;
       margin: 2rem auto;
       padding: 0 1rem;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
 
     .semester-selector {
       margin: 2rem 0;
+      text-align: center;
+    }
+
+    .semester-selector .button {
+      margin: 0 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      text-decoration: none;
+    }
+
+    .semester-selector .primary {
+      background-color: #0d6efd;
+      color: white;
+    }
+
+    .semester-selector .secondary {
+      background-color: #6c757d;
+      color: white;
     }
 
     .grade-table-wrapper {
       overflow-x: auto;
       margin: 2rem 0;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .grade-table {
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
+      background: white;
     }
 
     .grade-table th,
     .grade-table td {
-      padding: 0.75rem;
-      border: 1px solid #ddd;
+      padding: 1rem;
+      border: 1px solid #e5e7eb;
       text-align: center;
     }
 
-    .grade-table th {
+    .subject-header {
       background-color: #f8f9fa;
-      font-weight: bold;
+      text-align: left !important;
+      font-weight: 600;
+      min-width: 200px;
     }
 
-    .grade-column {
-      min-width: 80px;
+    .grade-header {
+      background-color: #f8f9fa;
+      font-weight: 600;
+      min-width: 120px;
     }
 
-    .average-column {
-      font-weight: bold;
+    .average-header {
       background-color: #f8f9fa;
+      font-weight: 600;
+      min-width: 100px;
+    }
+
+    .subject-name {
+      text-align: left !important;
+      font-weight: 500;
+    }
+
+    .grade-cell {
+      font-family: monospace;
+      font-size: 1.1em;
+    }
+
+    .average-cell {
+      font-family: monospace;
+      font-size: 1.1em;
+      font-weight: 600;
+      background-color: #f8f9fa;
+    }
+
+    .overall-average {
+      background-color: #f8f9fa;
+      font-weight: 600;
+    }
+
+    .overall-label {
+      text-align: right !important;
+      padding-right: 2rem;
+    }
+
+    .overall-value {
+      font-family: monospace;
+      font-size: 1.2em;
+      font-weight: 700;
+    }
+
+    .failing {
+      color: #dc2626;
+    }
+
+    .date-label {
+      display: block;
+      margin-top: 0.25rem;
+      font-size: 0.875rem;
+      color: #6b7280;
+      font-weight: normal;
     }
 
     .promotion-status {
       margin: 2rem 0;
       padding: 1rem;
-      border-radius: 4px;
+      border-radius: 8px;
       background-color: #f8f9fa;
+      text-align: center;
+      font-weight: 500;
     }
 
     .text-black {
-      color: black;
+      color: #111827;
     }
 
     .text-red-600 {
@@ -111,13 +197,36 @@
 
     .no-grades {
       text-align: center;
-      padding: 2rem;
-      color: #666;
+      padding: 3rem;
+      color: #6b7280;
       font-style: italic;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .actions {
       margin-top: 2rem;
+      text-align: center;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background-color: #0d6efd;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+
+    .button:hover {
+      background-color: #0b5ed7;
+    }
+
+    .empty-grade {
+      color: #9ca3af;
+      font-style: italic;
     }
   </style>
 <% end %> 
