@@ -63,7 +63,8 @@ class StudentsController < PeopleController
     end
     
     if @school_class.nil?
-      redirect_to people_url, alert: "Student is not assigned to any class."
+      flash[:alert] = "Student is not assigned to any class."
+      redirect_to people_url
       return
     end
 
