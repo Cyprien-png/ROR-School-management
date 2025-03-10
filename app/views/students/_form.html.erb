@@ -98,17 +98,15 @@
       </div>
 
       <div class="sm:col-span-3">
-        <%= form.label :school_class_ids, "Classes", class: "block text-sm font-medium text-gray-700" %>
+        <%= form.label :school_class_id, "Class", class: "block text-sm font-medium text-gray-700" %>
         <div class="mt-1">
-          <%= form.collection_select :school_class_ids, 
-              SchoolClass.all.order(:name), 
-              :id, 
-              :name, 
-              { prompt: "Select classes" }, 
-              { multiple: true, size: 4,
-                class: "mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" } %>
+          <%= form.collection_select :school_class_id,
+              SchoolClass.includes(:year).order('years.first_trimester_id DESC, school_classes.name'),
+              :id,
+              ->(sc) { "#{sc.name} (#{sc.year.first_trimester.start_date.year}-#{sc.year.fourth_trimester.end_date.year})" },
+              { prompt: "Select a class" },
+              { class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm" } %>
         </div>
-        <p class="mt-2 text-sm text-gray-500">Hold Ctrl/Cmd to select multiple classes</p>
       </div>
     </div>
   <% end %>

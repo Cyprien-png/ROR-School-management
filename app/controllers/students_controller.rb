@@ -13,10 +13,11 @@ class StudentsController < PeopleController
   end
 
   def create
-    @student = Student.new(student_params)
+    @student = Student.new(student_params.except(:school_class_id))
     
     respond_to do |format|
       if @student.save
+        @student.school_classes << SchoolClass.find(student_params[:school_class_id]) if student_params[:school_class_id].present?
         format.html { redirect_to person_url(@student), notice: "Student was successfully created." }
         format.json { render :show, status: :created, location: @student }
       else
@@ -93,7 +94,7 @@ class StudentsController < PeopleController
       :password,
       :password_confirmation,
       :status,
-      school_class_ids: []
+      :school_class_id
     )
   end
   
