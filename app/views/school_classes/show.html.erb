@@ -20,11 +20,13 @@
           href: school_class_path(@school_class) %>
       <% end %>
       
-      <%= render 'shared/button', 
-        text: "Back to School Classes", 
-        icon: "fa-solid fa-arrow-left",
-        color: "outline-gray", 
-        href: school_classes_path %>
+      <% unless current_person.is_a?(Student) %>
+        <%= render 'shared/button', 
+          text: "Back to School Classes", 
+          icon: "fa-solid fa-arrow-left",
+          color: "outline-gray", 
+          href: school_classes_path %>
+      <% end %>
     </div>
   </div>
 
