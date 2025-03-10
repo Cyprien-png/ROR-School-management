@@ -130,7 +130,10 @@
                   <%= link_to "Grades", grades_path, class: "#{current_page?(grades_path) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
                 <% elsif current_person.is_a?(Student) %>
                   <!-- Student-specific links -->
-                  <%= link_to "My Classes", person_path(current_person), class: "#{current_page?(person_path(current_person)) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <% student_class = current_person.school_classes.last %>
+                  <% if student_class %>
+                    <%= link_to "My Class", school_class_path(student_class), class: "#{controller_name == 'school_classes' && action_name == 'show' && params[:id].to_i == student_class.id ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <% end %>
                   <%= link_to "My Grades", grades_path, class: "#{current_page?(grades_path) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
                 <% end %>
               </div>
@@ -183,7 +186,10 @@
               <%= link_to "Grades", grades_path, class: "#{current_page?(grades_path) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
             <% elsif current_person.is_a?(Student) %>
               <!-- Student-specific links -->
-              <%= link_to "My Classes", person_path(current_person), class: "#{current_page?(person_path(current_person)) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <% student_class = current_person.school_classes.last %>
+              <% if student_class %>
+                <%= link_to "My Class", school_class_path(student_class), class: "#{controller_name == 'school_classes' && action_name == 'show' && params[:id].to_i == student_class.id ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <% end %>
               <%= link_to "My Grades", grades_path, class: "#{current_page?(grades_path) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
             <% end %>
           </div>
