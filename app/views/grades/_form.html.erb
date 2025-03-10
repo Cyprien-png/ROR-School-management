@@ -33,71 +33,55 @@
     <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
       <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
         <div class="sm:col-span-2">
-          <%= form.label :examination_id, "Examination", class: "block text-sm font-medium text-gray-700" %>
+          <%= form.label :examination_id, class: "block text-sm font-medium text-gray-700" %>
           <%= form.collection_select :examination_id, 
-              @available_examinations,
-              :id,
-              ->(exam) { "#{exam.title} - #{exam.lecture.subject.name} (#{exam.lecture.school_class.name})" },
-              { prompt: "Select an examination" },
-              { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500", onchange: "updateStudentsList(this.value)" } %>
+                                   @examinations,
+                                   :id,
+                                   ->(e) { "#{e.lecture.subject.name} - #{e.lecture.school_class.name} (#{e.date.strftime('%d.%m.%Y')})" },
+                                   { prompt: "Select an examination" },
+                                   { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm",
+                                     onchange: "updateStudentsList(this.value)" } %>
         </div>
 
         <div class="sm:col-span-2">
           <%= form.label :student_id, "Student", class: "block text-sm font-medium text-gray-700" %>
           <div id="student-select-wrapper" class="mt-1">
             <%= form.collection_select :student_id,
-                grade.examination&.lecture&.school_class&.students || [],
+                @grade.examination&.lecture&.school_class&.students || [],
                 :id,
                 ->(student) { "#{student.lastname} #{student.firstname}" },
                 { prompt: "Select a student" },
-                { class: "student-select block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500", disabled: grade.examination.nil? } %>
-            <div id="no-students-message" class="hidden mt-2 text-sm text-gray-500 italic">
-              No students in this class
-            </div>
+                { class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm",
+                  disabled: @grade.examination.nil? } %>
           </div>
         </div>
 
         <div class="sm:col-span-2">
-          <%= form.label :value, "Grade (1.00 - 6.00)", class: "block text-sm font-medium text-gray-700" %>
-          <%= form.number_field :value, 
-              step: "0.01", 
-              min: 1.00, 
-              max: 6.00, 
-              placeholder: "Enter grade between 1.00 and 6.00",
-              class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500" %>
-          <p class="mt-2 text-sm text-gray-500">Enter a value between 1.00 and 6.00 with up to 2 decimal places</p>
+          <%= form.label :value, class: "block text-sm font-medium text-gray-700" %>
+          <div class="mt-1">
+            <%= form.number_field :value, step: "0.01", min: "1.00", max: "6.00", class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm" %>
+          </div>
+          <p class="mt-2 text-sm text-gray-500">Value must be between 1.00 and 6.00</p>
         </div>
       </div>
     </div>
-    <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
-      <%= form.submit class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500" %>
-    </div>
+  </div>
+
+  <div class="flex justify-end space-x-3">
+    <%= form.submit class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500" %>
   </div>
 <% end %>
 
 <script>
 function updateStudentsList(examinationId) {
-  const studentSelect = document.querySelector('.student-select');
-  const noStudentsMessage = document.getElementById('no-students-message');
+  if (!examinationId) return;
   
-  // Reset the select
-  studentSelect.innerHTML = '<option value="">Select a student</option>';
-  studentSelect.disabled = true;
-  noStudentsMessage.classList.add('hidden');
-
-  if (!examinationId) {
-    return;
-  }
-
-  // Fetch students for the selected examination's class
   fetch(`/examinations/${examinationId}/students`)
     .then(response => response.json())
     .then(students => {
-      if (students.length === 0) {
-        noStudentsMessage.classList.remove('hidden');
-        return;
-      }
-
+      const studentSelect = document.querySelector('select[name="grade[student_id]"]');
+      studentSelect.innerHTML = '<option value="">Select a student</option>';
+      
       students.forEach(student => {
         const option = document.createElement('option');
         option.value = student.id;
@@ -109,7 +93,7 @@ function updateStudentsList(examinationId) {
     });
 }
 
-// Call the function if an examination is already selected
+// Initialize student list if examination is pre-selected
 document.addEventListener('DOMContentLoaded', function() {
   const examinationSelect = document.querySelector('select[name="grade[examination_id]"]');
   if (examinationSelect.value) {
