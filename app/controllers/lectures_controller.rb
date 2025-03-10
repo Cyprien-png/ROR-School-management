@@ -7,7 +7,41 @@ class LecturesController < ApplicationController
 
   # GET /lectures or /lectures.json
   def index
+    # Get all years for filtering
+    @years = Year.where(isDeleted: false).order(created_at: :desc)
+    
+    # Default to the current year or the most recent year
+    @selected_year = if params[:year_id].present?
+      @years.find { |y| y.id.to_s == params[:year_id] }
+    else
+      @years.first
+    end
+    
+    # Get trimesters for the selected year
+    @trimesters = if @selected_year
+      [@selected_year.first_trimester, @selected_year.second_trimester, 
+       @selected_year.third_trimester, @selected_year.fourth_trimester].compact
+    else
+      []
+    end
+    
+    # Default to the current trimester or the first trimester of the year
+    @selected_trimester = if params[:trimester_id].present?
+      @trimesters.find { |t| t.id.to_s == params[:trimester_id] }
+    else
+      # Find current trimester based on date
+      current_date = Date.today
+      current_trimester = @trimesters.find { |t| t.start_date <= current_date && t.end_date >= current_date }
+      current_trimester || @trimesters.first
+    end
+    
+    # Get all lectures
     @lectures = Lecture.all.order(:week_day, :start_time)
+    
+    # Filter lectures by trimester if selected
+    if @selected_trimester
+      @lectures = @lectures.joins(:trimesters).where(trimesters: { id: @selected_trimester.id })
+    end
   end
 
   # GET /lectures/1 or /lectures/1.json
