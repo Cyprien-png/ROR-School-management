@@ -92,7 +92,8 @@ class StudentsController < PeopleController
       :phone_number, 
       :password,
       :password_confirmation,
-      :status
+      :status,
+      school_class_ids: []
     )
   end
   
