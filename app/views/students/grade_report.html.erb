@@ -10,11 +10,19 @@
         <%= @school_class.name %> (<%= "#{@school_class.year.first_trimester.start_date.year}-#{@school_class.year.fourth_trimester.end_date.year}" %>)
       </p>
     </div>
-    <%= render 'shared/button', 
-      text: "Back to Student", 
-      icon: "fa-solid fa-arrow-left",
-      color: "outline-gray", 
-      href: person_path(@student) %>
+    <% if current_person.is_a?(Dean) %>
+      <%= render 'shared/button', 
+        text: "Back to Student", 
+        icon: "fa-solid fa-arrow-left",
+        color: "outline-gray", 
+        href: person_path(@student) %>
+    <% else %>
+      <%= render 'shared/button', 
+        text: "Back to Grades", 
+        icon: "fa-solid fa-arrow-left",
+        color: "outline-gray", 
+        href: grades_path %>
+    <% end %>
   </div>
 
   <!-- Year Selector -->
