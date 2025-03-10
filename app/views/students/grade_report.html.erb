@@ -26,13 +26,13 @@
   </div>
 
   <!-- Year Selector -->
-  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-    <div class="px-4 py-5 sm:px-6 bg-indigo-50">
-      <h3 class="text-lg leading-6 font-medium text-indigo-800">
+  <div class="overflow-hidden bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 bg-indigo-50 sm:px-6">
+      <h3 class="text-lg font-medium leading-6 text-indigo-800">
         Academic Year
       </h3>
     </div>
-    <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+    <div class="px-4 py-5 border-t border-gray-200 sm:p-6">
       <div class="flex flex-wrap gap-2">
         <% @available_years.each do |year| %>
           <% year_range = "#{year.first_trimester.start_date.year}-#{year.fourth_trimester.end_date.year}" %>
@@ -46,13 +46,13 @@
   </div>
 
   <!-- Semester Selector -->
-  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-    <div class="px-4 py-5 sm:px-6 bg-blue-50">
-      <h3 class="text-lg leading-6 font-medium text-blue-800">
+  <div class="overflow-hidden bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 bg-blue-50 sm:px-6">
+      <h3 class="text-lg font-medium leading-6 text-blue-800">
         Semester
       </h3>
     </div>
-    <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+    <div class="px-4 py-5 border-t border-gray-200 sm:p-6">
       <div class="flex flex-wrap gap-2">
         <% ["first_semester", "second_semester"].each_with_index do |sem, index| %>
           <% is_current = sem == @semester.to_s %>
@@ -65,29 +65,34 @@
   </div>
 
   <!-- Grades Table -->
-  <div class="overflow-hidden rounded-lg border border-red-200 shadow-sm mb-6">
-    <div class="bg-red-50 px-4 py-5 sm:px-6 flex items-center">
-      <i class="fa-solid fa-chart-simple mr-3 text-xl"></i>
+  <div class="overflow-hidden mb-6 rounded-lg border border-red-200 shadow-sm">
+    <div class="flex items-center px-4 py-5 bg-red-50 sm:px-6">
+      <i class="mr-3 text-xl fa-solid fa-chart-simple"></i>
       <h3 class="text-lg font-medium leading-6 text-red-700">
         Academic Performance - Semester <%= @semester.to_s == "first_semester" ? "1" : "2" %>
       </h3>
     </div>
-    <div class="border-t border-gray-200 bg-white px-4 py-5 sm:p-6">
+    <div class="px-4 py-5 bg-white border-t border-gray-200 sm:p-6">
       <% if @subject_grades.any? %>
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                   Subject
                 </th>
                 <% max_grades = @subject_grades.values.map { |data| data[:grades].count }.max %>
                 <% if max_grades > 0 %>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center" colspan="<%= max_grades %>">
-                    Grades
+                  <th scope="col" class="relative px-6 py-3 text-xs font-medium tracking-wider text-left text-center text-gray-500 uppercase" colspan="<%= max_grades %>">
+                    <div class="flex gap-1 justify-center items-center">
+                      Grades
+                      <div class="relative">
+                        <i class="text-gray-400 cursor-help fas fa-info-circle hover:text-gray-600" title="'//' indicates that an examination exists but the grade has not been entered yet"></i>
+                      </div>
+                    </div>
                   </th>
                 <% end %>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                   Average
                 </th>
               </tr>
@@ -95,15 +100,15 @@
             <tbody class="bg-white divide-y divide-gray-200">
               <% @subject_grades.each do |subject, data| %>
                 <tr>
-                  <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                  <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                     <%= subject.name %>
                   </td>
                   
                   <% data[:grades].each_with_index do |grade, index| %>
-                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <td class="px-6 py-4 text-center whitespace-nowrap">
                       <% if grade.nil? %>
                         <% if data[:examinations][index].present? %>
-                          <span class="text-gray-400 italic">//</span>
+                          <span class="italic text-gray-400">//</span>
                         <% else %>
                           <!-- Empty cell for no examination -->
                         <% end %>
@@ -116,12 +121,12 @@
                   <% end %>
                   
                   <% (max_grades - data[:grades].count).times do %>
-                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <td class="px-6 py-4 text-center whitespace-nowrap">
                       <!-- Empty cell for padding -->
                     </td>
                   <% end %>
                   
-                  <td class="px-6 py-4 whitespace-nowrap font-medium">
+                  <td class="px-6 py-4 font-medium whitespace-nowrap">
                     <% if data[:count] > 0 %>
                       <% average = (data[:total] / data[:count]).round(2) %>
                       <% if average < 4.0 %>
@@ -130,7 +135,7 @@
                         <%= render 'shared/badge', text: format_grade(average), color: "green" %>
                       <% end %>
                     <% else %>
-                      <span class="text-gray-400 italic">//</span>
+                      <span class="italic text-gray-400">//</span>
                     <% end %>
                   </td>
                 </tr>
@@ -138,12 +143,12 @@
               
               <!-- Overall Average Row -->
               <tr class="bg-gray-50">
-                <td colspan="<%= max_grades + 1 %>" class="px-6 py-4 whitespace-nowrap text-right font-medium text-gray-900">
+                <td colspan="<%= max_grades + 1 %>" class="px-6 py-4 font-medium text-right text-gray-900 whitespace-nowrap">
                   Overall Average:
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap font-medium">
+                <td class="px-6 py-4 font-medium whitespace-nowrap">
                   <% if @period_average.nil? %>
-                    <span class="text-gray-400 italic">//</span>
+                    <span class="italic text-gray-400">//</span>
                   <% elsif @period_average < 4.0 %>
                     <%= render 'shared/badge', text: format_grade(@period_average), color: "red", size: "lg" %>
                   <% else %>
@@ -160,9 +165,9 @@
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <% if @promoted %>
-                <i class="fas fa-check-circle text-green-500 text-xl"></i>
+                <i class="text-xl text-green-500 fas fa-check-circle"></i>
               <% else %>
-                <i class="fas fa-times-circle text-red-500 text-xl"></i>
+                <i class="text-xl text-red-500 fas fa-times-circle"></i>
               <% end %>
             </div>
             <div class="ml-3">
@@ -176,8 +181,8 @@
           </div>
         </div>
       <% else %>
-        <div class="text-center py-8">
-          <i class="fas fa-info-circle text-blue-400 text-4xl mb-4"></i>
+        <div class="py-8 text-center">
+          <i class="mb-4 text-4xl text-blue-400 fas fa-info-circle"></i>
           <p class="text-gray-500">No grades available for this semester.</p>
         </div>
       <% end %>
