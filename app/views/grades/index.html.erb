@@ -13,13 +13,23 @@
       <% end %>
     </div>
     
-    <% if can_manage_grades? %>
-      <%= render 'shared/button', 
-        text: "New Grade", 
-        icon: "fa-solid fa-plus",
-        color: "red", 
-        href: new_grade_path %>
-    <% end %>
+    <div class="flex space-x-2">
+      <% if current_person.is_a?(Student) %>
+        <%= render 'shared/button', 
+          text: "View Grade Report", 
+          icon: "fa-solid fa-chart-line",
+          color: "outline-purple", 
+          href: grade_report_student_path(current_person) %>
+      <% end %>
+      
+      <% if can_manage_grades? %>
+        <%= render 'shared/button', 
+          text: "New Grade", 
+          icon: "fa-solid fa-plus",
+          color: "red", 
+          href: new_grade_path %>
+      <% end %>
+    </div>
   </div>
 
   <div class="overflow-hidden rounded-lg border border-red-200 shadow-sm mb-6">

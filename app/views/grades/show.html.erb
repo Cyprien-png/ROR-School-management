@@ -4,6 +4,14 @@
   <div class="flex justify-between items-center">
     <h1 class="text-2xl font-bold">Grade Details</h1>
     <div class="flex space-x-2">
+      <% if current_person.is_a?(Student) && @grade.student_id == current_person.id %>
+        <%= render 'shared/button', 
+          text: "View Grade Report", 
+          icon: "fa-solid fa-chart-line",
+          color: "outline-purple", 
+          href: grade_report_student_path(current_person) %>
+      <% end %>
+      
       <% if can_grade?(@grade.examination) %>
         <%= render 'shared/button', 
           text: "Edit", 
