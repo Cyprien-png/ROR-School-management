@@ -1,3 +1,5 @@
+<p style="color: green"><%= notice %></p>
+
 <% content_for :title, "Lectures Schedule" %>
 
 <div class="space-y-6">
@@ -12,59 +14,13 @@
     <% end %>
   </div>
 
-  <!-- Year and Trimester Selector -->
-  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-    <div class="px-4 py-5 sm:px-6 bg-indigo-50">
-      <h3 class="text-lg leading-6 font-medium text-indigo-800">
-        Filter Schedule
-      </h3>
-    </div>
-    <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Year Selector -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Academic Year</label>
-          <div class="flex flex-wrap gap-2">
-            <% @years.each do |year| %>
-              <% year_range = "#{year.first_trimester.start_date.year}-#{year.fourth_trimester.end_date.year}" %>
-              <% is_current = year.id == @selected_year&.id %>
-              <%= link_to year_range, 
-                lectures_path(year_id: year.id, trimester_id: params[:trimester_id]), 
-                class: "px-4 py-2 rounded-md text-sm font-medium #{is_current ? 'bg-indigo-600 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'}" %>
-            <% end %>
-          </div>
-        </div>
-        
-        <!-- Trimester Selector -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Trimester</label>
-          <div class="flex flex-wrap gap-2">
-            <% @trimesters.each_with_index do |trimester, index| %>
-              <% is_current = trimester.id == @selected_trimester&.id %>
-              <% date_range = "#{trimester.start_date.strftime('%b %d')} - #{trimester.end_date.strftime('%b %d')}" %>
-              <%= link_to "Trimester #{index + 1} (#{date_range})", 
-                lectures_path(year_id: @selected_year&.id, trimester_id: trimester.id), 
-                class: "px-4 py-2 rounded-md text-sm font-medium #{is_current ? 'bg-indigo-600 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'}" %>
-            <% end %>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <% if current_person.is_a?(Student) || current_person.is_a?(Teacher) %>
     <!-- Calendar view for students and teachers -->
     <div class="overflow-hidden rounded-lg border border-green-200 shadow-sm mb-6">
       <div class="bg-green-50 px-4 py-5 sm:px-6 flex items-center">
         <i class="fa-solid fa-calendar-days mr-3 text-xl"></i>
         <h3 class="text-lg font-medium leading-6 text-green-700">
-          <% if @selected_trimester && @selected_year %>
-            <% trimester_index = [@selected_year.first_trimester, @selected_year.second_trimester, @selected_year.third_trimester, @selected_year.fourth_trimester].compact.index(@selected_trimester) %>
-            <% year_range = "#{@selected_year.first_trimester.start_date.year}-#{@selected_year.fourth_trimester.end_date.year}" %>
-            Weekly Schedule - Trimester <%= trimester_index + 1 %> (<%= year_range %>)
-          <% else %>
-            Weekly Schedule
-          <% end %>
+          Weekly Schedule
         </h3>
       </div>
       <div class="border-t border-gray-200 bg-white px-4 py-5 sm:p-6">

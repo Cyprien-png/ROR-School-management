@@ -64,8 +64,7 @@ class GradesController < ApplicationController
     
     unless can_modify_grade?(@grade)
       respond_to do |format|
-        flash[:alert] = unauthorized_message
-        format.html { redirect_to grades_url }
+        format.html { redirect_to grades_url, alert: unauthorized_message }
         format.json { render json: { error: "Unauthorized" }, status: :unauthorized }
       end
       return
@@ -123,21 +122,13 @@ class GradesController < ApplicationController
 
     def authorize_grade_manager
       unless current_person.is_a?(Dean) || current_person.is_a?(Teacher)
-        respond_to do |format|
-          flash[:alert] = "Only deans and teachers can manage grades."
-          format.html { redirect_to root_path }
-          format.json { render json: { error: "Unauthorized" }, status: :unauthorized }
-        end
+        redirect_to root_path, alert: "Only deans and teachers can manage grades."
       end
     end
 
     def authorize_grade_modification
       unless can_modify_grade?(@grade)
-        respond_to do |format|
-          flash[:alert] = unauthorized_message
-          format.html { redirect_to grades_url }
-          format.json { render json: { error: "Unauthorized" }, status: :unauthorized }
-        end
+        redirect_to grades_url, alert: unauthorized_message
       end
     end
 
@@ -149,11 +140,7 @@ class GradesController < ApplicationController
 
     def authorize_access_to_grade
       unless can_access_grade?(@grade)
-        respond_to do |format|
-          flash[:alert] = "You are not authorized to view this grade."
-          format.html { redirect_to grades_url }
-          format.json { render json: { error: "Unauthorized" }, status: :unauthorized }
-        end
+        redirect_to grades_url, alert: "You are not authorized to view this grade."
       end
     end
 

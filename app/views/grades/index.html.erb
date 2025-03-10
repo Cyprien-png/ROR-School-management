@@ -1,3 +1,5 @@
+<p style="color: green"><%= notice %></p>
+
 <% content_for :title, "Grades" %>
 
 <div class="space-y-6">
@@ -13,23 +15,13 @@
       <% end %>
     </div>
     
-    <div class="flex space-x-3">
-      <% if current_person.is_a?(Student) %>
-        <%= render 'shared/button', 
-          text: "View Promotion Report", 
-          icon: "fa-solid fa-graduation-cap",
-          color: "indigo", 
-          href: grade_report_student_path(current_person) %>
-      <% end %>
-      
-      <% if can_manage_grades? %>
-        <%= render 'shared/button', 
-          text: "New Grade", 
-          icon: "fa-solid fa-plus",
-          color: "red", 
-          href: new_grade_path %>
-      <% end %>
-    </div>
+    <% if can_manage_grades? %>
+      <%= render 'shared/button', 
+        text: "New Grade", 
+        icon: "fa-solid fa-plus",
+        color: "red", 
+        href: new_grade_path %>
+    <% end %>
   </div>
 
   <div class="overflow-hidden rounded-lg border border-red-200 shadow-sm mb-6">

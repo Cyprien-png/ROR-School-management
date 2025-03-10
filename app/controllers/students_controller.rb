@@ -3,7 +3,8 @@ class StudentsController < PeopleController
   include GradeReportsHelper
   
   before_action :authenticate_person!
-  before_action :authorize_dean, only: [:new, :create, :edit, :update, :destroy, :grade_report]
+  before_action :authorize_dean, only: [:new, :create, :edit, :update, :destroy]
+  before_action :authorize_dean_or_self, only: [:grade_report]
   before_action :set_student, only: [:edit, :update, :destroy, :grade_report]
 
   def new
@@ -63,8 +64,7 @@ class StudentsController < PeopleController
     end
     
     if @school_class.nil?
-      flash[:alert] = "Student is not assigned to any class."
-      redirect_to people_url
+      redirect_to people_url, alert: "Student is not assigned to any class."
       return
     end
 
@@ -94,5 +94,22 @@ class StudentsController < PeopleController
       :password_confirmation,
       :status
     )
+  end
+  
+  def authorize_dean_or_self
+    return true if current_person.is_a?(Dean)
+    
+    # Allow students to view their own grade reports
+    if current_person.is_a?(Student) && current_person.id.to_s == params[:id]
+      return true
+    end
+    
+    # Otherwise, deny access
+    respond_to do |format|
+      flash[:alert] = "You are not authorized to view this grade report."
+      format.html { redirect_to root_path }
+      format.json { render json: { error: "Unauthorized" }, status: :unauthorized }
+    end
+    return false
   end
 end 

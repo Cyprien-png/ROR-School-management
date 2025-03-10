@@ -46,11 +46,13 @@
             color: "outline-indigo", 
             href: school_classes_teacher_path(@person) %>
         <% end -%>
-      <% elsif current_person == @person && @person.is_a?(Student) %>
+      <% end -%>
+      
+      <% if @person.is_a?(Student) && current_person == @person -%>
         <%= render 'shared/button', 
-          text: "View Promotion Report", 
-          icon: "fa-solid fa-graduation-cap",
-          color: "indigo", 
+          text: "My Grade Report", 
+          icon: "fa-solid fa-chart-line",
+          color: "outline-purple", 
           href: grade_report_student_path(@person) %>
       <% end -%>
       

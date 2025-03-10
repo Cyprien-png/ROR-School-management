@@ -26,146 +26,9 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
     
     <%= yield :styles %>
-    
-    <style>
-      .toast-container {
-        position: fixed;
-        bottom: 1rem;
-        right: 1rem;
-        z-index: 9999;
-        display: flex;
-        flex-direction: column-reverse;
-        gap: 0.5rem;
-        max-width: 20rem;
-      }
-      
-      .toast {
-        display: flex;
-        align-items: flex-start;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        opacity: 0;
-        transform: translateY(100%);
-        transition: all 0.5s ease-in-out;
-      }
-      
-      .toast.show {
-        opacity: 1;
-        transform: translateY(0);
-      }
-      
-      .toast-notice {
-        background-color: #EFF6FF;
-        border: 1px solid #93C5FD;
-        color: #1E40AF;
-      }
-      
-      .toast-success {
-        background-color: #ECFDF5;
-        border: 1px solid #6EE7B7;
-        color: #065F46;
-      }
-      
-      .toast-alert, .toast-error {
-        background-color: #FEF2F2;
-        border: 1px solid #FCA5A5;
-        color: #B91C1C;
-      }
-      
-      .toast-warning {
-        background-color: #FFFBEB;
-        border: 1px solid #FCD34D;
-        color: #92400E;
-      }
-      
-      .toast-icon {
-        flex-shrink: 0;
-        margin-right: 0.75rem;
-      }
-      
-      .toast-content {
-        flex: 1;
-      }
-      
-      .toast-close {
-        flex-shrink: 0;
-        margin-left: 0.75rem;
-        color: #9CA3AF;
-        cursor: pointer;
-      }
-      
-      .toast-close:hover {
-        color: #6B7280;
-      }
-    </style>
   </head>
 
   <body class="flex flex-col min-h-screen font-sans bg-gray-50">
-    <% if flash.any? %>
-      <div class="toast-container">
-        <% flash.each do |type, message| %>
-          <div class="toast toast-<%= type %>">
-            <div class="toast-icon">
-              <% if type.to_s == 'notice' %>
-                <i class="fa-solid fa-info-circle"></i>
-              <% elsif type.to_s == 'success' %>
-                <i class="fa-solid fa-check-circle"></i>
-              <% elsif ['alert', 'error'].include?(type.to_s) %>
-                <i class="fa-solid fa-exclamation-circle"></i>
-              <% elsif type.to_s == 'warning' %>
-                <i class="fa-solid fa-exclamation-triangle"></i>
-              <% else %>
-                <i class="fa-solid fa-bell"></i>
-              <% end %>
-            </div>
-            <div class="toast-content">
-              <p class="text-sm font-medium"><%= message %></p>
-            </div>
-            <div class="toast-close">
-              <i class="fa-solid fa-times"></i>
-            </div>
-          </div>
-        <% end %>
-      </div>
-      
-      <script>
-        (function() {
-          const toasts = document.querySelectorAll('.toast');
-          
-          toasts.forEach((toast, index) => {
-            // Show toast with delay
-            setTimeout(() => {
-              toast.classList.add('show');
-            }, index * 150);
-            
-            // Auto-hide after 5 seconds
-            setTimeout(() => {
-              hideToast(toast);
-            }, 5000 + (index * 150));
-            
-            // Add click event to close button
-            const closeButton = toast.querySelector('.toast-close');
-            if (closeButton) {
-              closeButton.addEventListener('click', () => {
-                hideToast(toast);
-              });
-            }
-          });
-          
-          function hideToast(toast) {
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateY(100%)';
-            setTimeout(() => {
-              if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-              }
-            }, 500);
-          }
-        })();
-      </script>
-    <% end %>
-    
     <% if person_signed_in? %>
       <header class="bg-indigo-600 shadow-md">
         <nav class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -176,28 +39,26 @@
               </div>
               <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
                 <!-- Common navigation links for all users -->
-                <%= link_to "Lectures", lectures_path, class: "#{controller_name == 'lectures' ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                <%= link_to "People", people_path, class: "#{['people', 'students', 'teachers'].include?(controller_name) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                <%= link_to "People", people_path, class: "#{current_page?(people_path) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
                 
                 <% if current_person.is_a?(Dean) %>
                   <!-- Dean-specific links -->
-                  <%= link_to "School Classes", school_classes_path, class: "#{controller_name == 'school_classes' ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <%= link_to "Subjects", subjects_path, class: "#{controller_name == 'subjects' ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <%= link_to "Examinations", examinations_path, class: "#{controller_name == 'examinations' ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <%= link_to "Grades", grades_path, class: "#{controller_name == 'grades' ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <%= link_to "Years", years_path, class: "#{controller_name == 'years' ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <%= link_to "School Classes", school_classes_path, class: "#{current_page?(school_classes_path) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <%= link_to "Subjects", subjects_path, class: "#{current_page?(subjects_path) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <%= link_to "Lectures", lectures_path, class: "#{current_page?(lectures_path) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <%= link_to "Examinations", examinations_path, class: "#{current_page?(examinations_path) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <%= link_to "Grades", grades_path, class: "#{current_page?(grades_path) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <%= link_to "Years", years_path, class: "#{current_page?(years_path) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
                 <% elsif current_person.is_a?(Teacher) %>
                   <!-- Teacher-specific links -->
-                  <%= link_to "My Classes", school_classes_teacher_path(current_person), class: "#{controller_name == 'school_classes' ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <%= link_to "Examinations", examinations_path, class: "#{controller_name == 'examinations' ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <%= link_to "Grades", grades_path, class: "#{controller_name == 'grades' ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <%= link_to "My Classes", school_classes_teacher_path(current_person), class: "#{current_page?(school_classes_teacher_path(current_person)) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <%= link_to "Lectures", lectures_path, class: "#{current_page?(lectures_path) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <%= link_to "Examinations", examinations_path, class: "#{current_page?(examinations_path) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <%= link_to "Grades", grades_path, class: "#{current_page?(grades_path) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
                 <% elsif current_person.is_a?(Student) %>
                   <!-- Student-specific links -->
-                  <% student_class = current_person.school_classes.last %>
-                  <% if student_class %>
-                    <%= link_to "My Class", school_class_path(student_class), class: "#{controller_name == 'school_classes' && action_name == 'show' && params[:id].to_i == student_class.id ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <% end %>
-                  <%= link_to "My Grades", grades_path, class: "#{controller_name == 'grades' ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <%= link_to "My Classes", person_path(current_person), class: "#{current_page?(person_path(current_person)) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <%= link_to "My Grades", grades_path, class: "#{current_page?(grades_path) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
                 <% end %>
               </div>
             </div>
@@ -231,28 +92,26 @@
         <div class="hidden mobile-menu sm:hidden">
           <div class="pt-2 pb-3 space-y-1">
             <!-- Common navigation links for all users -->
-            <%= link_to "Lectures", lectures_path, class: "#{controller_name == 'lectures' ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
-            <%= link_to "People", people_path, class: "#{['people', 'students', 'teachers'].include?(controller_name) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+            <%= link_to "People", people_path, class: "#{current_page?(people_path) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
             
             <% if current_person.is_a?(Dean) %>
               <!-- Dean-specific links -->
-              <%= link_to "School Classes", school_classes_path, class: "#{controller_name == 'school_classes' ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
-              <%= link_to "Subjects", subjects_path, class: "#{controller_name == 'subjects' ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
-              <%= link_to "Examinations", examinations_path, class: "#{controller_name == 'examinations' ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
-              <%= link_to "Grades", grades_path, class: "#{controller_name == 'grades' ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
-              <%= link_to "Years", years_path, class: "#{controller_name == 'years' ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <%= link_to "School Classes", school_classes_path, class: "#{current_page?(school_classes_path) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <%= link_to "Subjects", subjects_path, class: "#{current_page?(subjects_path) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <%= link_to "Lectures", lectures_path, class: "#{current_page?(lectures_path) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <%= link_to "Examinations", examinations_path, class: "#{current_page?(examinations_path) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <%= link_to "Grades", grades_path, class: "#{current_page?(grades_path) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <%= link_to "Years", years_path, class: "#{current_page?(years_path) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
             <% elsif current_person.is_a?(Teacher) %>
               <!-- Teacher-specific links -->
-              <%= link_to "My Classes", school_classes_teacher_path(current_person), class: "#{controller_name == 'school_classes' ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
-              <%= link_to "Examinations", examinations_path, class: "#{controller_name == 'examinations' ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
-              <%= link_to "Grades", grades_path, class: "#{controller_name == 'grades' ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <%= link_to "My Classes", school_classes_teacher_path(current_person), class: "#{current_page?(school_classes_teacher_path(current_person)) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <%= link_to "Lectures", lectures_path, class: "#{current_page?(lectures_path) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <%= link_to "Examinations", examinations_path, class: "#{current_page?(examinations_path) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <%= link_to "Grades", grades_path, class: "#{current_page?(grades_path) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
             <% elsif current_person.is_a?(Student) %>
               <!-- Student-specific links -->
-              <% student_class = current_person.school_classes.last %>
-              <% if student_class %>
-                <%= link_to "My Class", school_class_path(student_class), class: "#{controller_name == 'school_classes' && action_name == 'show' && params[:id].to_i == student_class.id ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
-              <% end %>
-              <%= link_to "My Grades", grades_path, class: "#{controller_name == 'grades' ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <%= link_to "My Classes", person_path(current_person), class: "#{current_page?(person_path(current_person)) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <%= link_to "My Grades", grades_path, class: "#{current_page?(grades_path) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
             <% end %>
           </div>
           <div class="pt-4 pb-3 border-t border-indigo-700">
@@ -270,8 +129,34 @@
       </header>
     <% end %>
 
-    <main class="flex-1 px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
-      <div class="container mx-auto">
+    <main class="flex-grow">
+      <div class="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <% if notice %>
+          <div class="p-4 mb-6 bg-green-50 border-l-4 border-green-400">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <i class="text-green-400 fas fa-check-circle"></i>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm text-green-700"><%= notice %></p>
+              </div>
+            </div>
+          </div>
+        <% end %>
+        
+        <% if alert %>
+          <div class="p-4 mb-6 bg-red-50 border-l-4 border-red-400">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <i class="text-red-400 fas fa-exclamation-circle"></i>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm text-red-700"><%= alert %></p>
+              </div>
+            </div>
+          </div>
+        <% end %>
+        
         <%= yield %>
       </div>
     </main>

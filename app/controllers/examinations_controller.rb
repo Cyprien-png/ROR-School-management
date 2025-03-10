@@ -103,11 +103,7 @@ class ExaminationsController < ApplicationController
 
     def authorize_dean_or_teacher
       unless current_person.is_a?(Dean) || current_person.is_a?(Teacher)
-        respond_to do |format|
-          flash[:alert] = "You are not authorized to perform this action."
-          format.html { redirect_to root_path }
-          format.json { render json: { error: "Unauthorized" }, status: :unauthorized }
-        end
+        redirect_to root_path, alert: "You are not authorized to perform this action."
       end
     end
 end
