@@ -127,12 +127,12 @@
                 <% elsif current_person.is_a?(Teacher) %>
                   <!-- Teacher-specific links -->
                   <% first_class = current_person.school_classes.first %>
-                  <% if first_class %>
+                  <% if first_class.present? %>
                     <%= link_to "My Class", school_class_path(first_class), class: "#{request.path == school_class_path(first_class) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
                   <% end %>
-                  <%= link_to "Lectures", lectures_path, class: "#{request.path.start_with?('/lectures') ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <%= link_to "Examinations", examinations_path, class: "#{request.path.start_with?('/examinations') ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <%= link_to "Grades", grades_path, class: "#{request.path.start_with?('/grades') || (request.path.start_with?('/students/') && request.path.include?('grade_report')) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <%= link_to "Lectures", lectures_path, class: "#{request.path.start_with?('/lectures') ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+                  <%= link_to "Examinations", examinations_path, class: "#{request.path.start_with?('/examinations') ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+                  <%= link_to "Grades", grades_path, class: "#{request.path.start_with?('/grades') || (request.path.start_with?('/students/') && request.path.include?('grade_report')) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
                 <% elsif current_person.is_a?(Student) %>
                   <!-- Student-specific links -->
                   <%= link_to "Lectures", lectures_path, class: "#{request.path.start_with?('/lectures') ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
@@ -189,7 +189,10 @@
               <%= link_to "Years", years_path, class: "#{request.path.start_with?('/years') ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
             <% elsif current_person.is_a?(Teacher) %>
               <!-- Teacher-specific links -->
-              <%= link_to "My Class", school_class_path(first_class), class: "#{request.path == school_class_path(first_class) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <% first_class = current_person.school_classes.first %>
+              <% if first_class.present? %>
+                <%= link_to "My Class", school_class_path(first_class), class: "#{request.path == school_class_path(first_class) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <% end %>
               <%= link_to "Lectures", lectures_path, class: "#{request.path.start_with?('/lectures') ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
               <%= link_to "Examinations", examinations_path, class: "#{request.path.start_with?('/examinations') ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
               <%= link_to "Grades", grades_path, class: "#{request.path.start_with?('/grades') || (request.path.start_with?('/students/') && request.path.include?('grade_report')) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
@@ -223,7 +226,7 @@
 
     <main class="flex-grow">
       <div class="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <%= yield %>
+      <%= yield %>
       </div>
     </main>
     

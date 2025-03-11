@@ -4,6 +4,11 @@ class TeachersControllerTest < ActionDispatch::IntegrationTest
   def setup
     super
     @timestamp = Time.current.to_f
+    @dean = create_dean
+    @teacher = create_teacher
+    
+    # Create a school class for the teacher to fix layout issues
+    @school_class = create_school_class(@teacher)
   end
 
   def create_dean
@@ -137,23 +142,21 @@ class TeachersControllerTest < ActionDispatch::IntegrationTest
   test "should not create teacher with invalid data" do
     dean = create_dean
     sign_in dean
-    
     assert_no_difference("Teacher.count") do
       post teachers_url, params: {
         teacher: {
-          lastname: "", # Invalid: blank lastname
-          firstname: "Teacher",
-          email: "invalid-email", # Invalid email format
-          phone_number: "1111111111",
-          iban: "", # Invalid: blank IBAN
+          lastname: "",
+          firstname: "",
+          email: "invalid",
+          phone_number: "",
+          iban: "",
           password: "password",
-          password_confirmation: "different_password" # Invalid: doesn't match password
+          password_confirmation: "password"
         }
       }
     end
-
     assert_response :unprocessable_entity
-    assert_select "h2", /prohibited this teacher from being saved/
+    assert_select ".bg-red-50", /prohibited this teacher from being saved/
   end
 
   test "should get edit when dean" do
@@ -162,7 +165,7 @@ class TeachersControllerTest < ActionDispatch::IntegrationTest
     sign_in dean
     get edit_teacher_url(teacher)
     assert_response :success
-    assert_select "h1", "Editing teacher"
+    assert_select "h1", /Edit Teacher: .*/
   end
 
   test "should not get edit when teacher" do

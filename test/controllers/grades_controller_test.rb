@@ -37,10 +37,6 @@ class GradesControllerTest < ActionDispatch::IntegrationTest
       password_confirmation: "password"
     )
     
-    # Create a subject and assign it to the teacher
-    @subject = Subject.create!(name: "Mathematics")
-    @teacher.subjects << @subject
-    
     # Create a year with trimesters
     @year = Year.create!(
       first_trimester: create_trimester(Date.new(2024,8,1), Date.new(2024,10,31)),
@@ -49,7 +45,7 @@ class GradesControllerTest < ActionDispatch::IntegrationTest
       fourth_trimester: create_trimester(Date.new(2025,5,1), Date.new(2025,7,31))
     )
     
-    # Create a school class with the year and add a student
+    # Create a school class for the teacher to fix layout issues
     @school_class = SchoolClass.create!(
       name: "Test Class",
       grade: 1,
@@ -57,6 +53,10 @@ class GradesControllerTest < ActionDispatch::IntegrationTest
       teacher: @teacher
     )
     @school_class.students << @student
+    
+    # Create a subject and assign it to the teacher
+    @subject = Subject.create!(name: "Mathematics")
+    @teacher.subjects << @subject
     
     # Create a lecture
     @lecture = Lecture.create!(
@@ -76,14 +76,12 @@ class GradesControllerTest < ActionDispatch::IntegrationTest
       lecture: @lecture
     )
     
-    # Create a grade with current_teacher set
-    @grade = Grade.new(
-      value: 5.50,
+    # Create a grade
+    @grade = Grade.create!(
+      value: 5.0,
       examination: @examination,
       student: @student
     )
-    @grade.current_teacher = @teacher
-    @grade.save!
   end
 
   def teardown
@@ -96,6 +94,18 @@ class GradesControllerTest < ActionDispatch::IntegrationTest
     Person.unscoped.delete_all
     Year.unscoped.delete_all
     Trimester.unscoped.delete_all
+  end
+
+  # Helper method for signing in
+  def sign_in(person)
+    post new_person_session_path, params: {
+      person: {
+        email: person.email,
+        password: "password"
+      }
+    }
+    assert_response :redirect
+    follow_redirect!
   end
 
   # Index action tests
