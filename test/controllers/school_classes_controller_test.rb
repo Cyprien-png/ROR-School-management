@@ -409,4 +409,80 @@ class SchoolClassesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
     assert_equal "Only deans are allowed to perform this action.", flash[:alert]
   end
+
+  # ADD STUDENT TESTS
+  
+  test "should add student to class when signed in as dean" do
+    sign_in @dean
+    student = create_student
+    
+    assert_difference -> { @school_class.students.count }, 1 do
+      post add_student_school_class_url(@school_class), params: { student_id: student.id }
+    end
+    
+    assert_redirected_to school_class_url(@school_class)
+    assert_equal "Student was successfully added to the class.", flash[:notice]
+    assert_includes @school_class.students, student
+  end
+  
+  test "should not add student to multiple classes from the same academic year" do
+    sign_in @dean
+    student = create_student
+    
+    # Get the year from the existing school class
+    year = @school_class.year
+    
+    # Create another class in the same academic year
+    second_class = SchoolClass.create!(
+      name: "Test Class 2-#{@timestamp}",
+      grade: 2,
+      teacher: @teacher,
+      year: year
+    )
+    
+    # Add student to the first class
+    post add_student_school_class_url(@school_class), params: { student_id: student.id }
+    assert_redirected_to school_class_url(@school_class)
+    assert_equal "Student was successfully added to the class.", flash[:notice]
+    assert_includes @school_class.students.reload, student
+    
+    # Try to add student to the second class (should fail)
+    post add_student_school_class_url(second_class), params: { student_id: student.id }
+    assert_redirected_to school_class_url(second_class)
+    assert_match /Student is already assigned to a class in the academic year/, flash[:alert]
+    assert_not_includes second_class.students.reload, student
+  end
+  
+  test "should add student to classes from different academic years" do
+    sign_in @dean
+    student = create_student
+    
+    # Create a different academic year
+    second_year = Year.create!(
+      first_trimester: create_trimester(Date.new(2025,8,1), Date.new(2025,10,31)),
+      second_trimester: create_trimester(Date.new(2025,11,1), Date.new(2026,1,31)),
+      third_trimester: create_trimester(Date.new(2026,2,1), Date.new(2026,4,30)),
+      fourth_trimester: create_trimester(Date.new(2026,5,1), Date.new(2026,7,31))
+    )
+    
+    # Create another class in a different academic year
+    second_class = SchoolClass.create!(
+      name: "Test Class 2-#{@timestamp}",
+      grade: 2,
+      teacher: @teacher,
+      year: second_year
+    )
+    
+    # Add student to the first class
+    post add_student_school_class_url(@school_class), params: { student_id: student.id }
+    assert_redirected_to school_class_url(@school_class)
+    assert_equal "Student was successfully added to the class.", flash[:notice]
+    assert_includes @school_class.students, student
+    
+    # Add student to the second class (should succeed)
+    post add_student_school_class_url(second_class), params: { student_id: student.id }
+    assert_redirected_to school_class_url(second_class)
+    assert_equal "Student was successfully added to the class.", flash[:notice]
+    assert_includes second_class.students, student
+  end
 end

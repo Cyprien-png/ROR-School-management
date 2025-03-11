@@ -29,7 +29,11 @@ class StudentTest < ActiveSupport::TestCase
     assert_includes @student.school_classes, class1
     
     # Try to add student to the second class (should fail)
-    @student.school_classes << class2
+    assert_no_difference -> { @student.school_classes.count } do
+      @student.school_classes << class2
+    end
+    
+    # Verify that there are validation errors
     assert @student.errors.any?
     assert_includes @student.errors.full_messages.to_sentence, "Cannot be assigned to multiple school classes in the same academic year"
     
@@ -37,6 +41,7 @@ class StudentTest < ActiveSupport::TestCase
     @student.reload
     assert_includes @student.school_classes, class1
     assert_not_includes @student.school_classes, class2
+    assert_equal 1, @student.school_classes.count
   end
   
   test "should allow student to be in multiple classes from different academic years" do
@@ -65,7 +70,16 @@ class StudentTest < ActiveSupport::TestCase
     
     # Add student to both classes
     @student.school_classes << class1
-    @student.school_classes << class2
+    assert_includes @student.school_classes, class1
+    assert_equal 1, @student.school_classes.count
+    
+    # Add student to the second class (should succeed)
+    assert_difference -> { @student.school_classes.count }, 1 do
+      @student.school_classes << class2
+    end
+    
+    # Verify that there are no validation errors
+    assert_not @student.errors.any?
     
     # Verify that the student is in both classes
     @student.reload

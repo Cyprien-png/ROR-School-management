@@ -326,4 +326,68 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".overflow-hidden", { minimum: 1 }
   end
+
+  test "should create student with school class when signed in as dean" do
+    sign_in @dean
+    
+    assert_difference("Student.count") do
+      post students_url, params: {
+        student: {
+          lastname: "Student",
+          firstname: "Test",
+          email: "student-#{@timestamp}-#{SecureRandom.hex(4)}@test.com",
+          phone_number: "1234567890",
+          password: "password",
+          password_confirmation: "password",
+          status: "in_formation",
+          school_class_id: @school_class.id
+        }
+      }
+    end
+    
+    student = Student.last
+    assert_redirected_to person_url(student)
+    assert_equal "Student was successfully created.", flash[:notice]
+    assert_includes @school_class.students, student
+  end
+  
+  test "should not allow adding student to multiple classes from same year" do
+    sign_in @dean
+    
+    # Get the year from the existing school class
+    year = @school_class.year
+    
+    # Create a student with a school class
+    post students_url, params: {
+      student: {
+        lastname: "Student",
+        firstname: "Test",
+        email: "student-#{@timestamp}-#{SecureRandom.hex(4)}@test.com",
+        phone_number: "1234567890",
+        password: "password",
+        password_confirmation: "password",
+        status: "in_formation",
+        school_class_id: @school_class.id
+      }
+    }
+    
+    student = Student.last
+    assert_redirected_to person_url(student)
+    assert_equal "Student was successfully created.", flash[:notice]
+    assert_includes @school_class.students, student
+    
+    # Create another class in the same academic year
+    second_class = SchoolClass.create!(
+      name: "Test Class 2-#{@timestamp}",
+      grade: 2,
+      teacher: @teacher,
+      year: year
+    )
+    
+    # Try to add student to the second class (should fail)
+    post add_student_school_class_url(second_class), params: { student_id: student.id }
+    assert_redirected_to school_class_url(second_class)
+    assert_match /Student is already assigned to a class in the academic year/, flash[:alert]
+    assert_not_includes second_class.students, student
+  end
 end 
