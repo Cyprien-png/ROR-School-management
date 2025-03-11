@@ -1,0 +1,67 @@
+<% content_for :title, "Deleted Academic Years" %>
+
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Deleted Academic Years</h1>
+    <div class="flex space-x-2">
+      <%= render 'shared/button', 
+        text: "Back to Years", 
+        icon: "fa-solid fa-arrow-left",
+        color: "outline-gray", 
+        href: years_path %>
+    </div>
+  </div>
+
+  <%= render 'shared/resource_tabs', 
+    active_tab: :deleted, 
+    active_path: years_path, 
+    deleted_path: deleted_years_path %>
+
+  <div class="overflow-hidden mb-6 rounded-lg border border-indigo-200 shadow-sm">
+    <div class="flex items-center px-4 py-5 bg-indigo-50 sm:px-6">
+      <i class="mr-3 text-xl fa-solid fa-calendar-days"></i>
+      <h3 class="text-lg font-medium leading-6 text-indigo-700">
+        Deleted Academic Years
+      </h3>
+    </div>
+    <div class="px-4 py-5 bg-white border-t border-gray-200 sm:p-6">
+      <% if @years.any? %>
+        <div class="overflow-x-auto shadow-md sm:rounded-lg">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Academic Year</th>
+                <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">First Trimester</th>
+                <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Last Trimester</th>
+                <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% @years.each_with_index do |year, index| %>
+                <tr class="<%= index.odd? ? 'bg-gray-50' : '' %>">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <%= "#{year.first_trimester.start_date.year}-#{year.fourth_trimester.end_date.year}" %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <%= "#{year.first_trimester.start_date.strftime('%b %d, %Y')} - #{year.first_trimester.end_date.strftime('%b %d, %Y')}" %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <%= "#{year.fourth_trimester.start_date.strftime('%b %d, %Y')} - #{year.fourth_trimester.end_date.strftime('%b %d, %Y')}" %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <%= render 'shared/undelete_button', path: undelete_year_path(year) %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="text-center py-8 text-gray-500">
+          <i class="fa-solid fa-trash-can text-4xl mb-4"></i>
+          <p>No deleted academic years found.</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div> 

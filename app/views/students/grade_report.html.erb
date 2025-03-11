@@ -1,0 +1,191 @@
+<% content_for :title, "Grade Report: #{@student.firstname} #{@student.lastname}" %>
+
+<div class="space-y-6">
+  <div class="flex flex-col md:flex-row md:justify-between md:items-center">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">
+        Grade Report: <%= "#{@student.firstname} #{@student.lastname}" %>
+      </h1>
+      <p class="text-gray-500">
+        <%= @school_class.name %> (<%= "#{@school_class.year.first_trimester.start_date.year}-#{@school_class.year.fourth_trimester.end_date.year}" %>)
+      </p>
+    </div>
+    <% if current_person.is_a?(Dean) %>
+      <%= render 'shared/button', 
+        text: "Back to Student", 
+        icon: "fa-solid fa-arrow-left",
+        color: "outline-gray", 
+        href: person_path(@student) %>
+    <% else %>
+      <%= render 'shared/button', 
+        text: "Back to Grades", 
+        icon: "fa-solid fa-arrow-left",
+        color: "outline-gray", 
+        href: grades_path %>
+    <% end %>
+  </div>
+
+  <!-- Year Selector -->
+  <div class="overflow-hidden bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 bg-indigo-50 sm:px-6">
+      <h3 class="text-lg font-medium leading-6 text-indigo-800">
+        Academic Year
+      </h3>
+    </div>
+    <div class="px-4 py-5 border-t border-gray-200 sm:p-6">
+      <div class="flex flex-wrap gap-2">
+        <% @available_years.each do |year| %>
+          <% year_range = "#{year.first_trimester.start_date.year}-#{year.fourth_trimester.end_date.year}" %>
+          <% is_current = year.id == @year.id %>
+          <%= link_to year_range, 
+            grade_report_student_path(@student, year_id: year.id, semester: @semester), 
+            class: "px-4 py-2 rounded-md text-sm font-medium #{is_current ? 'bg-indigo-600 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'}" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Semester Selector -->
+  <div class="overflow-hidden bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 bg-blue-50 sm:px-6">
+      <h3 class="text-lg font-medium leading-6 text-blue-800">
+        Semester
+      </h3>
+    </div>
+    <div class="px-4 py-5 border-t border-gray-200 sm:p-6">
+      <div class="flex flex-wrap gap-2">
+        <% ["first_semester", "second_semester"].each_with_index do |sem, index| %>
+          <% is_current = sem == @semester.to_s %>
+          <%= link_to "Semester #{index + 1}", 
+            grade_report_student_path(@student, year_id: @year.id, semester: sem), 
+            class: "px-4 py-2 rounded-md text-sm font-medium #{is_current ? 'bg-blue-600 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'}" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grades Table -->
+  <div class="overflow-hidden mb-6 rounded-lg border border-red-200 shadow-sm">
+    <div class="flex items-center px-4 py-5 bg-red-50 sm:px-6">
+      <i class="mr-3 text-xl fa-solid fa-chart-simple"></i>
+      <h3 class="text-lg font-medium leading-6 text-red-700">
+        Academic Performance - Semester <%= @semester.to_s == "first_semester" ? "1" : "2" %>
+      </h3>
+    </div>
+    <div class="px-4 py-5 bg-white border-t border-gray-200 sm:p-6">
+      <% if @subject_grades.any? %>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                  Subject
+                </th>
+                <% max_grades = @subject_grades.values.map { |data| data[:grades].count }.max %>
+                <% if max_grades > 0 %>
+                  <th scope="col" class="relative px-6 py-3 text-xs font-medium tracking-wider text-left text-center text-gray-500 uppercase" colspan="<%= max_grades %>">
+                    <div class="flex gap-1 justify-center items-center">
+                      Grades
+                      <div class="relative">
+                        <i class="text-gray-400 cursor-help fas fa-info-circle hover:text-gray-600" title="'//' indicates that an examination exists but the grade has not been entered yet"></i>
+                      </div>
+                    </div>
+                  </th>
+                <% end %>
+                <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                  Average
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% @subject_grades.each do |subject, data| %>
+                <tr>
+                  <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                    <%= subject.name %>
+                  </td>
+                  
+                  <% data[:grades].each_with_index do |grade, index| %>
+                    <td class="px-6 py-4 text-center whitespace-nowrap">
+                      <% if grade.nil? %>
+                        <% if data[:examinations][index].present? %>
+                          <span class="italic text-gray-400">//</span>
+                        <% else %>
+                          <!-- Empty cell for no examination -->
+                        <% end %>
+                      <% elsif grade < 4.0 %>
+                        <%= render 'shared/badge', text: format_grade(grade), color: "red" %>
+                      <% else %>
+                        <%= render 'shared/badge', text: format_grade(grade), color: "green" %>
+                      <% end %>
+                    </td>
+                  <% end %>
+                  
+                  <% (max_grades - data[:grades].count).times do %>
+                    <td class="px-6 py-4 text-center whitespace-nowrap">
+                      <!-- Empty cell for padding -->
+                    </td>
+                  <% end %>
+                  
+                  <td class="px-6 py-4 font-medium whitespace-nowrap">
+                    <% if data[:count] > 0 %>
+                      <% average = (data[:total] / data[:count]).round(2) %>
+                      <% if average < 4.0 %>
+                        <%= render 'shared/badge', text: format_grade(average), color: "red" %>
+                      <% else %>
+                        <%= render 'shared/badge', text: format_grade(average), color: "green" %>
+                      <% end %>
+                    <% else %>
+                      <span class="italic text-gray-400">//</span>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+              
+              <!-- Overall Average Row -->
+              <tr class="bg-gray-50">
+                <td colspan="<%= max_grades + 1 %>" class="px-6 py-4 font-medium text-right text-gray-900 whitespace-nowrap">
+                  Overall Average:
+                </td>
+                <td class="px-6 py-4 font-medium whitespace-nowrap">
+                  <% if @period_average.nil? %>
+                    <span class="italic text-gray-400">//</span>
+                  <% elsif @period_average < 4.0 %>
+                    <%= render 'shared/badge', text: format_grade(@period_average), color: "red", size: "lg" %>
+                  <% else %>
+                    <%= render 'shared/badge', text: format_grade(@period_average), color: "green", size: "lg" %>
+                  <% end %>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Promotion Status -->
+        <div class="mt-6 bg-gray-50 p-4 rounded-md border <%= @promoted ? 'border-green-200' : 'border-red-200' %>">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <% if @promoted %>
+                <i class="text-xl text-green-500 fas fa-check-circle"></i>
+              <% else %>
+                <i class="text-xl text-red-500 fas fa-times-circle"></i>
+              <% end %>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-lg font-medium <%= @promoted ? 'text-green-800' : 'text-red-800' %>">
+                <%= @promoted ? "Promoted" : "Not Promoted" %>
+              </h3>
+              <div class="mt-2 text-sm <%= @promoted ? 'text-green-700' : 'text-red-700' %>">
+                <%= promotion_status_message(@promoted) %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% else %>
+        <div class="py-8 text-center">
+          <i class="mb-4 text-4xl text-blue-400 fas fa-info-circle"></i>
+          <p class="text-gray-500">No grades available for this semester.</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div> 

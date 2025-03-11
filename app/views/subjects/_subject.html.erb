@@ -1,0 +1,38 @@
+<div id="<%= dom_id subject %>" class="bg-white shadow overflow-hidden sm:rounded-lg">
+  <div class="px-4 py-5 sm:px-6 bg-purple-50">
+    <div class="flex justify-between items-center">
+      <div>
+        <h3 class="text-lg leading-6 font-medium text-purple-800">
+          <%= subject.name %>
+        </h3>
+        <p class="mt-1 max-w-2xl text-sm text-purple-600">
+          Subject Details
+        </p>
+      </div>
+      <%= render 'shared/badge', 
+        text: "#{subject.teachers.count} Teachers", 
+        color: "green" %>
+    </div>
+  </div>
+  <div class="border-t border-gray-200">
+    <dl>
+      <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+        <dt class="text-sm font-medium text-gray-500">Teachers</dt>
+        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+          <% if subject.teachers.any? %>
+            <div class="flex flex-wrap gap-2">
+              <% subject.teachers.each do |teacher| %>
+                <%= link_to person_path(teacher), class: "inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 hover:bg-green-200" do %>
+                  <i class="fas fa-chalkboard-user mr-1"></i>
+                  <%= "#{teacher.firstname} #{teacher.lastname}" %>
+                <% end %>
+              <% end %>
+            </div>
+          <% else %>
+            <span class="text-gray-500 italic">No teachers assigned</span>
+          <% end %>
+        </dd>
+      </div>
+    </dl>
+  </div>
+</div>

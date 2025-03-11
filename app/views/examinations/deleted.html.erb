@@ -1,0 +1,56 @@
+<% content_for :title, "Deleted Examinations" %>
+
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Deleted Examinations</h1>
+    <%= render 'shared/button', 
+      text: "Back to Examinations", 
+      icon: "fa-solid fa-arrow-left",
+      color: "outline-gray", 
+      href: examinations_path %>
+  </div>
+
+  <%= render 'shared/resource_tabs', 
+    active_tab: :deleted, 
+    active_path: examinations_path, 
+    deleted_path: deleted_examinations_path %>
+
+  <% if @examinations.any? %>
+    <div class="overflow-x-auto shadow-md sm:rounded-lg">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Class</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teacher</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @examinations.each_with_index do |examination, index| %>
+            <tr class="<%= index.odd? ? 'bg-gray-50' : '' %>">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= examination.title %></td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= examination.date.strftime("%B %d, %Y") %></td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= examination.lecture.subject.name %></td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= examination.lecture.school_class.name %></td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= "#{examination.lecture.teacher.firstname} #{examination.lecture.teacher.lastname}" %></td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <%= render 'shared/undelete_button', path: undelete_examination_path(examination) %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="text-center py-10">
+      <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-gray-100">
+        <i class="fa-solid fa-trash text-gray-400"></i>
+      </div>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">No deleted examinations</h3>
+      <p class="mt-1 text-sm text-gray-500">There are no deleted examinations to display.</p>
+    </div>
+  <% end %>
+</div> 

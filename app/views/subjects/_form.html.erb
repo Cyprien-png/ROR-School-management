@@ -1,0 +1,162 @@
+<%= form_with(model: subject, class: "space-y-6") do |form| %>
+  <% if subject.errors.any? %>
+    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-exclamation-circle text-red-400"></i>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">
+            <%= pluralize(subject.errors.count, "error") %> prohibited this subject from being saved:
+          </h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="list-disc pl-5 space-y-1">
+              <% subject.errors.each do |error| %>
+                <li><%= error.full_message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 bg-purple-50">
+      <h3 class="text-lg leading-6 font-medium text-purple-800">
+        Subject Information
+      </h3>
+      <p class="mt-1 max-w-2xl text-sm text-purple-600">
+        Fill in the details for this subject
+      </p>
+    </div>
+    <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+      <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-1">
+        <div>
+          <%= form.label :name, class: "block text-sm font-medium text-gray-700" %>
+          <%= form.text_field :name, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500" %>
+        </div>
+
+        <div>
+          <%= form.label :teacher_ids, "Teachers", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          
+          <div class="grid grid-cols-1 md:grid-cols-7 gap-4 items-start">
+            <!-- Available teachers -->
+            <div class="md:col-span-3">
+              <div class="text-sm font-medium text-gray-700 mb-2">Available Teachers</div>
+              <select id="available_teachers" multiple class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 h-60">
+                <% 
+                  # Get all teachers that are not assigned to this subject
+                  available_teachers = Teacher.order(:lastname, :firstname).to_a - subject.teachers.to_a 
+                %>
+                <% available_teachers.each do |teacher| %>
+                  <option value="<%= teacher.id %>"><%= "#{teacher.lastname} #{teacher.firstname}" %></option>
+                <% end %>
+              </select>
+            </div>
+            
+            <!-- Transfer buttons -->
+            <div class="md:col-span-1 flex md:flex-col justify-center items-center space-y-2 py-4">
+              <button type="button" id="add_teacher" class="inline-flex items-center p-2 border border-transparent rounded-full shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+              <button type="button" id="remove_teacher" class="inline-flex items-center p-2 border border-transparent rounded-full shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+            </div>
+            
+            <!-- Selected teachers -->
+            <div class="md:col-span-3">
+              <div class="text-sm font-medium text-gray-700 mb-2">Selected Teachers</div>
+              <%= form.collection_select :teacher_ids, 
+                  subject.teachers.order(:lastname, :firstname), 
+                  :id, 
+                  ->(teacher) { "#{teacher.lastname} #{teacher.firstname}" }, 
+                  {}, 
+                  { multiple: true, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 h-60", id: "selected_teachers" } %>
+            </div>
+          </div>
+          
+          <p class="mt-2 text-sm text-gray-500">Click on a teacher and use the arrow buttons to add or remove them</p>
+        </div>
+      </div>
+    </div>
+    <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+      <%= form.submit class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500" %>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const availableTeachers = document.getElementById('available_teachers');
+      const selectedTeachers = document.getElementById('selected_teachers');
+      const addButton = document.getElementById('add_teacher');
+      const removeButton = document.getElementById('remove_teacher');
+      
+      // Add teacher button
+      addButton.addEventListener('click', function() {
+        moveOptions(availableTeachers, selectedTeachers);
+        updateSelectedOptions();
+      });
+      
+      // Remove teacher button
+      removeButton.addEventListener('click', function() {
+        moveOptions(selectedTeachers, availableTeachers);
+        updateSelectedOptions();
+      });
+      
+      // Double-click to move
+      availableTeachers.addEventListener('dblclick', function() {
+        moveOptions(availableTeachers, selectedTeachers);
+        updateSelectedOptions();
+      });
+      
+      selectedTeachers.addEventListener('dblclick', function() {
+        moveOptions(selectedTeachers, availableTeachers);
+        updateSelectedOptions();
+      });
+      
+      // Helper function to move options between select elements
+      function moveOptions(fromSelect, toSelect) {
+        const selectedOptions = Array.from(fromSelect.selectedOptions);
+        
+        selectedOptions.forEach(option => {
+          const newOption = document.createElement('option');
+          newOption.value = option.value;
+          newOption.text = option.text;
+          toSelect.add(newOption);
+          fromSelect.remove(fromSelect.options.selectedIndex);
+        });
+        
+        // Sort the destination list alphabetically
+        sortSelectOptions(toSelect);
+      }
+      
+      // Helper function to sort select options alphabetically
+      function sortSelectOptions(selectElement) {
+        const options = Array.from(selectElement.options);
+        options.sort((a, b) => a.text.localeCompare(b.text));
+        
+        while (selectElement.options.length > 0) {
+          selectElement.remove(0);
+        }
+        
+        options.forEach(option => {
+          selectElement.add(option);
+        });
+      }
+      
+      // Make sure all options in the selected list are actually selected when submitting
+      function updateSelectedOptions() {
+        for (let i = 0; i < selectedTeachers.options.length; i++) {
+          selectedTeachers.options[i].selected = true;
+        }
+      }
+      
+      // Ensure all options are selected when the form is submitted
+      document.querySelector('form').addEventListener('submit', function() {
+        updateSelectedOptions();
+      });
+    });
+  </script>
+<% end %>

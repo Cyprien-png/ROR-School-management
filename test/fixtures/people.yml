@@ -1,0 +1,27 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+teacher_one:
+  type: Teacher
+  lastname: Doe
+  firstname: John
+  email: john.doe@test.com
+  phone_number: "1234567890"
+  iban: GB29NWBK60161331926819
+  encrypted_password: <%= Devise::Encryptor.digest(Person, 'password') %>
+
+student_one:
+  type: Student
+  lastname: Smith
+  firstname: Jane
+  email: jane.smith@test.com
+  phone_number: "0987654321"
+  status: 0
+  encrypted_password: <%= Devise::Encryptor.digest(Person, 'password') %>
+
+dean_one:
+  type: Dean
+  lastname: Johnson
+  firstname: Emily
+  email: emily.johnson@test.com
+  phone_number: "5551234567"
+  encrypted_password: <%= Devise::Encryptor.digest(Person, 'password') %>

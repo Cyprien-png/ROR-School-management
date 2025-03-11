@@ -1,0 +1,60 @@
+<% content_for :title, "Academic Subjects" %>
+
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Academic Subjects</h1>
+    <% if current_person.is_a?(Dean) %>
+      <%= render 'shared/button', 
+        text: "New Subject", 
+        icon: "fa-solid fa-plus",
+        color: "purple", 
+        href: new_subject_path %>
+    <% end %>
+  </div>
+
+  <%= render 'shared/resource_tabs', 
+    active_tab: :active, 
+    active_path: subjects_path, 
+    deleted_path: deleted_subjects_path %>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% @subjects.each do |subject| %>
+      <div class="overflow-hidden rounded-lg border border-purple-200 shadow-sm mb-6">
+        <div class="bg-purple-50 px-4 py-5 sm:px-6 flex items-center">
+          <i class="fa-solid fa-book mr-3 text-xl"></i>
+          <h3 class="text-lg font-medium leading-6 text-purple-700">
+            <%= subject.name %>
+          </h3>
+        </div>
+        <div class="border-t border-gray-200 bg-white px-4 py-5 sm:p-6">
+          <div class="space-y-3">
+            <div>
+              <p class="font-medium text-gray-700">Teachers:</p>
+              <% if subject.teachers.any? %>
+                <div class="flex flex-wrap gap-1 mt-2">
+                  <% subject.teachers.each do |teacher| %>
+                    <%= render 'shared/badge', 
+                      text: "#{teacher.firstname} #{teacher.lastname}", 
+                      color: "green",
+                      size: "sm" %>
+                  <% end %>
+                </div>
+              <% else %>
+                <p class="text-gray-500 italic">No teachers assigned</p>
+              <% end %>
+            </div>
+            
+            <div class="pt-3 border-t border-gray-200">
+              <%= render 'shared/button', 
+                text: "View Details", 
+                icon: "fa-solid fa-eye",
+                color: "outline-purple", 
+                href: subject_path(subject),
+                full_width: true %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

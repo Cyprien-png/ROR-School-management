@@ -1,0 +1,52 @@
+<% content_for :title, "School Classes" %>
+
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">School Classes</h1>
+    <% if current_person.is_a?(Dean) %>
+      <%= render 'shared/button', 
+        text: "New School Class", 
+        icon: "fa-solid fa-plus",
+        color: "blue", 
+        href: new_school_class_path %>
+    <% end %>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% @school_classes.each do |school_class| %>
+      <div class="overflow-hidden rounded-lg border border-blue-200 shadow-sm mb-6">
+        <div class="bg-blue-50 px-4 py-5 sm:px-6 flex items-center">
+          <i class="fa-solid fa-graduation-cap mr-3 text-xl"></i>
+          <h3 class="text-lg font-medium leading-6 text-blue-700">
+            <%= school_class.name %>
+          </h3>
+        </div>
+        <div class="border-t border-gray-200 bg-white px-4 py-5 sm:p-6">
+          <div class="space-y-3">
+            <div class="flex justify-between items-center">
+              <div>
+                <p class="text-gray-500">Grade: <%= school_class.grade %></p>
+                <p class="text-gray-500">Academic Year: <%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %></p>
+              </div>
+              <%= render 'shared/badge', text: "#{school_class.students.count} Students", color: "indigo" %>
+            </div>
+            
+            <div>
+              <p class="font-medium text-gray-700">Teacher:</p>
+              <p class="text-gray-600"><%= "#{school_class.teacher.firstname} #{school_class.teacher.lastname}" %></p>
+            </div>
+            
+            <div class="pt-3 border-t border-gray-200">
+              <%= render 'shared/button', 
+                text: "View Details", 
+                icon: "fa-solid fa-eye",
+                color: "outline-blue", 
+                href: school_class_path(school_class),
+                full_width: true %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

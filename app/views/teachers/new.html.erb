@@ -1,0 +1,16 @@
+<% content_for :title, "New Teacher" %>
+
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">New Teacher</h1>
+    <div class="flex space-x-2">
+      <%= render 'shared/button', 
+        text: "Back to People", 
+        icon: "fa-solid fa-arrow-left",
+        color: "outline-gray", 
+        href: people_path %>
+    </div>
+  </div>
+
+  <%= render "form", teacher: @teacher %>
+</div> 

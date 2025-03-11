@@ -1,0 +1,118 @@
+<% content_for :title, "Grades" %>
+
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-bold">Grades</h1>
+      <% if current_person.is_a?(Student) %>
+        <p class="text-gray-500">Your academic performance</p>
+      <% elsif current_person.is_a?(Teacher) %>
+        <p class="text-gray-500">Grades for your subjects</p>
+      <% elsif current_person.is_a?(Dean) %>
+        <p class="text-gray-500">All student grades</p>
+      <% end %>
+    </div>
+    
+    <div class="flex space-x-2">
+      <% if current_person.is_a?(Student) %>
+        <%= render 'shared/button', 
+          text: "View Grade Report", 
+          icon: "fa-solid fa-chart-line",
+          color: "outline-purple", 
+          href: grade_report_student_path(current_person) %>
+      <% end %>
+      
+      <% if can_manage_grades? %>
+        <%= render 'shared/button', 
+          text: "New Grade", 
+          icon: "fa-solid fa-plus",
+          color: "red", 
+          href: new_grade_path %>
+      <% end %>
+    </div>
+  </div>
+
+  <%= render 'shared/resource_tabs', 
+    active_tab: :active, 
+    active_path: grades_path, 
+    deleted_path: deleted_grades_path %>
+
+  <div class="overflow-hidden rounded-lg border border-red-200 shadow-sm mb-6">
+    <div class="bg-red-50 px-4 py-5 sm:px-6 flex items-center">
+      <i class="fa-solid fa-chart-simple mr-3 text-xl"></i>
+      <h3 class="text-lg font-medium leading-6 text-red-700">
+        Grade Records
+      </h3>
+    </div>
+    <div class="border-t border-gray-200 bg-white px-4 py-5 sm:p-6">
+      <div class="overflow-x-auto shadow-md sm:rounded-lg">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <% headers = [] %>
+              <% unless current_person.is_a?(Student) %>
+                <% headers << "Student" %>
+              <% end %>
+              <% headers += ["Subject", "Class", "Examination", "Date", "Grade", "Actions"] %>
+              
+              <% headers.each do |header| %>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <%= header %>
+                </th>
+              <% end %>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @grades.each_with_index do |grade, index| %>
+              <tr class="<%= index.odd? ? 'bg-gray-50' : '' %>">
+                <% unless current_person.is_a?(Student) %>
+                  <td class="px-6 py-4 whitespace-nowrap"><%= "#{grade.student.lastname} #{grade.student.firstname}" %></td>
+                <% end %>
+                <td class="px-6 py-4 whitespace-nowrap"><%= grade.examination.lecture.subject.name %></td>
+                <td class="px-6 py-4 whitespace-nowrap"><%= grade.examination.lecture.school_class.name %></td>
+                <td class="px-6 py-4 whitespace-nowrap"><%= grade.examination.title %></td>
+                <td class="px-6 py-4 whitespace-nowrap"><%= grade.examination.date.strftime("%B %d, %Y") %></td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% grade_value = number_with_precision(grade.value, precision: 2) %>
+                  <% if grade.value >= 4.0 %>
+                    <%= render 'shared/badge', text: grade_value, color: "green" %>
+                  <% else %>
+                    <%= render 'shared/badge', text: grade_value, color: "red" %>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex space-x-2">
+                    <%= render 'shared/button', 
+                      text: "View", 
+                      icon: "fa-solid fa-eye",
+                      color: "outline-red", 
+                      size: "sm",
+                      href: grade_path(grade) %>
+                      
+                    <% if can_grade?(grade.examination) %>
+                      <%= render 'shared/button', 
+                        text: "Edit", 
+                        icon: "fa-solid fa-pencil",
+                        color: "outline-indigo", 
+                        size: "sm",
+                        href: edit_grade_path(grade) %>
+                        
+                      <%= render 'shared/button', 
+                        text: "Delete", 
+                        icon: "fa-solid fa-trash",
+                        color: "outline-red", 
+                        size: "sm",
+                        method: :delete,
+                        confirm: "Are you sure you want to delete this grade?",
+                        href: grade_path(grade) %>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

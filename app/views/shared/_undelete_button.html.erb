@@ -1,0 +1,13 @@
+<%#
+  Reusable undelete button component
+  Usage:
+  render 'shared/undelete_button', 
+    path: undelete_resource_path(resource)
+%>
+
+<%= button_to local_assigns[:path], 
+    method: :patch,
+    class: "inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" do %>
+  <i class="fa-solid fa-trash-arrow-up mr-2"></i>
+  Restore
+<% end %> 

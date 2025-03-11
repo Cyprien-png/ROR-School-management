@@ -1,0 +1,185 @@
+<% content_for :title, "Lectures Schedule" %>
+
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Lectures Schedule</h1>
+    <% if current_person.is_a?(Dean) %>
+      <%= render 'shared/button', 
+        text: "New Lecture", 
+        icon: "fa-solid fa-plus",
+        color: "green", 
+        href: new_lecture_path %>
+    <% end %>
+  </div>
+
+  <% if @years.any? %>
+    <!-- Calendar filter controls -->
+    <div class="overflow-hidden rounded-lg border border-green-200 shadow-sm mb-6">
+      <div class="bg-green-50 px-4 py-5 sm:px-6 flex items-center justify-between">
+        <div class="flex items-center">
+          <i class="fa-solid fa-filter mr-3 text-xl"></i>
+          <h3 class="text-lg font-medium leading-6 text-green-700">
+            Filter Schedule
+          </h3>
+        </div>
+        <div class="text-sm text-gray-500">
+          <% if @selected_trimester %>
+            Showing: <%= @selected_trimester.start_date.strftime("%b %d, %Y") %> - <%= @selected_trimester.end_date.strftime("%b %d, %Y") %>
+          <% end %>
+        </div>
+      </div>
+      <div class="border-t border-gray-200 bg-white px-4 py-5 sm:p-6">
+        <div class="grid grid-cols-1 gap-6">
+          <!-- Year selector -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Academic Year</label>
+            <div class="flex flex-wrap gap-2">
+              <% @years.each do |year| %>
+                <%= link_to lectures_path(year_id: year.id, trimester_id: params[:trimester_id]), 
+                    class: "px-4 py-2 rounded-md text-sm font-medium #{year.id == @selected_year&.id ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" do %>
+                  <%= "#{year.first_trimester.start_date.year}-#{year.fourth_trimester.end_date.year}" %>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+          
+          <!-- Trimester selector -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Trimester</label>
+            <div class="flex flex-wrap gap-2">
+              <% trimester_names = ["1st", "2nd", "3rd", "4th"] %>
+              <% @trimesters.each_with_index do |trimester, index| %>
+                <%= link_to lectures_path(year_id: @selected_year&.id, trimester_id: trimester.id), 
+                    class: "px-4 py-2 rounded-md text-sm font-medium #{trimester.id == @selected_trimester&.id ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" do %>
+                  <span><%= trimester_names[index] %></span>
+                  <span class="text-xs block"><%= trimester.start_date.strftime("%b %d") %> - <%= trimester.end_date.strftime("%b %d") %></span>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <% if current_person.is_a?(Student) || current_person.is_a?(Teacher) %>
+    <!-- Calendar view for students and teachers -->
+    <div class="overflow-hidden rounded-lg border border-green-200 shadow-sm mb-6">
+      <div class="bg-green-50 px-4 py-5 sm:px-6 flex items-center justify-between">
+        <div class="flex items-center">
+          <i class="fa-solid fa-calendar-days mr-3 text-xl"></i>
+          <h3 class="text-lg font-medium leading-6 text-green-700">
+            Weekly Schedule
+          </h3>
+        </div>
+        <% if @selected_trimester && @selected_year %>
+          <div class="flex items-center">
+            <span class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">
+              <%= "#{@selected_year.first_trimester.start_date.year}-#{@selected_year.fourth_trimester.end_date.year}" %>
+              <% trimester_names = ["1st", "2nd", "3rd", "4th"] %>
+              <% trimester_index = [@selected_year.first_trimester_id, @selected_year.second_trimester_id, 
+                                    @selected_year.third_trimester_id, @selected_year.fourth_trimester_id].index(@selected_trimester.id) %>
+              <%= " | #{trimester_names[trimester_index]} Trimester" if trimester_index %>
+            </span>
+          </div>
+        <% end %>
+      </div>
+      <div class="border-t border-gray-200 bg-white px-4 py-5 sm:p-6">
+        <% 
+          # Filter lectures based on user role
+          filtered_lectures = if current_person.is_a?(Student)
+            # Show only lectures for the student's classes
+            @lectures.select { |l| current_person.school_classes.include?(l.school_class) }
+          elsif current_person.is_a?(Teacher)
+            # Show only lectures taught by this teacher
+            @lectures.select { |l| l.teacher_id == current_person.id }
+          else
+            @lectures
+          end
+        %>
+        <%= render 'shared/schedule', lectures: filtered_lectures, days: ["monday", "tuesday", "wednesday", "thursday", "friday"] %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if current_person.is_a?(Dean) %>
+    <!-- List view for deans -->
+    <div class="overflow-hidden rounded-lg border border-green-200 shadow-sm mb-6">
+      <div class="bg-green-50 px-4 py-5 sm:px-6 flex items-center justify-between">
+        <div class="flex items-center">
+          <i class="fa-solid fa-list mr-3 text-xl"></i>
+          <h3 class="text-lg font-medium leading-6 text-green-700">
+            All Lectures
+          </h3>
+        </div>
+        <% if @selected_trimester %>
+          <div class="text-sm text-gray-600 italic">
+            Filtered by: <%= @selected_trimester.start_date.strftime("%b %d") %> - <%= @selected_trimester.end_date.strftime("%b %d, %Y") %>
+          </div>
+        <% end %>
+      </div>
+      <div class="border-t border-gray-200 bg-white px-4 py-5 sm:p-6">
+        <div class="overflow-x-auto shadow-md sm:rounded-lg">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <% ["Subject", "Class", "Teacher", "Day", "Time", "Trimesters", "Actions"].each do |header| %>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <%= header %>
+                  </th>
+                <% end %>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% @lectures.each_with_index do |lecture, index| %>
+                <tr class="<%= index.odd? ? 'bg-gray-50' : '' %>">
+                  <td class="px-6 py-4 whitespace-nowrap font-medium"><%= lecture.subject.name %></td>
+                  <td class="px-6 py-4 whitespace-nowrap"><%= lecture.school_class.name %></td>
+                  <td class="px-6 py-4 whitespace-nowrap"><%= "#{lecture.teacher.firstname} #{lecture.teacher.lastname}" %></td>
+                  <td class="px-6 py-4 whitespace-nowrap"><%= lecture.week_day.capitalize %></td>
+                  <td class="px-6 py-4 whitespace-nowrap"><%= lecture.start_time.strftime("%H:%M") %> - <%= lecture.end_time.strftime("%H:%M") %></td>
+                  <td class="px-6 py-4">
+                    <div class="flex flex-wrap gap-1">
+                      <% lecture.trimesters.order(start_date: :asc).each do |trimester| %>
+                        <%= render 'shared/badge', 
+                          text: trimester.start_date.strftime("%b"), 
+                          color: trimester.id == @selected_trimester&.id ? "green" : "gray",
+                          size: "sm" %>
+                      <% end %>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex space-x-2">
+                      <%= render 'shared/button', 
+                        text: "View", 
+                        icon: "fa-solid fa-eye",
+                        color: "outline-green", 
+                        size: "sm",
+                        href: lecture_path(lecture) %>
+                        
+                      <%= render 'shared/button', 
+                        text: "Edit", 
+                        icon: "fa-solid fa-pencil",
+                        color: "outline-indigo", 
+                        size: "sm",
+                        href: edit_lecture_path(lecture) %>
+                        
+                      <%= render 'shared/button', 
+                        text: "Delete", 
+                        icon: "fa-solid fa-trash",
+                        color: "outline-red", 
+                        size: "sm",
+                        method: :delete,
+                        confirm: "Are you sure you want to delete this lecture?",
+                        href: lecture_path(lecture) %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,209 @@
+<% content_for :title, "Academic Year Details" %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="mb-8 flex justify-between items-center">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">
+        Academic Year <%= @year.first_trimester.start_date.year %>-<%= @year.fourth_trimester.end_date.year %>
+      </h1>
+      <p class="mt-2 text-sm text-gray-500">
+        <%= @year.first_trimester.start_date.strftime("%B %d, %Y") %> - <%= @year.fourth_trimester.end_date.strftime("%B %d, %Y") %>
+      </p>
+    </div>
+    
+    <div class="flex space-x-3">
+      <% if current_person.is_a?(Dean) %>
+        <%= render 'shared/button', 
+          text: "Edit", 
+          icon: "fa-solid fa-pencil",
+          color: "outline-indigo", 
+          href: edit_year_path(@year) %>
+          
+        <%= render 'shared/button', 
+          text: "Delete", 
+          icon: "fa-solid fa-trash",
+          color: "red", 
+          method: :delete,
+          confirm: "Are you sure you want to delete this academic year?",
+          href: year_path(@year) %>
+      <% end %>
+      
+      <%= render 'shared/button', 
+        text: "Back to Years", 
+        icon: "fa-solid fa-arrow-left",
+        color: "outline-gray", 
+        href: years_path %>
+    </div>
+  </div>
+
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
+    <div class="px-4 py-5 sm:px-6 bg-gray-50">
+      <h2 class="text-lg font-medium text-gray-900">Academic Calendar</h2>
+      <p class="mt-1 max-w-2xl text-sm text-gray-500">Detailed information about each trimester.</p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-6">
+      <!-- First Trimester Card -->
+      <div class="bg-blue-50 rounded-lg overflow-hidden shadow">
+        <div class="px-4 py-3 bg-blue-500 text-white">
+          <h3 class="text-lg font-semibold">First Trimester</h3>
+        </div>
+        <div class="p-4">
+          <div class="flex items-center mb-3">
+            <i class="fa-solid fa-calendar-day text-blue-500 mr-2"></i>
+            <div>
+              <p class="text-xs text-gray-500">Start Date</p>
+              <p class="font-medium"><%= @year.first_trimester.start_date.strftime("%B %d, %Y") %></p>
+            </div>
+          </div>
+          <div class="flex items-center">
+            <i class="fa-solid fa-calendar-check text-blue-500 mr-2"></i>
+            <div>
+              <p class="text-xs text-gray-500">End Date</p>
+              <p class="font-medium"><%= @year.first_trimester.end_date.strftime("%B %d, %Y") %></p>
+            </div>
+          </div>
+          <div class="mt-3 text-sm text-gray-600">
+            <p><%= (@year.first_trimester.end_date - @year.first_trimester.start_date + 1).to_i %> days</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Second Trimester Card -->
+      <div class="bg-green-50 rounded-lg overflow-hidden shadow">
+        <div class="px-4 py-3 bg-green-500 text-white">
+          <h3 class="text-lg font-semibold">Second Trimester</h3>
+        </div>
+        <div class="p-4">
+          <div class="flex items-center mb-3">
+            <i class="fa-solid fa-calendar-day text-green-500 mr-2"></i>
+            <div>
+              <p class="text-xs text-gray-500">Start Date</p>
+              <p class="font-medium"><%= @year.second_trimester.start_date.strftime("%B %d, %Y") %></p>
+            </div>
+          </div>
+          <div class="flex items-center">
+            <i class="fa-solid fa-calendar-check text-green-500 mr-2"></i>
+            <div>
+              <p class="text-xs text-gray-500">End Date</p>
+              <p class="font-medium"><%= @year.second_trimester.end_date.strftime("%B %d, %Y") %></p>
+            </div>
+          </div>
+          <div class="mt-3 text-sm text-gray-600">
+            <p><%= (@year.second_trimester.end_date - @year.second_trimester.start_date + 1).to_i %> days</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Third Trimester Card -->
+      <div class="bg-amber-50 rounded-lg overflow-hidden shadow">
+        <div class="px-4 py-3 bg-amber-500 text-white">
+          <h3 class="text-lg font-semibold">Third Trimester</h3>
+        </div>
+        <div class="p-4">
+          <div class="flex items-center mb-3">
+            <i class="fa-solid fa-calendar-day text-amber-500 mr-2"></i>
+            <div>
+              <p class="text-xs text-gray-500">Start Date</p>
+              <p class="font-medium"><%= @year.third_trimester.start_date.strftime("%B %d, %Y") %></p>
+            </div>
+          </div>
+          <div class="flex items-center">
+            <i class="fa-solid fa-calendar-check text-amber-500 mr-2"></i>
+            <div>
+              <p class="text-xs text-gray-500">End Date</p>
+              <p class="font-medium"><%= @year.third_trimester.end_date.strftime("%B %d, %Y") %></p>
+            </div>
+          </div>
+          <div class="mt-3 text-sm text-gray-600">
+            <p><%= (@year.third_trimester.end_date - @year.third_trimester.start_date + 1).to_i %> days</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fourth Trimester Card -->
+      <div class="bg-purple-50 rounded-lg overflow-hidden shadow">
+        <div class="px-4 py-3 bg-purple-500 text-white">
+          <h3 class="text-lg font-semibold">Fourth Trimester</h3>
+        </div>
+        <div class="p-4">
+          <div class="flex items-center mb-3">
+            <i class="fa-solid fa-calendar-day text-purple-500 mr-2"></i>
+            <div>
+              <p class="text-xs text-gray-500">Start Date</p>
+              <p class="font-medium"><%= @year.fourth_trimester.start_date.strftime("%B %d, %Y") %></p>
+            </div>
+          </div>
+          <div class="flex items-center">
+            <i class="fa-solid fa-calendar-check text-purple-500 mr-2"></i>
+            <div>
+              <p class="text-xs text-gray-500">End Date</p>
+              <p class="font-medium"><%= @year.fourth_trimester.end_date.strftime("%B %d, %Y") %></p>
+            </div>
+          </div>
+          <div class="mt-3 text-sm text-gray-600">
+            <p><%= (@year.fourth_trimester.end_date - @year.fourth_trimester.start_date + 1).to_i %> days</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- School Classes Section -->
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 bg-gray-50">
+      <h2 class="text-lg font-medium text-gray-900">School Classes</h2>
+      <p class="mt-1 max-w-2xl text-sm text-gray-500">Classes assigned to this academic year.</p>
+    </div>
+    
+    <div class="p-6">
+      <% school_classes = SchoolClass.where(year_id: @year.id) %>
+      <% if school_classes.present? %>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Class Name</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Grade</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teacher</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Students</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% school_classes.each do |school_class| %>
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= school_class.name %></td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= school_class.grade %></td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= link_to "#{school_class.teacher.firstname} #{school_class.teacher.lastname}", person_path(school_class.teacher), class: "text-indigo-600 hover:text-indigo-900" %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= school_class.students.count %></td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <%= link_to "View", school_class_path(school_class), class: "text-indigo-600 hover:text-indigo-900 mr-3" %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="text-center py-8">
+          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-gray-100">
+            <i class="fa-solid fa-school text-gray-400"></i>
+          </div>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">No Classes</h3>
+          <p class="mt-1 text-sm text-gray-500">No school classes have been assigned to this academic year yet.</p>
+          <% if current_person.is_a?(Dean) %>
+            <div class="mt-6">
+              <%= link_to new_school_class_path, class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" do %>
+                <i class="fa-solid fa-plus -ml-1 mr-2"></i>
+                Create New Class
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

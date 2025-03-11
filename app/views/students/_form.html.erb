@@ -1,0 +1,142 @@
+<%= form_with(model: student, class: "space-y-8") do |form| %>
+  <% if student.errors.any? %>
+    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-exclamation-circle text-red-400"></i>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">
+            <%= pluralize(student.errors.count, "error") %> prohibited this student from being saved:
+          </h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="list-disc pl-5 space-y-1">
+              <% student.errors.each do |error| %>
+                <li><%= error.full_message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <% personal_info = capture do %>
+    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+      <div class="sm:col-span-3">
+        <%= form.label :firstname, class: "block text-sm font-medium text-gray-700" %>
+        <div class="mt-1">
+          <%= form.text_field :firstname, 
+              class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm",
+              placeholder: "Enter first name" %>
+        </div>
+      </div>
+
+      <div class="sm:col-span-3">
+        <%= form.label :lastname, class: "block text-sm font-medium text-gray-700" %>
+        <div class="mt-1">
+          <%= form.text_field :lastname, 
+              class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm",
+              placeholder: "Enter last name" %>
+        </div>
+      </div>
+
+      <div class="sm:col-span-4">
+        <%= form.label :email, class: "block text-sm font-medium text-gray-700" %>
+        <div class="mt-1">
+          <%= form.email_field :email, 
+              class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm",
+              placeholder: "student@example.com" %>
+        </div>
+        <p class="mt-2 text-sm text-gray-500">This will be used for login and communications</p>
+      </div>
+
+      <div class="sm:col-span-2">
+        <%= form.label :phone_number, class: "block text-sm font-medium text-gray-700" %>
+        <div class="mt-1">
+          <%= form.telephone_field :phone_number, 
+              class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm",
+              placeholder: "+41 XX XXX XX XX" %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <% account_settings = capture do %>
+    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+      <div class="sm:col-span-3">
+        <%= form.label :password, class: "block text-sm font-medium text-gray-700" %>
+        <div class="mt-1">
+          <%= form.password_field :password, 
+              class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm",
+              placeholder: "••••••••" %>
+        </div>
+        <p class="mt-2 text-sm text-gray-500">Minimum 6 characters</p>
+      </div>
+
+      <div class="sm:col-span-3">
+        <%= form.label :password_confirmation, class: "block text-sm font-medium text-gray-700" %>
+        <div class="mt-1">
+          <%= form.password_field :password_confirmation, 
+              class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm",
+              placeholder: "••••••••" %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <% academic_info = capture do %>
+    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+      <div class="sm:col-span-3">
+        <%= form.label :status, class: "block text-sm font-medium text-gray-700" %>
+        <div class="mt-1">
+          <%= form.select :status, 
+              Student.statuses.keys.map { |status| [status.humanize, status] },
+              { prompt: "Select status" },
+              { class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm" } %>
+        </div>
+      </div>
+
+      <div class="sm:col-span-3">
+        <%= form.label :school_class_id, "Class", class: "block text-sm font-medium text-gray-700" %>
+        <div class="mt-1">
+          <%= form.collection_select :school_class_id,
+              SchoolClass.includes(:year).order('years.first_trimester_id DESC, school_classes.name'),
+              :id,
+              ->(sc) { "#{sc.name} (#{sc.year.first_trimester.start_date.year}-#{sc.year.fourth_trimester.end_date.year})" },
+              { prompt: "Select a class" },
+              { class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm" } %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%= render 'shared/card',
+    title: "Personal Information",
+    color: "blue",
+    icon: "fa-solid fa-user",
+    content: personal_info %>
+
+  <%= render 'shared/card',
+    title: "Account Settings",
+    color: "purple",
+    icon: "fa-solid fa-lock",
+    content: account_settings %>
+
+  <%= render 'shared/card',
+    title: "Academic Information",
+    color: "green",
+    icon: "fa-solid fa-graduation-cap",
+    content: academic_info %>
+
+  <div class="flex justify-end space-x-3">
+    <%= render 'shared/button',
+      text: "Cancel",
+      icon: "fa-solid fa-xmark",
+      color: "outline-gray",
+      href: people_path %>
+      
+    <%= form.submit "Create Student",
+      class: "inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+  </div>
+<% end %> 

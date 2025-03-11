@@ -1,0 +1,32 @@
+<% content_for :title, "Subject: #{@subject.name}" %>
+
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Subject: <%= @subject.name %></h1>
+    <div class="flex space-x-2">
+      <% if current_person.is_a?(Dean) %>
+        <%= render 'shared/button', 
+          text: "Edit", 
+          icon: "fa-solid fa-pencil",
+          color: "outline-purple", 
+          href: edit_subject_path(@subject) %>
+          
+        <%= render 'shared/button', 
+          text: "Delete", 
+          icon: "fa-solid fa-trash",
+          color: "red", 
+          method: :delete,
+          confirm: "Are you sure you want to delete this subject?",
+          href: subject_path(@subject) %>
+      <% end %>
+      
+      <%= render 'shared/button', 
+        text: "Back to Subjects", 
+        icon: "fa-solid fa-arrow-left",
+        color: "outline-gray", 
+        href: subjects_path %>
+    </div>
+  </div>
+
+  <%= render @subject %>
+</div>

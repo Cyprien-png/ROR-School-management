@@ -1,0 +1,63 @@
+<% content_for :title, "Academic Years" %>
+
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Academic Years</h1>
+    <% if current_person.is_a?(Dean) %>
+      <%= render 'shared/button', 
+        text: "New Academic Year", 
+        icon: "fa-solid fa-plus",
+        color: "indigo", 
+        href: new_year_path %>
+    <% end %>
+  </div>
+
+  <%= render 'shared/resource_tabs', 
+    active_tab: :active, 
+    active_path: years_path, 
+    deleted_path: deleted_years_path %>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <% @years.each do |year| %>
+      <div class="overflow-hidden rounded-lg border border-indigo-200 shadow-sm mb-6">
+        <div class="bg-indigo-50 px-4 py-5 sm:px-6 flex items-center">
+          <i class="fa-solid fa-calendar-days mr-3 text-xl"></i>
+          <h3 class="text-lg font-medium leading-6 text-indigo-700">
+            <%= "#{year.first_trimester.start_date.year}-#{year.fourth_trimester.end_date.year}" %>
+          </h3>
+        </div>
+        <div class="border-t border-gray-200 bg-white px-4 py-5 sm:p-6">
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="font-medium text-gray-700">First Trimester:</p>
+                <p class="text-gray-600"><%= "#{year.first_trimester.start_date.strftime('%b %d, %Y')} - #{year.first_trimester.end_date.strftime('%b %d, %Y')}" %></p>
+              </div>
+              <div>
+                <p class="font-medium text-gray-700">Second Trimester:</p>
+                <p class="text-gray-600"><%= "#{year.second_trimester.start_date.strftime('%b %d, %Y')} - #{year.second_trimester.end_date.strftime('%b %d, %Y')}" %></p>
+              </div>
+              <div>
+                <p class="font-medium text-gray-700">Third Trimester:</p>
+                <p class="text-gray-600"><%= "#{year.third_trimester.start_date.strftime('%b %d, %Y')} - #{year.third_trimester.end_date.strftime('%b %d, %Y')}" %></p>
+              </div>
+              <div>
+                <p class="font-medium text-gray-700">Fourth Trimester:</p>
+                <p class="text-gray-600"><%= "#{year.fourth_trimester.start_date.strftime('%b %d, %Y')} - #{year.fourth_trimester.end_date.strftime('%b %d, %Y')}" %></p>
+              </div>
+            </div>
+            
+            <div class="pt-3 border-t border-gray-200">
+              <%= render 'shared/button', 
+                text: "View Details", 
+                icon: "fa-solid fa-eye",
+                color: "outline-indigo", 
+                href: year_path(year),
+                full_width: true %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

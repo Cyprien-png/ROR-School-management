@@ -1,0 +1,42 @@
+<%#
+  Reusable badge component
+  Usage: 
+  render 'shared/badge', 
+    text: "Active", 
+    color: "green", # Options: blue, green, indigo, purple, yellow, red, gray
+    size: "md" # Options: sm, md, lg
+%>
+
+<% 
+  # Define color classes based on the color parameter
+  color_classes = {
+    "blue" => "bg-blue-100 text-blue-800",
+    "green" => "bg-green-100 text-green-800",
+    "indigo" => "bg-indigo-100 text-indigo-800",
+    "purple" => "bg-purple-100 text-purple-800",
+    "yellow" => "bg-yellow-100 text-yellow-800",
+    "red" => "bg-red-100 text-red-800",
+    "gray" => "bg-gray-100 text-gray-800"
+  }
+  
+  # Set default color to gray if not provided or invalid
+  color = local_assigns.fetch(:color, "gray")
+  color_class = color_classes[color] || color_classes["gray"]
+  
+  # Set size classes
+  size_classes = {
+    "sm" => "px-2 py-0.5 text-xs",
+    "md" => "px-2.5 py-0.5 text-sm",
+    "lg" => "px-3 py-1 text-base"
+  }
+  
+  size = local_assigns.fetch(:size, "md")
+  size_class = size_classes[size] || size_classes["md"]
+  
+  # Combine all classes
+  badge_class = "inline-flex items-center rounded-full #{color_class} #{size_class} font-medium"
+-%>
+
+<span class="<%= badge_class %>">
+  <%= local_assigns.fetch(:text, "Badge") %>
+</span> 
