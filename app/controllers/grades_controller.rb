@@ -6,6 +6,7 @@ class GradesController < ApplicationController
   before_action :set_grade, only: %i[ show edit update destroy ]
   before_action :authorize_grade_modification, only: [:edit, :update, :destroy]
   before_action :authorize_access_to_grade, only: [:show]
+  before_action :load_available_examinations, only: [:new, :create, :edit, :update]
 
   # GET /grades or /grades.json
   def index
@@ -29,17 +30,7 @@ class GradesController < ApplicationController
   # GET /grades/new
   def new
     @grade = Grade.new
-    # Show all examinations for deans, only subject-specific ones for teachers
-    @available_examinations = if current_person.is_a?(Dean)
-      Examination.includes(lecture: [:subject, :school_class]).all
-    elsif current_person.is_a?(Teacher)
-      Examination.includes(lecture: [:subject, :school_class])
-                .joins(lecture: :subject)
-                .joins("INNER JOIN subjects_teachers ON subjects_teachers.subject_id = subjects.id")
-                .where(subjects_teachers: { teacher_id: current_person.id })
-    else
-      []
-    end
+    @grade.examination_id = params[:examination_id] if params[:examination_id].present?
   end
 
   # GET /grades/1/edit
@@ -75,8 +66,6 @@ class GradesController < ApplicationController
         format.html { redirect_to grade_url(@grade), notice: "Grade was successfully created." }
         format.json { render :show, status: :created, location: @grade }
       else
-        # Reload available examinations on validation error
-        load_available_examinations
         format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @grade.errors, status: :unprocessable_entity }
       end
@@ -92,8 +81,6 @@ class GradesController < ApplicationController
         format.html { redirect_to grade_url(@grade), notice: "Grade was successfully updated." }
         format.json { render :show, status: :ok, location: @grade }
       else
-        # Reload available examinations on validation error
-        load_available_examinations
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @grade.errors, status: :unprocessable_entity }
       end
@@ -160,7 +147,7 @@ class GradesController < ApplicationController
     end
 
     def load_available_examinations
-      @available_examinations = if current_person.is_a?(Dean)
+      @examinations = if current_person.is_a?(Dean)
         Examination.includes(lecture: [:subject, :school_class]).all
       elsif current_person.is_a?(Teacher)
         Examination.includes(lecture: [:subject, :school_class])

@@ -3,7 +3,8 @@ class StudentsController < PeopleController
   include GradeReportsHelper
   
   before_action :authenticate_person!
-  before_action :authorize_dean, only: [:new, :create, :edit, :update, :destroy, :grade_report]
+  before_action :authorize_dean, only: [:new, :create, :edit, :update, :destroy]
+  before_action :authorize_dean_or_self, only: [:grade_report]
   before_action :set_student, only: [:edit, :update, :destroy, :grade_report]
 
   def new
@@ -12,10 +13,11 @@ class StudentsController < PeopleController
   end
 
   def create
-    @student = Student.new(student_params)
+    @student = Student.new(student_params.except(:school_class_id))
     
     respond_to do |format|
       if @student.save
+        @student.school_classes << SchoolClass.find(student_params[:school_class_id]) if student_params[:school_class_id].present?
         format.html { redirect_to person_url(@student), notice: "Student was successfully created." }
         format.json { render :show, status: :created, location: @student }
       else
@@ -91,7 +93,25 @@ class StudentsController < PeopleController
       :phone_number, 
       :password,
       :password_confirmation,
-      :status
+      :status,
+      :school_class_id
     )
+  end
+  
+  def authorize_dean_or_self
+    return true if current_person.is_a?(Dean)
+    
+    # Allow students to view their own grade reports
+    if current_person.is_a?(Student) && current_person.id.to_s == params[:id]
+      return true
+    end
+    
+    # Otherwise, deny access
+    respond_to do |format|
+      flash[:alert] = "You are not authorized to view this grade report."
+      format.html { redirect_to root_path }
+      format.json { render json: { error: "Unauthorized" }, status: :unauthorized }
+    end
+    return false
   end
 end 

@@ -1,74 +1,104 @@
-<div id="<%= dom_id school_class %>">
-  <p>
-    <strong>Name:</strong>
-    <%= school_class.name %>
-  </p>
+<div id="<%= dom_id school_class %>" class="space-y-6">
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 bg-blue-50">
+      <h3 class="text-lg leading-6 font-medium text-blue-800">
+        <%= school_class.name %>
+      </h3>
+      <p class="mt-1 max-w-2xl text-sm text-blue-600">
+        Class Details
+      </p>
+    </div>
+    <div class="border-t border-gray-200">
+      <dl>
+        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Grade</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= school_class.grade %></dd>
+        </div>
+        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Academic Year</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %>
+          </dd>
+        </div>
+        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Teacher</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <%= link_to "#{school_class.teacher.firstname} #{school_class.teacher.lastname}", 
+                person_path(school_class.teacher), 
+                class: "text-blue-600 hover:text-blue-800" %>
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
 
-  <p>
-    <strong>Grade:</strong>
-    <%= school_class.grade %>
-  </p>
-
-  <p>
-    <strong>Academic Year:</strong>
-    <%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %>
-  </p>
-
-  <p>
-    <strong>Teacher:</strong>
-    <%= "#{school_class.teacher.firstname} #{school_class.teacher.lastname}" %>
-  </p>
-
-  <div class="students-list">
-    <div class="students-header">
-      <h3>Students in this class:</h3>
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 bg-blue-50 flex justify-between items-center">
+      <div>
+        <h3 class="text-lg leading-6 font-medium text-blue-800">
+          Students in this class
+        </h3>
+        <p class="mt-1 max-w-2xl text-sm text-blue-600">
+          <%= school_class.students.count %> students enrolled
+        </p>
+      </div>
       <% if current_person.is_a?(Dean) %>
-        <div class="add-student-form">
-          <%= form_with(url: add_student_school_class_path(school_class), method: :post, class: "inline-form") do |f| %>
+        <div>
+          <%= form_with(url: add_student_school_class_path(school_class), method: :post, class: "flex items-center space-x-2") do |f| %>
             <%= f.collection_select :student_id, 
-                Student.where.not(id: school_class.student_ids), 
+                Student.where.not(id: school_class.student_ids).order(:lastname, :firstname), 
                 :id, 
                 ->(s) { "#{s.lastname} #{s.firstname}" }, 
-                { prompt: "Select a student to add" } %>
-            <%= f.submit "Add Student", class: "button" %>
+                { prompt: "Select a student to add" },
+                { class: "rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm" } %>
+            <%= render 'shared/button', 
+              text: "Add Student", 
+              icon: "fa-solid fa-plus",
+              color: "blue", 
+              size: "sm",
+              type: "submit" %>
           <% end %>
         </div>
       <% end %>
     </div>
-
-    <% if school_class.students.any? %>
-      <table class="students-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Status</th>
-            <% if current_person.is_a?(Dean) %>
-              <th>Actions</th>
-            <% end %>
-          </tr>
-        </thead>
-        <tbody>
-          <% school_class.students.each do |student| %>
-            <tr>
-              <td><%= "#{student.lastname} #{student.firstname}" %></td>
-              <td><%= student.email %></td>
-              <td><%= student.status %></td>
-              <% if current_person.is_a?(Dean) %>
-                <td>
-                  <%= button_to "Remove", 
-                      remove_student_school_class_path(school_class, student_id: student.id),
-                      method: :delete,
-                      class: "button delete",
-                      form: { class: "inline-form" } %>
-                </td>
-              <% end %>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    <% else %>
-      <p>No students in this class yet.</p>
-    <% end %>
+    <div class="border-t border-gray-200">
+      <% if school_class.students.any? %>
+        <% 
+          student_rows = school_class.students.order(:lastname, :firstname).map do |student|
+            row = [
+              link_to("#{student.lastname} #{student.firstname}", 
+                person_path(student), 
+                class: "text-blue-600 hover:text-blue-800 font-medium"),
+              student.email,
+              render('shared/badge', 
+                text: student.status, 
+                color: student.status == "active" ? "green" : "gray")
+            ]
+            
+            if current_person.is_a?(Dean)
+              row << render('shared/button', 
+                text: "Remove", 
+                icon: "fa-solid fa-user-minus",
+                color: "outline-red", 
+                size: "sm",
+                method: :delete,
+                confirm: "Are you sure you want to remove this student from the class?",
+                href: remove_student_school_class_path(school_class, student_id: student.id))
+            end
+            
+            row
+          end
+        %>
+        
+        <%= render 'shared/table', 
+          headers: ["Name", "Email", "Status", current_person.is_a?(Dean) ? "Actions" : nil].compact, 
+          rows: student_rows,
+          striped: true %>
+      <% else %>
+        <div class="px-4 py-5 sm:px-6 text-center text-gray-500 italic">
+          No students in this class yet.
+        </div>
+      <% end %>
+    </div>
   </div>
 </div>

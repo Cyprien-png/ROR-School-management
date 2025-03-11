@@ -159,7 +159,7 @@ end
 class ActionDispatch::IntegrationTest
   # For integration tests, we'll use manual sign in
   def sign_in(person)
-    post person_session_path, params: {
+    post new_person_session_path, params: {
       person: {
         email: person.email,
         password: "password"

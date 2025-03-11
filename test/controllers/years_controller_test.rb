@@ -1,14 +1,27 @@
 require "test_helper"
 
 class YearsControllerTest < ActionDispatch::IntegrationTest
-  include Devise::Test::IntegrationHelpers
-
   def setup
     super
     @dean = create_dean
     @teacher = create_teacher
     @student = create_student
     @year = create_year
+    
+    # Create a school class for the teacher to fix layout issues
+    @school_class = create_school_class(@teacher, @year)
+  end
+  
+  # Helper method for signing in
+  def sign_in(person)
+    post new_person_session_path, params: {
+      person: {
+        email: person.email,
+        password: "password"
+      }
+    }
+    assert_response :redirect
+    follow_redirect!
   end
 
   test "should get index when authenticated" do

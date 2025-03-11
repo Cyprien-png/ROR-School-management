@@ -1,41 +1,73 @@
-<p style="color: green"><%= notice %></p>
-
 <% content_for :title, "People" %>
 
-<h1>People</h1>
-
-<div id="people">
-  <table>
-    <thead>
-      <tr>
-        <th>Last Name</th>
-        <th>First Name</th>
-        <th>Email</th>
-        <th>Phone Number</th>
-        <th>Type</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @people.each do |person| %>
-        <tr>
-          <td><%= person.lastname %></td>
-          <td><%= person.firstname %></td>
-          <td><%= person.email %></td>
-          <td><%= person.phone_number %></td>
-          <td><%= person.type %></td>
-          <td>
-            <%= link_to "Show", person_path(person) %>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-</div>
-
-<% if current_person.is_a?(Dean) %>
-  <div class="actions">
-    <%= link_to "New student", new_student_path, class: "button" %>
-    <%= link_to "New teacher", new_teacher_path, class: "button" %>
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">People Directory</h1>
+    <% if current_person.is_a?(Dean) %>
+      <div class="flex space-x-3">
+        <%= render 'shared/button', 
+          text: "New Student", 
+          icon: "fa-solid fa-user-plus",
+          color: "blue", 
+          href: new_student_path %>
+        <%= render 'shared/button', 
+          text: "New Teacher", 
+          icon: "fa-solid fa-chalkboard-user",
+          color: "green", 
+          href: new_teacher_path %>
+      </div>
+    <% end %>
   </div>
-<% end %>
+
+  <div class="overflow-hidden mb-6 rounded-lg border border-blue-200 shadow-sm">
+    <div class="flex items-center px-4 py-5 bg-blue-50 sm:px-6">
+      <i class="mr-3 text-xl fa-solid fa-users"></i>
+      <h3 class="text-lg font-medium leading-6 text-blue-700">
+        All People
+      </h3>
+    </div>
+    <div class="px-4 py-5 bg-white border-t border-gray-200 sm:p-6">
+      <div class="overflow-x-auto shadow-md sm:rounded-lg">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Last Name</th>
+              <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">First Name</th>
+              <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Email</th>
+              <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Phone Number</th>
+              <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Role</th>
+              <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @people.each_with_index do |person, index| %>
+              <tr class="<%= index.odd? ? 'bg-gray-50' : '' %>">
+                <td class="px-6 py-4 whitespace-nowrap"><%= person.lastname %></td>
+                <td class="px-6 py-4 whitespace-nowrap"><%= person.firstname %></td>
+                <td class="px-6 py-4 whitespace-nowrap"><%= person.email %></td>
+                <td class="px-6 py-4 whitespace-nowrap"><%= person.phone_number %></td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if person.is_a?(Dean) %>
+                    <%= render 'shared/badge', text: "Dean", color: "purple" %>
+                  <% elsif person.is_a?(Teacher) %>
+                    <%= render 'shared/badge', text: "Teacher", color: "green" %>
+                  <% elsif person.is_a?(Student) %>
+                    <%= render 'shared/badge', text: "Student", color: "blue" %>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <%= render 'shared/button', 
+                    text: "View", 
+                    icon: "fa-solid fa-eye",
+                    color: "outline-indigo", 
+                    size: "sm",
+                    href: person_path(person) %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

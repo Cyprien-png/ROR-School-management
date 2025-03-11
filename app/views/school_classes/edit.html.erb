@@ -1,12 +1,22 @@
-<% content_for :title, "Editing school class" %>
+<% content_for :title, "Edit School Class: #{@school_class.name}" %>
 
-<h1>Editing school class</h1>
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Edit School Class: <%= @school_class.name %></h1>
+    <div class="flex space-x-2">
+      <%= render 'shared/button', 
+        text: "View Details", 
+        icon: "fa-solid fa-eye",
+        color: "outline-blue", 
+        href: school_class_path(@school_class) %>
+        
+      <%= render 'shared/button', 
+        text: "Back to School Classes", 
+        icon: "fa-solid fa-arrow-left",
+        color: "outline-gray", 
+        href: school_classes_path %>
+    </div>
+  </div>
 
-<%= render "form", school_class: @school_class %>
-
-<br>
-
-<div>
-  <%= link_to "Show this school class", @school_class %> |
-  <%= link_to "Back to school classes", school_classes_path %>
+  <%= render "form", school_class: @school_class %>
 </div>

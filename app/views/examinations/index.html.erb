@@ -1,16 +1,65 @@
-<p style="color: green"><%= notice %></p>
-
 <% content_for :title, "Examinations" %>
 
-<h1>Examinations</h1>
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Examinations</h1>
+    <% if current_person.is_a?(Dean) || current_person.is_a?(Teacher) %>
+      <%= render 'shared/button', 
+        text: "New Examination", 
+        icon: "fa-solid fa-plus",
+        color: "yellow", 
+        href: new_examination_path %>
+    <% end %>
+  </div>
 
-<div id="examinations">
-  <% @examinations.each do |examination| %>
-    <%= render examination %>
-    <p>
-      <%= link_to "Show this examination", examination %>
-    </p>
-  <% end %>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% @examinations.each do |examination| %>
+      <div class="overflow-hidden rounded-lg border border-yellow-200 shadow-sm mb-6">
+        <div class="bg-yellow-50 px-4 py-5 sm:px-6 flex items-center">
+          <i class="fa-solid fa-file-pen mr-3 text-xl"></i>
+          <h3 class="text-lg font-medium leading-6 text-yellow-700">
+            <%= examination.title %>
+          </h3>
+        </div>
+        <div class="border-t border-gray-200 bg-white px-4 py-5 sm:p-6">
+          <div class="space-y-3">
+            <div class="flex justify-between items-center">
+              <div>
+                <p class="text-gray-500">Date: <%= examination.date.strftime("%B %d, %Y") %></p>
+              </div>
+              <%= render 'shared/badge', text: examination.lecture.subject.name, color: "purple" %>
+            </div>
+            
+            <div>
+              <p class="font-medium text-gray-700">Class:</p>
+              <p class="text-gray-600"><%= examination.lecture.school_class.name %></p>
+            </div>
+            
+            <div>
+              <p class="font-medium text-gray-700">Teacher:</p>
+              <p class="text-gray-600"><%= "#{examination.lecture.teacher.firstname} #{examination.lecture.teacher.lastname}" %></p>
+            </div>
+            
+            <div class="pt-3 border-t border-gray-200">
+              <div class="flex space-x-2">
+                <%= render 'shared/button', 
+                  text: "View Details", 
+                  icon: "fa-solid fa-eye",
+                  color: "outline-yellow", 
+                  href: examination_path(examination) %>
+                
+                <% if current_person.is_a?(Dean) || (current_person.is_a?(Teacher) && current_person.id == examination.lecture.teacher.id) %>
+                  <%= render 'shared/button', 
+                    text: "Enter Grades", 
+                    icon: "fa-solid fa-pen-to-square",
+                    color: "outline-green", 
+                    href: new_grade_path(examination_id: examination.id) %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
 </div>
-
-<%= link_to "New examination", new_examination_path %>

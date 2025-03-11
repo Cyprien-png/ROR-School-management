@@ -1,0 +1,93 @@
+<%#
+  Schedule component for displaying lectures in a weekly timetable
+  Usage: 
+  render 'shared/schedule', lectures: @lectures, days: ["monday", "tuesday", "wednesday", "thursday", "friday"]
+%>
+
+<% 
+  # Default days if not provided
+  days = local_assigns.fetch(:days, ["monday", "tuesday", "wednesday", "thursday", "friday"])
+  
+  # Group lectures by day
+  lectures_by_day = {}
+  days.each do |day|
+    lectures_by_day[day] = local_assigns.fetch(:lectures, []).select { |l| l.week_day == day }.sort_by(&:start_time)
+  end
+  
+  # Define time slots (8:00 to 18:00 with 1-hour intervals)
+  start_hour = 8
+  end_hour = 18
+  time_slots = (start_hour...end_hour).map { |hour| "#{hour.to_s.rjust(2, '0')}:00" }
+  
+  # Helper method to check if a lecture is in a time slot
+  def lecture_in_time_slot?(lecture, slot_time)
+    lecture_start_hour = lecture.start_time.hour
+    lecture_end_hour = lecture.end_time.hour
+    slot_hour = slot_time.split(':').first.to_i
+    
+    # Check if the lecture overlaps with this time slot
+    lecture_start_hour <= slot_hour && lecture_end_hour > slot_hour
+  end
+  
+  # Helper method to get lecture duration in hours
+  def lecture_duration(lecture)
+    (lecture.end_time.hour - lecture.start_time.hour)
+  end
+-%>
+
+<div class="overflow-x-auto">
+  <table class="min-w-full border-collapse border border-gray-200 bg-white">
+    <thead>
+      <tr>
+        <th class="w-20 border border-gray-200 bg-gray-50 p-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+        <% days.each do |day| %>
+          <th class="border border-gray-200 bg-indigo-600 p-3 text-center text-sm font-semibold text-white">
+            <%= day.capitalize %>
+          </th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% time_slots.each_with_index do |time_slot, index| %>
+        <tr class="<%= index.even? ? 'bg-white' : 'bg-gray-50' %>">
+          <td class="border border-gray-200 p-2 text-xs font-medium text-gray-500">
+            <%= time_slot %>
+          </td>
+          
+          <% days.each do |day| %>
+            <td class="border border-gray-200 p-1 h-20 align-top">
+              <% 
+                # Find lectures that start or are ongoing in this time slot
+                slot_lectures = lectures_by_day[day].select { |lecture| lecture_in_time_slot?(lecture, time_slot) }
+              %>
+              
+              <% if slot_lectures.any? %>
+                <% slot_lectures.each do |lecture| %>
+                  <% 
+                    # Only show the lecture card at its starting time slot
+                    next unless lecture.start_time.hour == time_slot.split(':').first.to_i
+                    
+                    # Calculate row span based on duration
+                    duration = lecture_duration(lecture)
+                  %>
+                  <div class="p-2 bg-green-50 rounded-lg border border-green-200 shadow-sm transition-shadow duration-200 hover:shadow-md">
+                    <div class="font-semibold text-green-800 text-sm"><%= lecture.subject.name %></div>
+                    <div class="text-xs text-gray-600">
+                      <%= lecture.start_time.strftime("%H:%M") %> - <%= lecture.end_time.strftime("%H:%M") %>
+                    </div>
+                    <div class="text-xs text-gray-600">
+                      <%= lecture.school_class.name %>
+                    </div>
+                    <div class="mt-1 text-xs text-gray-500">
+                      <%= "#{lecture.teacher.firstname} #{lecture.teacher.lastname}" %>
+                    </div>
+                  </div>
+                <% end %>
+              <% end %>
+            </td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div> 

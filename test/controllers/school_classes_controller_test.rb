@@ -4,6 +4,12 @@ class SchoolClassesControllerTest < ActionDispatch::IntegrationTest
   def setup
     super
     @timestamp = Time.current.to_f
+    @dean = create_dean
+    @teacher = create_teacher
+    @student = create_student
+    
+    # Create a school class for the teacher to fix layout issues
+    @school_class = create_school_class(@teacher)
   end
 
   def create_dean

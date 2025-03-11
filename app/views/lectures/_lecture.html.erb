@@ -1,39 +1,52 @@
-<div id="<%= dom_id lecture %>">
-  <p>
-    <strong>Subject:</strong>
-    <%= lecture.subject.name %>
-  </p>
-
-  <p>
-    <strong>Teacher:</strong>
-    <%= "#{lecture.teacher.firstname} #{lecture.teacher.lastname}" %>
-  </p>
-
-  <p>
-    <strong>Class:</strong>
-    <%= lecture.school_class.name %>
-  </p>
-
-  <p>
-    <strong>Week day:</strong>
-    <%= lecture.week_day.capitalize %>
-  </p>
-
-  <p>
-    <strong>Time:</strong>
-    <%= lecture.start_time.strftime("%H:%M") %> - <%= lecture.end_time.strftime("%H:%M") %>
-  </p>
-
-  <p>
-    <strong>Trimesters:</strong>
-    <% if lecture.trimesters.any? %>
-      <ul>
-        <% lecture.trimesters.order(start_date: :asc).each do |trimester| %>
-          <li><%= "#{trimester.start_date.strftime('%B %d, %Y')} - #{trimester.end_date.strftime('%B %d, %Y')}" %></li>
-        <% end %>
-      </ul>
-    <% else %>
-      <em>No trimesters assigned</em>
-    <% end %>
-  </p>
+<div id="<%= dom_id lecture %>" class="bg-white shadow overflow-hidden sm:rounded-lg">
+  <div class="px-4 py-5 sm:px-6 bg-green-50">
+    <div class="flex justify-between items-center">
+      <div>
+        <h3 class="text-lg leading-6 font-medium text-green-800">
+          <%= lecture.subject.name %>
+        </h3>
+        <p class="mt-1 max-w-2xl text-sm text-green-600">
+          <%= lecture.school_class.name %>
+        </p>
+      </div>
+      <%= render 'shared/badge', 
+        text: lecture.week_day.capitalize, 
+        color: "green" %>
+    </div>
+  </div>
+  <div class="border-t border-gray-200">
+    <dl>
+      <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+        <dt class="text-sm font-medium text-gray-500">Teacher</dt>
+        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+          <%= link_to "#{lecture.teacher.firstname} #{lecture.teacher.lastname}", 
+              person_path(lecture.teacher), 
+              class: "text-green-600 hover:text-green-800" %>
+        </dd>
+      </div>
+      <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+        <dt class="text-sm font-medium text-gray-500">Time</dt>
+        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+          <%= lecture.start_time.strftime("%H:%M") %> - <%= lecture.end_time.strftime("%H:%M") %>
+        </dd>
+      </div>
+      <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+        <dt class="text-sm font-medium text-gray-500">Trimesters</dt>
+        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+          <% if lecture.trimesters.any? %>
+            <div class="flex flex-wrap gap-2">
+              <% lecture.trimesters.order(start_date: :asc).each do |trimester| %>
+                <%= render 'shared/badge', 
+                  text: "#{trimester.start_date.strftime('%b %d')} - #{trimester.end_date.strftime('%b %d, %Y')}", 
+                  color: "indigo",
+                  size: "sm" %>
+              <% end %>
+            </div>
+          <% else %>
+            <span class="text-gray-500 italic">No trimesters assigned</span>
+          <% end %>
+        </dd>
+      </div>
+    </dl>
+  </div>
 </div>

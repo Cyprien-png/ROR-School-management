@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "School Management" %></title>
+    <title><%= content_for?(:title) ? yield(:title) + " | School Management" : "School Management" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -18,11 +18,302 @@
     <link rel="apple-touch-icon" href="/icon.png">
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
-    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+    
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    
+    <%= yield :styles %>
+    
+    <style>
+      .toast-container {
+        position: fixed;
+        bottom: 1rem;
+        right: 1rem;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column-reverse;
+        gap: 0.5rem;
+        max-width: 20rem;
+      }
+      
+      .toast {
+        display: flex;
+        align-items: flex-start;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        opacity: 0;
+        transform: translateY(100%);
+        transition: all 0.5s ease-in-out;
+      }
+      
+      .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      
+      .toast-notice {
+        background-color: #EFF6FF;
+        border: 1px solid #93C5FD;
+        color: #1E40AF;
+      }
+      
+      .toast-success {
+        background-color: #ECFDF5;
+        border: 1px solid #6EE7B7;
+        color: #065F46;
+      }
+      
+      .toast-alert, .toast-error {
+        background-color: #FEF2F2;
+        border: 1px solid #FCA5A5;
+        color: #B91C1C;
+      }
+      
+      .toast-warning {
+        background-color: #FFFBEB;
+        border: 1px solid #FCD34D;
+        color: #92400E;
+      }
+      
+      .toast-icon {
+        flex-shrink: 0;
+        margin-right: 0.75rem;
+      }
+      
+      .toast-content {
+        flex: 1;
+      }
+      
+      .toast-close {
+        flex-shrink: 0;
+        margin-left: 0.75rem;
+        color: #9CA3AF;
+        cursor: pointer;
+      }
+      
+      .toast-close:hover {
+        color: #6B7280;
+      }
+    </style>
   </head>
 
-  <body>
-    <%= yield %>
+  <body class="flex flex-col min-h-screen font-sans bg-gray-50">
+    <% if person_signed_in? %>
+      <header class="bg-indigo-600 shadow-md">
+        <nav class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+          <div class="flex justify-between h-16">
+            <div class="flex">
+              <div class="flex flex-shrink-0 items-center">
+                <span class="text-xl font-bold text-white">School Management</span>
+              </div>
+              <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                <!-- Common navigation links for all users -->
+                <% if !current_person.is_a?(Student) %>
+                  <%= link_to "People", people_path, class: "#{(request.path.start_with?('/people', '/students', '/teachers') && !request.path.include?('grade_report')) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                <% end %>
+                
+                <% if current_person.is_a?(Dean) %>
+                  <!-- Dean-specific links -->
+                  <%= link_to "School Classes", school_classes_path, class: "#{request.path.start_with?('/school_classes') ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <%= link_to "Subjects", subjects_path, class: "#{request.path.start_with?('/subjects') ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <%= link_to "Lectures", lectures_path, class: "#{request.path.start_with?('/lectures') ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <%= link_to "Examinations", examinations_path, class: "#{request.path.start_with?('/examinations') ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <%= link_to "Grades", grades_path, class: "#{request.path.start_with?('/grades') || (request.path.start_with?('/students/') && request.path.include?('grade_report')) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <%= link_to "Years", years_path, class: "#{request.path.start_with?('/years') ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                <% elsif current_person.is_a?(Teacher) %>
+                  <!-- Teacher-specific links -->
+                  <% first_class = current_person.school_classes.first %>
+                  <% if first_class.present? %>
+                    <%= link_to "My Class", school_class_path(first_class), class: "#{request.path == school_class_path(first_class) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <% end %>
+                  <%= link_to "Lectures", lectures_path, class: "#{request.path.start_with?('/lectures') ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+                  <%= link_to "Examinations", examinations_path, class: "#{request.path.start_with?('/examinations') ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+                  <%= link_to "Grades", grades_path, class: "#{request.path.start_with?('/grades') || (request.path.start_with?('/students/') && request.path.include?('grade_report')) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+                <% elsif current_person.is_a?(Student) %>
+                  <!-- Student-specific links -->
+                  <%= link_to "Lectures", lectures_path, class: "#{request.path.start_with?('/lectures') ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <% student_class = current_person.school_classes.last %>
+                  <% if student_class %>
+                    <%= link_to "My Class", school_class_path(student_class), class: "#{request.path == school_class_path(student_class) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <% end %>
+                  <%= link_to "My Grades", grades_path, class: "#{request.path.start_with?('/grades') || (request.path.start_with?('/students/') && request.path.include?('grade_report')) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                  <%= link_to "People", people_path, class: "#{(request.path.start_with?('/people', '/students', '/teachers') && !request.path.include?('grade_report')) ? 'border-white text-white' : 'border-transparent text-indigo-200 hover:border-indigo-300 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+                <% end %>
+              </div>
+            </div>
+            <div class="hidden sm:ml-6 sm:flex sm:items-center">
+              <div class="relative ml-3">
+                <div class="flex items-center space-x-4">
+                  <div class="text-sm text-white">
+                    <span class="font-medium"><%= "#{current_person.firstname} #{current_person.lastname}" %></span>
+                    <span class="text-indigo-200">
+                      (<%= current_person.class.name %>)
+                    </span>
+                  </div>
+                  <%= button_to destroy_person_session_path, method: :delete, class: "bg-indigo-700 p-2.5 rounded-full text-white hover:bg-indigo-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-800 focus:ring-white" do %>
+                    <span class="sr-only">Log out</span>
+                    <i class="w-5 h-5 fas fa-sign-out-alt"></i>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center -mr-2 sm:hidden">
+              <!-- Mobile menu button -->
+              <button type="button" class="inline-flex justify-center items-center p-2 text-indigo-200 bg-indigo-600 rounded-md mobile-menu-button hover:text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-expanded="false">
+                <span class="sr-only">Open main menu</span>
+                <i class="block w-6 h-6 fas fa-bars"></i>
+              </button>
+            </div>
+          </div>
+        </nav>
+
+        <!-- Mobile menu, show/hide based on menu state. -->
+        <div class="hidden mobile-menu sm:hidden">
+          <div class="pt-2 pb-3 space-y-1">
+            <!-- Common navigation links for all users -->
+            <% if !current_person.is_a?(Student) %>
+              <%= link_to "People", people_path, class: "#{((request.path.start_with?('/people', '/students', '/teachers') && !request.path.include?('grade_report')) && !request.path.include?('grade_report')) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+            <% end %>
+            
+            <% if current_person.is_a?(Dean) %>
+              <!-- Dean-specific links -->
+              <%= link_to "School Classes", school_classes_path, class: "#{request.path.start_with?('/school_classes') ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <%= link_to "Subjects", subjects_path, class: "#{request.path.start_with?('/subjects') ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <%= link_to "Lectures", lectures_path, class: "#{request.path.start_with?('/lectures') ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <%= link_to "Examinations", examinations_path, class: "#{request.path.start_with?('/examinations') ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <%= link_to "Grades", grades_path, class: "#{request.path.start_with?('/grades') || (request.path.start_with?('/students/') && request.path.include?('grade_report')) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <%= link_to "Years", years_path, class: "#{request.path.start_with?('/years') ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+            <% elsif current_person.is_a?(Teacher) %>
+              <!-- Teacher-specific links -->
+              <% first_class = current_person.school_classes.first %>
+              <% if first_class.present? %>
+                <%= link_to "My Class", school_class_path(first_class), class: "#{request.path == school_class_path(first_class) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <% end %>
+              <%= link_to "Lectures", lectures_path, class: "#{request.path.start_with?('/lectures') ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <%= link_to "Examinations", examinations_path, class: "#{request.path.start_with?('/examinations') ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <%= link_to "Grades", grades_path, class: "#{request.path.start_with?('/grades') || (request.path.start_with?('/students/') && request.path.include?('grade_report')) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+            <% elsif current_person.is_a?(Student) %>
+              <!-- Student-specific links -->
+              <%= link_to "Lectures", lectures_path, class: "#{request.path.start_with?('/lectures') ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <% student_class = current_person.school_classes.last %>
+              <% if student_class %>
+                <%= link_to "My Class", school_class_path(student_class), class: "#{request.path == school_class_path(student_class) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <% end %>
+              <%= link_to "My Grades", grades_path, class: "#{request.path.start_with?('/grades') || (request.path.start_with?('/students/') && request.path.include?('grade_report')) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+              <%= link_to "People", people_path, class: "#{((request.path.start_with?('/people', '/students', '/teachers') && !request.path.include?('grade_report')) && !request.path.include?('grade_report')) ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white'} block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium" %>
+            <% end %>
+          </div>
+          <div class="pt-4 pb-3 border-t border-indigo-700">
+            <div class="flex items-center px-4">
+              <div class="ml-3">
+                <div class="text-base font-medium text-white"><%= "#{current_person.firstname} #{current_person.lastname}" %></div>
+                <div class="text-sm font-medium text-indigo-200"><%= current_person.class.name %></div>
+              </div>
+            </div>
+            <div class="mt-3 space-y-1">
+              <%= button_to destroy_person_session_path, method: :delete, class: "w-full flex items-center justify-center px-4 py-2 text-base font-medium text-white bg-indigo-700 rounded-full hover:bg-indigo-600 transition-colors duration-200" do %>
+                <i class="mr-2 fas fa-sign-out-alt"></i> Sign out
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </header>
+    <% end %>
+
+    <main class="flex-grow">
+      <div class="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
+      <%= yield %>
+      </div>
+    </main>
+    
+    <footer class="bg-white">
+      <div class="px-4 py-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <p class="text-sm text-center text-gray-500">
+          &copy; <%= Date.today.year %> School Management System
+        </p>
+      </div>
+    </footer>
+
+    <% if flash.any? %>
+      <div class="toast-container">
+        <% flash.each do |type, message| %>
+          <div class="toast toast-<%= type %>">
+            <div class="toast-icon">
+              <% if type.to_s == 'notice' %>
+                <i class="fa-solid fa-info-circle"></i>
+              <% elsif type.to_s == 'success' %>
+                <i class="fa-solid fa-check-circle"></i>
+              <% elsif ['alert', 'error'].include?(type.to_s) %>
+                <i class="fa-solid fa-exclamation-circle"></i>
+              <% elsif type.to_s == 'warning' %>
+                <i class="fa-solid fa-exclamation-triangle"></i>
+              <% else %>
+                <i class="fa-solid fa-bell"></i>
+              <% end %>
+            </div>
+            <div class="toast-content">
+              <p class="text-sm font-medium"><%= message %></p>
+            </div>
+            <div class="toast-close">
+              <i class="fa-solid fa-times"></i>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      
+      <script>
+        (function() {
+          const toasts = document.querySelectorAll('.toast');
+          
+          toasts.forEach((toast, index) => {
+            // Show toast with delay
+            setTimeout(() => {
+              toast.classList.add('show');
+            }, index * 150);
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+              hideToast(toast);
+            }, 5000 + (index * 150));
+            
+            // Add click event to close button
+            const closeButton = toast.querySelector('.toast-close');
+            if (closeButton) {
+              closeButton.addEventListener('click', () => {
+                hideToast(toast);
+              });
+            }
+          });
+          
+          function hideToast(toast) {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(100%)';
+            setTimeout(() => {
+              if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+              }
+            }, 500);
+          }
+        })();
+      </script>
+    <% end %>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Mobile menu toggle
+        const mobileMenuButton = document.querySelector('.mobile-menu-button');
+        const mobileMenu = document.querySelector('.mobile-menu');
+        
+        if (mobileMenuButton && mobileMenu) {
+          mobileMenuButton.addEventListener('click', function() {
+            mobileMenu.classList.toggle('hidden');
+          });
+        }
+      });
+    </script>
   </body>
 </html>

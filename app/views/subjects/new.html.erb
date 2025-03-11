@@ -1,11 +1,16 @@
-<% content_for :title, "New subject" %>
+<% content_for :title, "New Subject" %>
 
-<h1>New subject</h1>
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">New Subject</h1>
+    <div class="flex space-x-2">
+      <%= render 'shared/button', 
+        text: "Back to Subjects", 
+        icon: "fa-solid fa-arrow-left",
+        color: "outline-gray", 
+        href: subjects_path %>
+    </div>
+  </div>
 
-<%= render "form", subject: @subject %>
-
-<br>
-
-<div>
-  <%= link_to "Back to subjects", subjects_path %>
+  <%= render "form", subject: @subject %>
 </div>

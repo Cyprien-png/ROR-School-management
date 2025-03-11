@@ -1,11 +1,16 @@
-<% content_for :title, "New year" %>
+<% content_for :title, "New Academic Year" %>
 
-<h1>New year</h1>
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">New Academic Year</h1>
+    <div class="flex space-x-2">
+      <%= render 'shared/button', 
+        text: "Back to Years", 
+        icon: "fa-solid fa-arrow-left",
+        color: "outline-gray", 
+        href: years_path %>
+    </div>
+  </div>
 
-<%= render "form", year: @year %>
-
-<br>
-
-<div>
-  <%= link_to "Back to years", years_path %>
+  <%= render "form", year: @year %>
 </div>

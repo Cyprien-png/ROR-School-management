@@ -1,30 +1,49 @@
-<div id="<%= dom_id examination %>">
-  <p>
-    <strong>Title:</strong>
-    <%= examination.title %>
-  </p>
-
-  <p>
-    <strong>Date:</strong>
-    <%= examination.date.strftime("%B %d, %Y") %>
-  </p>
-
-  <% if examination.lecture %>
-    <p>
-      <strong>Associated Lecture:</strong>
-      <%= "#{examination.lecture.subject.name} - #{examination.lecture.school_class.name}" %>
-    </p>
-    <p>
-      <strong>Schedule:</strong>
-      <%= "#{examination.lecture.week_day.capitalize} at #{examination.lecture.start_time.strftime("%H:%M")}" %>
-    </p>
-    <p>
-      <strong>Teacher:</strong>
-      <%= "#{examination.lecture.teacher.firstname} #{examination.lecture.teacher.lastname}" %>
-    </p>
-  <% else %>
-    <p>
-      <em>No lecture associated</em>
-    </p>
-  <% end %>
+<div id="<%= dom_id examination %>" class="bg-white shadow overflow-hidden sm:rounded-lg">
+  <div class="px-4 py-5 sm:px-6 bg-yellow-50">
+    <div class="flex justify-between items-center">
+      <div>
+        <h3 class="text-lg leading-6 font-medium text-yellow-800">
+          <%= examination.title %>
+        </h3>
+        <p class="mt-1 max-w-2xl text-sm text-yellow-600">
+          <%= examination.date.strftime("%B %d, %Y") %>
+        </p>
+      </div>
+      <%= render 'shared/badge', 
+        text: examination.lecture.subject.name, 
+        color: "purple" %>
+    </div>
+  </div>
+  <div class="border-t border-gray-200">
+    <dl>
+      <% if examination.lecture %>
+        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Class</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <%= link_to examination.lecture.school_class.name, 
+                school_class_path(examination.lecture.school_class), 
+                class: "text-yellow-600 hover:text-yellow-800" %>
+          </dd>
+        </div>
+        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Schedule</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <%= "#{examination.lecture.week_day.capitalize} at #{examination.lecture.start_time.strftime("%H:%M")}" %>
+          </dd>
+        </div>
+        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Teacher</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <%= link_to "#{examination.lecture.teacher.firstname} #{examination.lecture.teacher.lastname}", 
+                person_path(examination.lecture.teacher), 
+                class: "text-yellow-600 hover:text-yellow-800" %>
+          </dd>
+        </div>
+      <% else %>
+        <div class="px-4 py-5 sm:px-6 text-center text-gray-500 italic">
+          No lecture associated
+        </div>
+      <% end %>
+    </dl>
+  </div>
 </div>
