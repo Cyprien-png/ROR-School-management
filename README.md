@@ -40,6 +40,11 @@ Run development server
 rails server
 ```
 
+Build CSS styles
+```shell
+rails tailwindcss:watch
+```
+
 ### Running Tests
 Setup the DB for the tests
 ```shell
