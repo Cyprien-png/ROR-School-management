@@ -17,7 +17,20 @@ class StudentsController < PeopleController
     
     respond_to do |format|
       if @student.save
-        @student.school_classes << SchoolClass.find(student_params[:school_class_id]) if student_params[:school_class_id].present?
+        if student_params[:school_class_id].present?
+          school_class = SchoolClass.find(student_params[:school_class_id])
+          @student.school_classes << school_class
+          
+          # Check if the student was saved with the school class
+          if @student.errors.any?
+            # If there were validation errors, destroy the student and render the form again
+            @student.destroy
+            format.html { render :new, status: :unprocessable_entity }
+            format.json { render json: @student.errors, status: :unprocessable_entity }
+            return
+          end
+        end
+        
         format.html { redirect_to person_url(@student), notice: "Student was successfully created." }
         format.json { render :show, status: :created, location: @student }
       else

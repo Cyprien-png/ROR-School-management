@@ -8,6 +8,15 @@ class SchoolClassesController < ApplicationController
   # POST /school_classes/1/add_student
   def add_student
     student = Student.find(params[:student_id])
+    
+    # Check if student is already in a class with the same academic year
+    if student.school_classes.where(year_id: @school_class.year_id).exists?
+      year = @school_class.year
+      year_range = "#{year.first_trimester.start_date.year}-#{year.fourth_trimester.end_date.year}"
+      redirect_to @school_class, alert: "Student is already assigned to a class in the academic year #{year_range}"
+      return
+    end
+    
     @school_class.students << student
     redirect_to @school_class, notice: "Student was successfully added to the class."
   end
