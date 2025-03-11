@@ -36,6 +36,6 @@ class SubjectsTest < ApplicationSystemTestCase
     visit subject_url(@subject)
     click_on "Destroy this subject", match: :first
 
-    assert_text "Subject was successfully destroyed"
+    assert_text "Subject was successfully deleted"
   end
 end

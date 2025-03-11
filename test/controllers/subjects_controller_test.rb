@@ -259,7 +259,7 @@ class SubjectsControllerTest < ActionDispatch::IntegrationTest
     end
     
     assert_redirected_to subjects_url
-    assert_equal "Subject was successfully destroyed.", flash[:notice]
+    assert_equal "Subject was successfully deleted.", flash[:notice]
     
     # Verify the subject is soft deleted
     @subject.reload
