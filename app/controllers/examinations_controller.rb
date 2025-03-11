@@ -4,6 +4,8 @@ class ExaminationsController < ApplicationController
   before_action :authenticate_person!
   before_action :authorize_dean_or_teacher, except: [:index, :show]
   before_action :set_examination, only: %i[ show edit update destroy students ]
+  before_action :set_deleted_examination, only: [:undelete]
+  before_action :authorize_dean, only: [:deleted, :undelete]
 
   # GET /examinations/1/students
   def students
@@ -90,10 +92,25 @@ class ExaminationsController < ApplicationController
     end
   end
 
+  # GET /examinations/deleted
+  def deleted
+    @examinations = Examination.with_deleted.where(isDeleted: true).includes(lecture: [:subject, :school_class, :teacher])
+  end
+
+  # PATCH /examinations/1/undelete
+  def undelete
+    @examination.update(isDeleted: false)
+    redirect_to examinations_path, notice: "Examination was successfully restored."
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_examination
       @examination = Examination.includes(lecture: [:subject, :school_class, :teacher]).find(params[:id])
+    end
+
+    def set_deleted_examination
+      @examination = Examination.with_deleted.includes(lecture: [:subject, :school_class, :teacher]).find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.

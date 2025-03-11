@@ -12,6 +12,11 @@
     <% end %>
   </div>
 
+  <%= render 'shared/resource_tabs', 
+    active_tab: :active, 
+    active_path: examinations_path, 
+    deleted_path: deleted_examinations_path %>
+
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     <% @examinations.each do |examination| %>
       <div class="overflow-hidden rounded-lg border border-yellow-200 shadow-sm mb-6">

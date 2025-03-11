@@ -1,17 +1,41 @@
 Rails.application.routes.draw do
-  resources :grades
+  resources :grades do
+    collection do
+      get :deleted
+    end
+    member do
+      patch :undelete
+    end
+  end
   resources :examinations do
     member do
       get 'students'
     end
     collection do
       get 'available_dates/:lecture_id' => 'examinations#available_dates', as: :available_dates
+      get 'deleted', to: 'examinations#deleted', as: :deleted
+    end
+    member do
+      patch 'undelete', to: 'examinations#undelete', as: :undelete
     end
   end
-  resources :years
+  resources :years do
+    collection do
+      get :deleted
+    end
+    member do
+      patch :undelete
+    end
+  end
   resources :lectures
   resources :subjects do
     get 'teachers', on: :member
+    collection do
+      get 'deleted', to: 'subjects#deleted', as: :deleted
+    end
+    member do
+      patch 'undelete', to: 'subjects#undelete', as: :undelete
+    end
   end
   resources :school_classes do
     member do
@@ -21,7 +45,14 @@ Rails.application.routes.draw do
     end
   end
   devise_for :people, skip: [:registrations]
-  resources :people, only: [:index, :show]
+  resources :people, only: [:index, :show] do
+    collection do
+      get 'deleted', to: 'people#deleted', as: :deleted
+    end
+    member do
+      patch 'undelete', to: 'people#undelete', as: :undelete
+    end
+  end
   resources :students do
     member do
       get :grade_report

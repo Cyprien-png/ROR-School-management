@@ -4,8 +4,10 @@ class GradesController < ApplicationController
   before_action :authenticate_person!
   before_action :authorize_grade_manager, only: [:new, :create, :edit, :update, :destroy]
   before_action :set_grade, only: %i[ show edit update destroy ]
+  before_action :set_deleted_grade, only: [:undelete]
   before_action :authorize_grade_modification, only: [:edit, :update, :destroy]
   before_action :authorize_access_to_grade, only: [:show]
+  before_action :authorize_dean, only: [:deleted, :undelete]
   before_action :load_available_examinations, only: [:new, :create, :edit, :update]
 
   # GET /grades or /grades.json
@@ -98,9 +100,25 @@ class GradesController < ApplicationController
     end
   end
 
+  # GET /grades/deleted
+  def deleted
+    @grades = Grade.with_deleted.where(isDeleted: true)
+                  .includes(:student, examination: { lecture: [:subject, :school_class, :teacher] })
+  end
+
+  # PATCH /grades/1/undelete
+  def undelete
+    @grade.update(isDeleted: false)
+    redirect_to grades_path, notice: "Grade was successfully restored."
+  end
+
   private
     def set_grade
       @grade = Grade.includes(:student, examination: { lecture: [:subject, :school_class, :teacher] }).find(params[:id])
+    end
+
+    def set_deleted_grade
+      @grade = Grade.with_deleted.includes(:student, examination: { lecture: [:subject, :school_class, :teacher] }).find(params[:id])
     end
 
     def grade_params

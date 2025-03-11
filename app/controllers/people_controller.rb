@@ -1,5 +1,10 @@
 class PeopleController < ApplicationController
+  include Authorization
+  
+  before_action :authenticate_person!
   before_action :set_person, only: [:show]
+  before_action :set_deleted_person, only: [:undelete]
+  before_action :authorize_dean, only: [:deleted, :undelete]
 
   # GET /people or /people.json
   def index
@@ -8,6 +13,17 @@ class PeopleController < ApplicationController
 
   # GET /people/1 or /people/1.json
   def show
+  end
+
+  # GET /people/deleted
+  def deleted
+    @people = Person.with_deleted.where(isDeleted: true)
+  end
+
+  # PATCH /people/1/undelete
+  def undelete
+    @person.update(isDeleted: false)
+    redirect_to people_path, notice: "#{@person.type} was successfully restored."
   end
 
   # GET /people/new
@@ -63,6 +79,10 @@ class PeopleController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_person
       @person = Person.find(params[:id])
+    end
+
+    def set_deleted_person
+      @person = Person.with_deleted.find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.

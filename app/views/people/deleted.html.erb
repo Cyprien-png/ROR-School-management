@@ -1,0 +1,74 @@
+<% content_for :title, "Deleted People" %>
+
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Deleted People</h1>
+    <%= render 'shared/button', 
+      text: "Back to People", 
+      icon: "fa-solid fa-arrow-left",
+      color: "outline-gray", 
+      href: people_path %>
+  </div>
+
+  <%= render 'shared/resource_tabs', 
+    active_tab: :deleted, 
+    active_path: people_path, 
+    deleted_path: deleted_people_path %>
+
+  <% if @people.any? %>
+    <div class="overflow-hidden mb-6 rounded-lg border border-blue-200 shadow-sm">
+      <div class="flex items-center px-4 py-5 bg-blue-50 sm:px-6">
+        <i class="mr-3 text-xl fa-solid fa-users-slash"></i>
+        <h3 class="text-lg font-medium leading-6 text-blue-700">
+          Deleted People
+        </h3>
+      </div>
+      <div class="px-4 py-5 bg-white border-t border-gray-200 sm:p-6">
+        <div class="overflow-x-auto shadow-md sm:rounded-lg">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Last Name</th>
+                <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">First Name</th>
+                <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Email</th>
+                <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Phone Number</th>
+                <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Role</th>
+                <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% @people.each_with_index do |person, index| %>
+                <tr class="<%= index.odd? ? 'bg-gray-50' : '' %>">
+                  <td class="px-6 py-4 whitespace-nowrap"><%= person.lastname %></td>
+                  <td class="px-6 py-4 whitespace-nowrap"><%= person.firstname %></td>
+                  <td class="px-6 py-4 whitespace-nowrap"><%= person.email %></td>
+                  <td class="px-6 py-4 whitespace-nowrap"><%= person.phone_number %></td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <% if person.is_a?(Dean) %>
+                      <%= render 'shared/badge', text: "Dean", color: "purple" %>
+                    <% elsif person.is_a?(Teacher) %>
+                      <%= render 'shared/badge', text: "Teacher", color: "green" %>
+                    <% elsif person.is_a?(Student) %>
+                      <%= render 'shared/badge', text: "Student", color: "blue" %>
+                    <% end %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <%= render 'shared/undelete_button', path: undelete_person_path(person) %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <div class="text-center py-10">
+      <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-gray-100">
+        <i class="fa-solid fa-trash text-gray-400"></i>
+      </div>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">No deleted people</h3>
+      <p class="mt-1 text-sm text-gray-500">There are no deleted people to display.</p>
+    </div>
+  <% end %>
+</div> 

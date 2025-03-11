@@ -32,6 +32,11 @@
     </div>
   </div>
 
+  <%= render 'shared/resource_tabs', 
+    active_tab: :active, 
+    active_path: grades_path, 
+    deleted_path: deleted_grades_path %>
+
   <div class="overflow-hidden rounded-lg border border-red-200 shadow-sm mb-6">
     <div class="bg-red-50 px-4 py-5 sm:px-6 flex items-center">
       <i class="fa-solid fa-chart-simple mr-3 text-xl"></i>

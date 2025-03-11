@@ -12,9 +12,13 @@
     <% end %>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <%= render 'shared/resource_tabs', 
+    active_tab: :active, 
+    active_path: years_path, 
+    deleted_path: deleted_years_path %>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <% @years.each do |year| %>
-      <% next if year.isDeleted %>
       <div class="overflow-hidden rounded-lg border border-indigo-200 shadow-sm mb-6">
         <div class="bg-indigo-50 px-4 py-5 sm:px-6 flex items-center">
           <i class="fa-solid fa-calendar-days mr-3 text-xl"></i>
@@ -24,73 +28,32 @@
         </div>
         <div class="border-t border-gray-200 bg-white px-4 py-5 sm:p-6">
           <div class="space-y-4">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div class="bg-indigo-50 p-3 rounded-lg">
-                <h4 class="font-medium text-indigo-800 mb-2">First Trimester</h4>
-                <p class="text-sm text-gray-600">
-                  <span class="font-medium">Start:</span> <%= year.first_trimester.start_date.strftime("%B %d, %Y") %>
-                </p>
-                <p class="text-sm text-gray-600">
-                  <span class="font-medium">End:</span> <%= year.first_trimester.end_date.strftime("%B %d, %Y") %>
-                </p>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="font-medium text-gray-700">First Trimester:</p>
+                <p class="text-gray-600"><%= "#{year.first_trimester.start_date.strftime('%b %d, %Y')} - #{year.first_trimester.end_date.strftime('%b %d, %Y')}" %></p>
               </div>
-              
-              <div class="bg-indigo-50 p-3 rounded-lg">
-                <h4 class="font-medium text-indigo-800 mb-2">Second Trimester</h4>
-                <p class="text-sm text-gray-600">
-                  <span class="font-medium">Start:</span> <%= year.second_trimester.start_date.strftime("%B %d, %Y") %>
-                </p>
-                <p class="text-sm text-gray-600">
-                  <span class="font-medium">End:</span> <%= year.second_trimester.end_date.strftime("%B %d, %Y") %>
-                </p>
+              <div>
+                <p class="font-medium text-gray-700">Second Trimester:</p>
+                <p class="text-gray-600"><%= "#{year.second_trimester.start_date.strftime('%b %d, %Y')} - #{year.second_trimester.end_date.strftime('%b %d, %Y')}" %></p>
               </div>
-              
-              <div class="bg-indigo-50 p-3 rounded-lg">
-                <h4 class="font-medium text-indigo-800 mb-2">Third Trimester</h4>
-                <p class="text-sm text-gray-600">
-                  <span class="font-medium">Start:</span> <%= year.third_trimester.start_date.strftime("%B %d, %Y") %>
-                </p>
-                <p class="text-sm text-gray-600">
-                  <span class="font-medium">End:</span> <%= year.third_trimester.end_date.strftime("%B %d, %Y") %>
-                </p>
+              <div>
+                <p class="font-medium text-gray-700">Third Trimester:</p>
+                <p class="text-gray-600"><%= "#{year.third_trimester.start_date.strftime('%b %d, %Y')} - #{year.third_trimester.end_date.strftime('%b %d, %Y')}" %></p>
               </div>
-              
-              <div class="bg-indigo-50 p-3 rounded-lg">
-                <h4 class="font-medium text-indigo-800 mb-2">Fourth Trimester</h4>
-                <p class="text-sm text-gray-600">
-                  <span class="font-medium">Start:</span> <%= year.fourth_trimester.start_date.strftime("%B %d, %Y") %>
-                </p>
-                <p class="text-sm text-gray-600">
-                  <span class="font-medium">End:</span> <%= year.fourth_trimester.end_date.strftime("%B %d, %Y") %>
-                </p>
+              <div>
+                <p class="font-medium text-gray-700">Fourth Trimester:</p>
+                <p class="text-gray-600"><%= "#{year.fourth_trimester.start_date.strftime('%b %d, %Y')} - #{year.fourth_trimester.end_date.strftime('%b %d, %Y')}" %></p>
               </div>
             </div>
             
-            <div class="pt-3 border-t border-gray-200 flex justify-end space-x-2">
+            <div class="pt-3 border-t border-gray-200">
               <%= render 'shared/button', 
-                text: "View", 
+                text: "View Details", 
                 icon: "fa-solid fa-eye",
                 color: "outline-indigo", 
-                size: "sm",
-                href: year_path(year) %>
-                
-              <% if current_person.is_a?(Dean) %>
-                <%= render 'shared/button', 
-                  text: "Edit", 
-                  icon: "fa-solid fa-pencil",
-                  color: "outline-indigo", 
-                  size: "sm",
-                  href: edit_year_path(year) %>
-                  
-                <%= render 'shared/button', 
-                  text: "Delete", 
-                  icon: "fa-solid fa-trash",
-                  color: "outline-red", 
-                  size: "sm",
-                  method: :delete,
-                  confirm: "Are you sure you want to delete this academic year?",
-                  href: year_path(year) %>
-              <% end %>
+                href: year_path(year),
+                full_width: true %>
             </div>
           </div>
         </div>
