@@ -1,16 +1,16 @@
 <%= form_with(model: @teacher, class: "space-y-8") do |form| %>
   <% if @teacher.errors.any? %>
-    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+    <div class="p-4 mb-6 bg-red-50 border-l-4 border-red-400">
       <div class="flex">
         <div class="flex-shrink-0">
-          <i class="fas fa-exclamation-circle text-red-400"></i>
+          <i class="text-red-400 fas fa-exclamation-circle"></i>
         </div>
         <div class="ml-3">
           <h3 class="text-sm font-medium text-red-800">
             <%= pluralize(@teacher.errors.count, "error") %> prohibited this teacher from being saved:
           </h3>
           <div class="mt-2 text-sm text-red-700">
-            <ul class="list-disc pl-5 space-y-1">
+            <ul class="pl-5 space-y-1 list-disc">
               <% @teacher.errors.each do |error| %>
                 <li><%= error.full_message %></li>
               <% end %>
@@ -22,7 +22,7 @@
   <% end %>
 
   <% personal_info = capture do %>
-    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
       <div class="sm:col-span-3">
         <%= form.label :firstname, class: "block text-sm font-medium text-gray-700" %>
         <div class="mt-1">
@@ -63,7 +63,7 @@
   <% end %>
 
   <% account_settings = capture do %>
-    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
       <div class="sm:col-span-3">
         <%= form.label :password, class: "block text-sm font-medium text-gray-700" %>
         <div class="mt-1">
@@ -86,7 +86,7 @@
   <% end %>
 
   <% professional_info = capture do %>
-    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
       <div class="sm:col-span-4">
         <%= form.label :iban, class: "block text-sm font-medium text-gray-700" %>
         <div class="mt-1">
@@ -99,10 +99,10 @@
 
       <div class="sm:col-span-6">
         <%= form.label :subject_ids, "Teaching Subjects", class: "block text-sm font-medium text-gray-700 mb-2" %>
-        <div class="grid grid-cols-1 md:grid-cols-7 gap-4 items-start">
+        <div class="grid grid-cols-1 gap-4 items-start md:grid-cols-7">
           <!-- Available Subjects -->
           <div class="md:col-span-3">
-            <label class="block text-sm font-medium text-gray-500 mb-2">Available Subjects</label>
+            <label class="block mb-2 text-sm font-medium text-gray-500">Available Subjects</label>
             <select id="available_subjects" multiple
                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm min-h-[200px]">
               <% Subject.all.order(:name).each do |subject| %>
@@ -112,20 +112,20 @@
           </div>
 
           <!-- Arrow Buttons -->
-          <div class="md:col-span-1 flex md:flex-col justify-center items-center gap-2 py-4">
+          <div class="flex gap-2 justify-center items-center py-4 md:col-span-1 md:flex-col">
             <button type="button" id="add_subject" 
-                class="inline-flex items-center p-2 border border-transparent rounded-full shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                class="inline-flex items-center p-2 text-white bg-green-600 rounded-full border border-transparent shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
               <i class="fas fa-arrow-right"></i>
             </button>
             <button type="button" id="remove_subject"
-                class="inline-flex items-center p-2 border border-transparent rounded-full shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                class="inline-flex items-center p-2 text-white bg-red-600 rounded-full border border-transparent shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
               <i class="fas fa-arrow-left"></i>
             </button>
           </div>
 
           <!-- Selected Subjects -->
           <div class="md:col-span-3">
-            <label class="block text-sm font-medium text-gray-500 mb-2">Selected Subjects</label>
+            <label class="block mb-2 text-sm font-medium text-gray-500">Selected Subjects</label>
             <%= form.collection_select :subject_ids,
                 [], # Initially empty
                 :id,
@@ -139,7 +139,7 @@
         <p class="mt-2 text-sm text-gray-500">Use the arrows to add or remove subjects</p>
 
         <script>
-          document.addEventListener('DOMContentLoaded', function() {
+          document.addEventListener('turbo:load', function() {
             const availableSelect = document.getElementById('available_subjects');
             const selectedSelect = document.getElementById('selected_subjects');
             const addButton = document.getElementById('add_subject');
