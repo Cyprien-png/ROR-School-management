@@ -12,16 +12,16 @@
     <% end %>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
     <% @school_classes.each do |school_class| %>
-      <div class="overflow-hidden rounded-lg border border-blue-200 shadow-sm mb-6">
-        <div class="bg-blue-50 px-4 py-5 sm:px-6 flex items-center">
-          <i class="fa-solid fa-graduation-cap mr-3 text-xl"></i>
+      <div class="overflow-hidden mb-6 rounded-lg border border-blue-200 shadow-sm">
+        <div class="flex items-center px-4 py-5 bg-blue-50 sm:px-6">
+          <i class="mr-3 text-xl fa-solid fa-graduation-cap"></i>
           <h3 class="text-lg font-medium leading-6 text-blue-700">
             <%= school_class.name %>
           </h3>
         </div>
-        <div class="border-t border-gray-200 bg-white px-4 py-5 sm:p-6">
+        <div class="px-4 py-5 bg-white border-t border-gray-200 sm:p-6">
           <div class="space-y-3">
             <div class="flex justify-between items-center">
               <div>
@@ -33,7 +33,13 @@
             
             <div>
               <p class="font-medium text-gray-700">Teacher:</p>
-              <p class="text-gray-600"><%= "#{school_class.teacher.firstname} #{school_class.teacher.lastname}" %></p>
+              <p class="text-gray-600">
+                <% if school_class.teacher.nil? %>
+                  <span class="italic text-gray-500">DELETED_PERSON</span>
+                <% else %>
+                  <%= "#{school_class.teacher.firstname} #{school_class.teacher.lastname}" %>
+                <% end %>
+              </p>
             </div>
             
             <div class="pt-3 border-t border-gray-200">

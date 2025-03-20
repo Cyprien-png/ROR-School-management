@@ -1,8 +1,8 @@
-<div id="<%= dom_id lecture %>" class="bg-white shadow overflow-hidden sm:rounded-lg">
-  <div class="px-4 py-5 sm:px-6 bg-green-50">
+<div id="<%= dom_id lecture %>" class="overflow-hidden bg-white shadow sm:rounded-lg">
+  <div class="px-4 py-5 bg-green-50 sm:px-6">
     <div class="flex justify-between items-center">
       <div>
-        <h3 class="text-lg leading-6 font-medium text-green-800">
+        <h3 class="text-lg font-medium leading-6 text-green-800">
           <%= lecture.subject.name %>
         </h3>
         <p class="mt-1 max-w-2xl text-sm text-green-600">
@@ -16,21 +16,25 @@
   </div>
   <div class="border-t border-gray-200">
     <dl>
-      <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+      <div class="px-4 py-5 bg-gray-50 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
         <dt class="text-sm font-medium text-gray-500">Teacher</dt>
         <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-          <%= link_to "#{lecture.teacher.firstname} #{lecture.teacher.lastname}", 
-              person_path(lecture.teacher), 
-              class: "text-green-600 hover:text-green-800" %>
+          <% if lecture.teacher.nil? %>
+            <span class="italic text-gray-500">DELETED_PERSON</span>
+          <% else %>
+            <%= link_to "#{lecture.teacher.firstname} #{lecture.teacher.lastname}", 
+                person_path(lecture.teacher), 
+                class: "text-green-600 hover:text-green-800" %>
+          <% end %>
         </dd>
       </div>
-      <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+      <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
         <dt class="text-sm font-medium text-gray-500">Time</dt>
         <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
           <%= lecture.start_time.strftime("%H:%M") %> - <%= lecture.end_time.strftime("%H:%M") %>
         </dd>
       </div>
-      <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+      <div class="px-4 py-5 bg-gray-50 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
         <dt class="text-sm font-medium text-gray-500">Trimesters</dt>
         <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
           <% if lecture.trimesters.any? %>
@@ -43,7 +47,7 @@
               <% end %>
             </div>
           <% else %>
-            <span class="text-gray-500 italic">No trimesters assigned</span>
+            <span class="italic text-gray-500">No trimesters assigned</span>
           <% end %>
         </dd>
       </div>
