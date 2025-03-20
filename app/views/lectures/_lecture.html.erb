@@ -3,7 +3,11 @@
     <div class="flex justify-between items-center">
       <div>
         <h3 class="text-lg font-medium leading-6 text-green-800">
-          <%= lecture.subject.name %>
+          <% if lecture.subject.nil? %>
+            <span class="italic text-gray-500">DELETED_SUBJECT</span>
+          <% else %>
+            <%= lecture.subject.name %>
+          <% end %>
         </h3>
         <p class="mt-1 max-w-2xl text-sm text-green-600">
           <%= lecture.school_class.name %>

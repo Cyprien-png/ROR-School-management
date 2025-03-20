@@ -133,7 +133,13 @@
             <tbody class="bg-white divide-y divide-gray-200">
               <% @lectures.each_with_index do |lecture, index| %>
                 <tr class="<%= index.odd? ? 'bg-gray-50' : '' %>">
-                  <td class="px-6 py-4 font-medium whitespace-nowrap"><%= lecture.subject.name %></td>
+                  <td class="px-6 py-4 font-medium whitespace-nowrap">
+                    <% if lecture.subject.nil? %>
+                      <span class="italic text-gray-500">DELETED_SUBJECT</span>
+                    <% else %>
+                      <%= lecture.subject.name %>
+                    <% end %>
+                  </td>
                   <td class="px-6 py-4 whitespace-nowrap"><%= lecture.school_class.name %></td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <% if lecture.teacher.nil? %>

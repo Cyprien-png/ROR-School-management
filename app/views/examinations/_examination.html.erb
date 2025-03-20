@@ -10,8 +10,8 @@
         </p>
       </div>
       <%= render 'shared/badge', 
-        text: examination.lecture.subject.name, 
-        color: "purple" %>
+        text: examination.lecture.subject.nil? ? "DELETED_SUBJECT" : examination.lecture.subject.name, 
+        color: examination.lecture.subject.nil? ? "gray" : "purple" %>
     </div>
   </div>
   <div class="border-t border-gray-200">

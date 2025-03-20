@@ -37,7 +37,10 @@
           <%= form.collection_select :examination_id, 
                                    @examinations,
                                    :id,
-                                   ->(e) { "#{e.lecture.subject.name} - #{e.lecture.school_class.name} (#{e.date.strftime('%d.%m.%Y')})" },
+                                   ->(e) { 
+                                     subject_name = e.lecture.subject.nil? ? "DELETED_SUBJECT" : e.lecture.subject.name
+                                     "#{subject_name} - #{e.lecture.school_class.name} (#{e.date.strftime('%d.%m.%Y')})" 
+                                   },
                                    { prompt: "Select an examination" },
                                    { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm",
                                      onchange: "updateStudentsList(this.value)" } %>
