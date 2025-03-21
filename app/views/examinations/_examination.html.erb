@@ -20,9 +20,15 @@
         <div class="px-4 py-5 bg-gray-50 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
           <dt class="text-sm font-medium text-gray-500">Class</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-            <%= link_to examination.lecture.school_class.name, 
-                school_class_path(examination.lecture.school_class), 
-                class: "text-yellow-600 hover:text-yellow-800" %>
+            <% if examination.lecture.school_class.nil? %>
+              <span class="italic text-gray-500">DELETED_CLASS</span>
+            <% elsif examination.lecture.school_class.isDeleted? %>
+              <span class="italic text-gray-500"><%= examination.lecture.school_class.name %> (Deleted)</span>
+            <% else %>
+              <%= link_to examination.lecture.school_class.name, 
+                  school_class_path(examination.lecture.school_class), 
+                  class: "text-yellow-600 hover:text-yellow-800" %>
+            <% end %>
           </dd>
         </div>
         <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
