@@ -117,7 +117,7 @@
             <mxPoint x="450" y="711" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="c3kGjx1w-b3ts2C8C347-181" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;School management&lt;/h1&gt;&lt;p&gt;Cyprien Jaquier&lt;/p&gt;&lt;p&gt;Version: 1.1.0&lt;/p&gt;&lt;p&gt;Date: 2&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;1 march 2025&lt;/span&gt;&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" parent="1" vertex="1">
+        <mxCell id="c3kGjx1w-b3ts2C8C347-181" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;School management&lt;/h1&gt;&lt;p&gt;Cyprien Jaquier&lt;/p&gt;&lt;p&gt;Version: 1.1.1&lt;/p&gt;&lt;p&gt;Date: 2&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;1 march 2025&lt;/span&gt;&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" parent="1" vertex="1">
           <mxGeometry x="-190" y="130" width="260" height="120" as="geometry" />
         </mxCell>
         <mxCell id="JtVLC9THB3B2dhIAnBEE-86" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="JtVLC9THB3B2dhIAnBEE-21" target="JtVLC9THB3B2dhIAnBEE-76" edge="1">
@@ -390,7 +390,7 @@
         <mxCell id="JtVLC9THB3B2dhIAnBEE-169" value="finished" style="text;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fillColor=#C0D0FC;strokeColor=#6c8ebf;" parent="JtVLC9THB3B2dhIAnBEE-166" vertex="1">
           <mxGeometry y="90" width="200" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="JtVLC9THB3B2dhIAnBEE-170" value="&lt;b style=&quot;border-color: var(--border-color);&quot;&gt;Enum - lectures(wee_day)&lt;/b&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+        <mxCell id="JtVLC9THB3B2dhIAnBEE-170" value="&lt;b style=&quot;border-color: var(--border-color);&quot;&gt;Enum - lectures(week_day)&lt;/b&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
           <mxGeometry x="-190" y="410" width="160" height="240" as="geometry" />
         </mxCell>
         <mxCell id="JtVLC9THB3B2dhIAnBEE-171" value="monday" style="text;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fillColor=#C0D0FC;strokeColor=#6c8ebf;" parent="JtVLC9THB3B2dhIAnBEE-170" vertex="1">
