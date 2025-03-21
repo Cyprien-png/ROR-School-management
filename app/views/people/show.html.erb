@@ -159,7 +159,11 @@
                               <span class="flex-1 ml-2 w-0 truncate">
                                 <%= link_to school_class.name, school_class_path(school_class), class: "text-blue-600 hover:text-blue-800" %>
                                 <span class="text-gray-500">
-                                  (<%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %>)
+                                  <% if school_class.year.nil? %>
+                                    <span class="italic">(DELETED_YEAR)</span>
+                                  <% else %>
+                                    (<%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %>)
+                                  <% end %>
                                 </span>
                               </span>
                             </div>
@@ -180,7 +184,11 @@
                               <span class="flex-1 ml-2 w-0 italic text-gray-500 truncate">
                                 <%= school_class.name %>
                                 <span>
-                                  (<%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %>)
+                                  <% if school_class.year.nil? %>
+                                    <span class="italic">(DELETED_YEAR)</span>
+                                  <% else %>
+                                    (<%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %>)
+                                  <% end %>
                                 </span>
                               </span>
                             </div>
@@ -217,7 +225,11 @@
                               <span class="flex-1 ml-2 w-0 truncate">
                                 <%= link_to school_class.name, school_class_path(school_class), class: "text-green-600 hover:text-green-800" %>
                                 <span class="text-gray-500">
-                                  (<%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %>)
+                                  <% if school_class.year.nil? %>
+                                    <span class="italic">(DELETED_YEAR)</span>
+                                  <% else %>
+                                    (<%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %>)
+                                  <% end %>
                                 </span>
                               </span>
                             </div>
@@ -238,7 +250,11 @@
                               <span class="flex-1 ml-2 w-0 italic text-gray-500 truncate">
                                 <%= school_class.name %>
                                 <span>
-                                  (<%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %>)
+                                  <% if school_class.year.nil? %>
+                                    <span class="italic">(DELETED_YEAR)</span>
+                                  <% else %>
+                                    (<%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %>)
+                                  <% end %>
                                 </span>
                               </span>
                             </div>
