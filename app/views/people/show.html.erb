@@ -64,7 +64,7 @@
     </div>
   </div>
 
-  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+  <div class="overflow-hidden bg-white shadow sm:rounded-lg">
     <div class="px-4 py-5 sm:px-6 bg-<%= @person.is_a?(Dean) ? 'purple' : (@person.is_a?(Teacher) ? 'green' : 'blue') %>-50">
       <div class="flex justify-between items-center">
         <div>
@@ -82,13 +82,13 @@
     </div>
     <div class="border-t border-gray-200">
       <dl>
-        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+        <div class="px-4 py-5 bg-gray-50 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
           <dt class="text-sm font-medium text-gray-500">Full name</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
             <%= "#{@person.firstname} #{@person.lastname}" %>
           </dd>
         </div>
-        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+        <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
           <dt class="text-sm font-medium text-gray-500">Email address</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
             <a href="mailto:<%= @person.email %>" class="text-<%= @person.is_a?(Dean) ? 'purple' : (@person.is_a?(Teacher) ? 'green' : 'blue') %>-600 hover:text-<%= @person.is_a?(Dean) ? 'purple' : (@person.is_a?(Teacher) ? 'green' : 'blue') %>-800">
@@ -96,7 +96,7 @@
             </a>
           </dd>
         </div>
-        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+        <div class="px-4 py-5 bg-gray-50 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
           <dt class="text-sm font-medium text-gray-500">Phone number</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
             <a href="tel:<%= @person.phone_number %>" class="text-<%= @person.is_a?(Dean) ? 'purple' : (@person.is_a?(Teacher) ? 'green' : 'blue') %>-600 hover:text-<%= @person.is_a?(Dean) ? 'purple' : (@person.is_a?(Teacher) ? 'green' : 'blue') %>-800">
@@ -106,7 +106,7 @@
         </div>
         
         <% if @person.is_a?(Student) && @person.respond_to?(:status) -%>
-          <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
             <dt class="text-sm font-medium text-gray-500">Status</dt>
             <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
               <%= @person.status %>
@@ -115,7 +115,7 @@
         <% end -%>
         
         <% if @person.is_a?(Teacher) && @person.respond_to?(:iban) -%>
-          <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
             <dt class="text-sm font-medium text-gray-500">IBAN</dt>
             <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
               <%= @person.iban %>
@@ -124,7 +124,7 @@
         <% end -%>
         
         <% if @person.is_a?(Teacher) && @person.respond_to?(:subjects) && @person.subjects.any? -%>
-          <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <div class="px-4 py-5 bg-gray-50 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
             <dt class="text-sm font-medium text-gray-500">Subjects</dt>
             <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
               <div class="flex flex-wrap gap-2">
@@ -139,18 +139,118 @@
           </div>
         <% end -%>
         
-        <% if @person.is_a?(Student) && @person.respond_to?(:school_classes) && @person.school_classes.any? -%>
-          <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+        <% if @person.is_a?(Student) && @person.respond_to?(:school_classes) -%>
+          <div class="px-4 py-5 bg-gray-50 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
             <dt class="text-sm font-medium text-gray-500">Classes</dt>
             <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-              <div class="flex flex-wrap gap-2">
-                <% @person.school_classes.each do |school_class| -%>
-                  <%= link_to school_class_path(school_class), class: "inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800 hover:bg-indigo-200" do -%>
-                    <i class="fas fa-graduation-cap mr-1"></i>
-                    <%= school_class.name %>
-                  <% end -%>
-                <% end -%>
-              </div>
+              <% active_classes = @person.school_classes.where(isDeleted: false) %>
+              <% deleted_classes = @person.school_classes.with_deleted.where(isDeleted: true) %>
+              
+              <% if active_classes.any? || deleted_classes.any? %>
+                <div class="space-y-4">
+                  <% if active_classes.any? %>
+                    <div>
+                      <h4 class="mb-2 font-medium text-gray-700">Classes</h4>
+                      <ul class="rounded-md border border-gray-200 divide-y divide-gray-200">
+                        <% active_classes.each do |school_class| %>
+                          <li class="flex justify-between items-center py-3 pr-4 pl-3 text-sm">
+                            <div class="flex flex-1 items-center w-0">
+                              <i class="flex-shrink-0 w-5 h-5 text-blue-500 fas fa-graduation-cap"></i>
+                              <span class="flex-1 ml-2 w-0 truncate">
+                                <%= link_to school_class.name, school_class_path(school_class), class: "text-blue-600 hover:text-blue-800" %>
+                                <span class="text-gray-500">
+                                  (<%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %>)
+                                </span>
+                              </span>
+                            </div>
+                          </li>
+                        <% end %>
+                      </ul>
+                    </div>
+                  <% end %>
+
+                  <% if deleted_classes.any? %>
+                    <div>
+                      <h4 class="mb-2 font-medium text-gray-700">Deleted Classes</h4>
+                      <ul class="rounded-md border border-gray-200 divide-y divide-gray-200">
+                        <% deleted_classes.each do |school_class| %>
+                          <li class="flex justify-between items-center py-3 pr-4 pl-3 text-sm">
+                            <div class="flex flex-1 items-center w-0">
+                              <i class="flex-shrink-0 w-5 h-5 text-gray-400 fas fa-graduation-cap"></i>
+                              <span class="flex-1 ml-2 w-0 italic text-gray-500 truncate">
+                                <%= school_class.name %>
+                                <span>
+                                  (<%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %>)
+                                </span>
+                              </span>
+                            </div>
+                          </li>
+                        <% end %>
+                      </ul>
+                    </div>
+                  <% end %>
+                </div>
+              <% else %>
+                <p class="italic text-gray-500">Not assigned to any class</p>
+              <% end %>
+            </dd>
+          </div>
+        <% end -%>
+        
+        <% if @person.is_a?(Teacher) -%>
+          <div class="px-4 py-5 bg-gray-50 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Classes</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <% active_classes = SchoolClass.where(teacher: @person, isDeleted: false) %>
+              <% deleted_classes = SchoolClass.with_deleted.where(teacher: @person, isDeleted: true) %>
+              
+              <% if active_classes.any? || deleted_classes.any? %>
+                <div class="space-y-4">
+                  <% if active_classes.any? %>
+                    <div>
+                      <h4 class="mb-2 font-medium text-gray-700">Classes</h4>
+                      <ul class="rounded-md border border-gray-200 divide-y divide-gray-200">
+                        <% active_classes.each do |school_class| %>
+                          <li class="flex justify-between items-center py-3 pr-4 pl-3 text-sm">
+                            <div class="flex flex-1 items-center w-0">
+                              <i class="flex-shrink-0 w-5 h-5 text-green-500 fas fa-graduation-cap"></i>
+                              <span class="flex-1 ml-2 w-0 truncate">
+                                <%= link_to school_class.name, school_class_path(school_class), class: "text-green-600 hover:text-green-800" %>
+                                <span class="text-gray-500">
+                                  (<%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %>)
+                                </span>
+                              </span>
+                            </div>
+                          </li>
+                        <% end %>
+                      </ul>
+                    </div>
+                  <% end %>
+
+                  <% if deleted_classes.any? %>
+                    <div>
+                      <h4 class="mb-2 font-medium text-gray-700">Deleted Classes</h4>
+                      <ul class="rounded-md border border-gray-200 divide-y divide-gray-200">
+                        <% deleted_classes.each do |school_class| %>
+                          <li class="flex justify-between items-center py-3 pr-4 pl-3 text-sm">
+                            <div class="flex flex-1 items-center w-0">
+                              <i class="flex-shrink-0 w-5 h-5 text-gray-400 fas fa-graduation-cap"></i>
+                              <span class="flex-1 ml-2 w-0 italic text-gray-500 truncate">
+                                <%= school_class.name %>
+                                <span>
+                                  (<%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %>)
+                                </span>
+                              </span>
+                            </div>
+                          </li>
+                        <% end %>
+                      </ul>
+                    </div>
+                  <% end %>
+                </div>
+              <% else %>
+                <p class="italic text-gray-500">Not assigned to any class</p>
+              <% end %>
             </dd>
           </div>
         <% end -%>
