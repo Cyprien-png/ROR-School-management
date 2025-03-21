@@ -75,15 +75,21 @@
                   </td>
                 <% end %>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <% if grade.examination.lecture.subject.nil? %>
+                  <% if grade.examination.lecture.nil? || grade.examination.lecture.isDeleted? %>
+                    <span class="italic text-gray-500">DELETED_LECTURE</span>
+                  <% elsif grade.examination.lecture.subject.nil? %>
                     <span class="italic text-gray-500">DELETED_SUBJECT</span>
                   <% else %>
                     <%= grade.examination.lecture.subject.name %>
                   <% end %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <% if grade.examination.lecture.school_class.nil? %>
+                  <% if grade.examination.lecture.nil? || grade.examination.lecture.isDeleted? %>
+                    <span class="italic text-gray-500">DELETED_LECTURE</span>
+                  <% elsif grade.examination.lecture.school_class.nil? %>
                     <span class="italic text-gray-500">DELETED_CLASS</span>
+                  <% elsif grade.examination.lecture.school_class.isDeleted? %>
+                    <span class="italic text-gray-500"><%= grade.examination.lecture.school_class.name %> (Deleted)</span>
                   <% else %>
                     <%= grade.examination.lecture.school_class.name %>
                   <% end %>
@@ -107,7 +113,7 @@
                       size: "sm",
                       href: grade_path(grade) %>
                       
-                    <% if can_grade?(grade.examination) %>
+                    <% if can_grade?(grade.examination) && !grade.examination.lecture&.isDeleted? %>
                       <%= render 'shared/button', 
                         text: "Edit", 
                         icon: "fa-solid fa-pencil",
