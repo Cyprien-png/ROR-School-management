@@ -390,11 +390,26 @@ class SchoolClassesControllerTest < ActionDispatch::IntegrationTest
     school_class = create_school_class(teacher)
     
     sign_in dean
-    assert_difference("SchoolClass.count", -1) do
-      delete school_class_url(school_class)
-    end
+    
+    # Count both active and soft-deleted classes before deletion
+    active_classes_before = SchoolClass.count
+    deleted_classes_before = SchoolClass.with_deleted.where(isDeleted: true).count
+    
+    delete school_class_url(school_class)
+
+    # Verify counts after deletion
+    assert_equal active_classes_before - 1, SchoolClass.count, "Active classes count should decrease by 1"
+    assert_equal deleted_classes_before + 1, SchoolClass.with_deleted.where(isDeleted: true).count, "Deleted classes count should increase by 1"
+    
+    # Verify the specific class is now marked as deleted
+    school_class.reload
+    assert school_class.isDeleted?, "School class should be marked as deleted"
+    
+    # Verify the class appears in the deleted list
+    assert_includes SchoolClass.with_deleted.where(isDeleted: true), school_class, "School class should be in the deleted list"
 
     assert_redirected_to school_classes_url
+    assert_equal "School class was successfully deleted.", flash[:notice]
   end
 
   test "should not destroy school_class when teacher" do
@@ -408,6 +423,80 @@ class SchoolClassesControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to root_path
     assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+    
+    # Verify the school class is not soft deleted
+    school_class.reload
+    assert_not school_class.isDeleted
+  end
+
+  test "should get deleted school classes when dean" do
+    dean = create_dean
+    teacher = create_teacher
+    school_class = create_school_class(teacher)
+    school_class.update(isDeleted: true)
+    
+    sign_in dean
+    get deleted_school_classes_url
+    assert_response :success
+  end
+
+  test "should not get deleted school classes when not dean" do
+    teacher = create_teacher
+    student = create_student
+    school_class = create_school_class(teacher)
+    school_class.update(isDeleted: true)
+    
+    # Test as teacher
+    sign_in teacher
+    get deleted_school_classes_url
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+    
+    # Test as student
+    sign_in student
+    get deleted_school_classes_url
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+  end
+
+  test "should undelete school class when dean" do
+    dean = create_dean
+    teacher = create_teacher
+    school_class = create_school_class(teacher)
+    school_class.update(isDeleted: true)
+    
+    sign_in dean
+    patch undelete_school_class_url(school_class)
+    
+    assert_redirected_to school_classes_url
+    assert_equal "School class was successfully restored.", flash[:notice]
+    
+    # Verify the school class is undeleted
+    school_class.reload
+    assert_not school_class.isDeleted
+  end
+
+  test "should not undelete school class when not dean" do
+    teacher = create_teacher
+    student = create_student
+    school_class = create_school_class(teacher)
+    school_class.update(isDeleted: true)
+    
+    # Test as teacher
+    sign_in teacher
+    patch undelete_school_class_url(school_class)
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+    
+    # Test as student
+    sign_in student
+    patch undelete_school_class_url(school_class)
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+    
+    # Verify the school class is still deleted
+    school_class.reload
+    assert school_class.isDeleted
   end
 
   # ADD STUDENT TESTS
