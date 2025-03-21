@@ -1,0 +1,95 @@
+<% content_for :title, "Deleted Lectures" %>
+
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-bold">Deleted Lectures</h1>
+      <p class="text-gray-500">View and restore deleted lectures</p>
+    </div>
+    
+    <%= render 'shared/button', 
+      text: "Back to Lectures", 
+      icon: "fa-solid fa-arrow-left",
+      color: "outline-gray", 
+      href: lectures_path %>
+  </div>
+
+  <%= render 'shared/resource_tabs', 
+    active_tab: :deleted, 
+    active_path: lectures_path, 
+    deleted_path: deleted_lectures_path %>
+
+  <div class="overflow-hidden mb-6 rounded-lg border border-green-200 shadow-sm">
+    <div class="flex items-center px-4 py-5 bg-green-50 sm:px-6">
+      <i class="mr-3 text-xl fa-solid fa-trash"></i>
+      <h3 class="text-lg font-medium leading-6 text-green-700">
+        Deleted Lectures
+      </h3>
+    </div>
+    <div class="px-4 py-5 bg-white border-t border-gray-200 sm:p-6">
+      <div class="overflow-x-auto shadow-md sm:rounded-lg">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <% ["Subject", "Class", "Teacher", "Day", "Time", "Trimesters", "Actions"].each do |header| %>
+                <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                  <%= header %>
+                </th>
+              <% end %>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @lectures.each_with_index do |lecture, index| %>
+              <tr class="<%= index.odd? ? 'bg-gray-50' : '' %>">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if lecture.subject.nil? %>
+                    <span class="italic text-gray-500">DELETED_SUBJECT</span>
+                  <% else %>
+                    <%= lecture.subject.name %>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if lecture.school_class.nil? %>
+                    <span class="italic text-gray-500">DELETED_CLASS</span>
+                  <% else %>
+                    <%= lecture.school_class.name %>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if lecture.teacher.nil? %>
+                    <span class="italic text-gray-500">DELETED_PERSON</span>
+                  <% else %>
+                    <%= "#{lecture.teacher.firstname} #{lecture.teacher.lastname}" %>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap"><%= lecture.week_day.capitalize %></td>
+                <td class="px-6 py-4 whitespace-nowrap"><%= lecture.start_time.strftime("%H:%M") %> - <%= lecture.end_time.strftime("%H:%M") %></td>
+                <td class="px-6 py-4">
+                  <div class="flex flex-wrap gap-1">
+                    <% lecture.trimesters.order(start_date: :asc).each do |trimester| %>
+                      <%= render 'shared/badge', 
+                        text: trimester.start_date.strftime("%b"), 
+                        color: "gray",
+                        size: "sm" %>
+                    <% end %>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex space-x-2">
+                    <%= render 'shared/button', 
+                      text: "Restore", 
+                      icon: "fa-solid fa-trash-restore",
+                      color: "outline-green", 
+                      size: "sm",
+                      method: :patch,
+                      href: undelete_lecture_path(lecture) %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div> 

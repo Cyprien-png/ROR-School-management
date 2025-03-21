@@ -12,6 +12,11 @@
     <% end %>
   </div>
 
+  <%= render 'shared/resource_tabs', 
+    active_tab: :active, 
+    active_path: lectures_path, 
+    deleted_path: deleted_lectures_path %>
+
   <% if @years.any? %>
     <!-- Calendar filter controls -->
     <div class="overflow-hidden mb-6 rounded-lg border border-green-200 shadow-sm">
