@@ -4,6 +4,20 @@ class SchoolClassesController < ApplicationController
   before_action :authenticate_person!
   before_action :authorize_dean, except: [:index, :show]
   before_action :set_school_class, only: %i[ show edit update destroy add_student remove_student ]
+  before_action :set_deleted_school_class, only: [:undelete]
+
+  def deleted
+    @school_classes = SchoolClass.with_deleted.where(isDeleted: true)
+    Rails.logger.info "Deleted school classes query: #{@school_classes.to_sql}"
+    Rails.logger.info "Found #{@school_classes.count} deleted school classes"
+    Rails.logger.info "Deleted school classes IDs: #{@school_classes.pluck(:id)}"
+    render :deleted
+  end
+
+  def undelete
+    @school_class.update(isDeleted: false)
+    redirect_to school_classes_path, notice: "School class was successfully restored."
+  end
 
   # POST /school_classes/1/add_student
   def add_student
@@ -76,10 +90,12 @@ class SchoolClassesController < ApplicationController
 
   # DELETE /school_classes/1 or /school_classes/1.json
   def destroy
-    @school_class.destroy!
+    Rails.logger.info "Before soft delete: SchoolClass #{@school_class.id} isDeleted=#{@school_class.isDeleted}"
+    result = @school_class.soft_delete
+    Rails.logger.info "After soft delete: SchoolClass #{@school_class.id} isDeleted=#{@school_class.reload.isDeleted}, update result: #{result}"
 
     respond_to do |format|
-      format.html { redirect_to school_classes_url, notice: "School class was successfully destroyed." }
+      format.html { redirect_to school_classes_url, notice: "School class was successfully deleted." }
       format.json { head :no_content }
     end
   end
@@ -101,6 +117,10 @@ class SchoolClassesController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_school_class
       @school_class = SchoolClass.find(params[:id])
+    end
+
+    def set_deleted_school_class
+      @school_class = SchoolClass.with_deleted.find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.

@@ -42,6 +42,10 @@ Rails.application.routes.draw do
       post :add_student
       delete :remove_student
       get :year_trimesters
+      patch :undelete
+    end
+    collection do
+      get :deleted
     end
   end
   devise_for :people, skip: [:registrations]
