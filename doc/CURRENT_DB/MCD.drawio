@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36" version="26.1.0">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36" version="26.1.1">
   <diagram name="Page-1" id="XfhUcXcF2LE9acCcoFgk">
-    <mxGraphModel dx="2308" dy="807" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="2326" dy="686" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -248,7 +248,7 @@
         <mxCell id="c3kGjx1w-b3ts2C8C347-179" value="0,n" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=none;startFill=0;" parent="1" source="c3kGjx1w-b3ts2C8C347-58" target="c3kGjx1w-b3ts2C8C347-177" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="c3kGjx1w-b3ts2C8C347-181" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;School management&lt;/h1&gt;&lt;p&gt;Cyprien Jaquier&lt;/p&gt;&lt;p&gt;Version: 1.0.0&lt;/p&gt;&lt;p&gt;Date: 12 march 2025&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" parent="1" vertex="1">
+        <mxCell id="c3kGjx1w-b3ts2C8C347-181" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;School management&lt;/h1&gt;&lt;p&gt;Cyprien Jaquier&lt;/p&gt;&lt;p&gt;Version: 1.1.0&lt;/p&gt;&lt;p&gt;Date: 21 march 2025&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" parent="1" vertex="1">
           <mxGeometry x="20" y="120" width="260" height="120" as="geometry" />
         </mxCell>
         <mxCell id="c3kGjx1w-b3ts2C8C347-188" value="Has the lecture as part of the natural identifier" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=2" parent="1" vertex="1">
