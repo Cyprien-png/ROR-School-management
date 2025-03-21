@@ -27,7 +27,14 @@ Rails.application.routes.draw do
       patch :undelete
     end
   end
-  resources :lectures
+  resources :lectures do
+    collection do
+      get :deleted
+    end
+    member do
+      patch :undelete
+    end
+  end
   resources :subjects do
     get 'teachers', on: :member
     collection do
