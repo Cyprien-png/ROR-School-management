@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_20_231422) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_20_235410) do
   create_table "examinations", force: :cascade do |t|
     t.string "title"
     t.date "date"
@@ -19,6 +19,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_20_231422) do
     t.integer "lecture_id"
     t.boolean "isDeleted", default: false
     t.index ["lecture_id"], name: "index_examinations_on_lecture_id"
+    t.index ["title", "date", "lecture_id"], name: "index_examinations_on_natural_key", unique: true
   end
 
   create_table "grades", force: :cascade do |t|
@@ -29,6 +30,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_20_231422) do
     t.datetime "updated_at", null: false
     t.boolean "isDeleted", default: false
     t.index ["examination_id"], name: "index_grades_on_examination_id"
+    t.index ["student_id", "examination_id"], name: "index_grades_on_natural_key", unique: true
     t.index ["student_id"], name: "index_grades_on_student_id"
   end
 
@@ -42,6 +44,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_20_231422) do
     t.integer "teacher_id", null: false
     t.integer "school_class_id"
     t.index ["school_class_id"], name: "index_lectures_on_school_class_id"
+    t.index ["subject_id", "teacher_id", "school_class_id", "week_day", "start_time"], name: "index_lectures_on_natural_key", unique: true
     t.index ["subject_id"], name: "index_lectures_on_subject_id"
     t.index ["teacher_id"], name: "index_lectures_on_teacher_id"
   end
@@ -71,6 +74,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_20_231422) do
     t.datetime "remember_created_at"
     t.boolean "isDeleted", default: false
     t.index ["email"], name: "index_people_on_email", unique: true
+    t.index ["lastname", "firstname", "phone_number"], name: "index_people_on_natural_key", unique: true
     t.index ["reset_password_token"], name: "index_people_on_reset_password_token", unique: true
   end
 
@@ -81,6 +85,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_20_231422) do
     t.datetime "updated_at", null: false
     t.integer "teacher_id", null: false
     t.integer "year_id"
+    t.boolean "isDeleted", default: false
+    t.index ["name", "year_id"], name: "index_school_classes_on_natural_key", unique: true
     t.index ["teacher_id"], name: "index_school_classes_on_teacher_id"
     t.index ["year_id"], name: "index_school_classes_on_year_id"
   end
@@ -99,6 +105,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_20_231422) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "isDeleted", default: false
+    t.index ["name"], name: "index_subjects_on_name", unique: true
   end
 
   create_table "subjects_teachers", force: :cascade do |t|
@@ -116,6 +123,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_20_231422) do
     t.date "end_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["start_date", "end_date"], name: "index_trimesters_on_natural_key", unique: true
   end
 
   create_table "years", force: :cascade do |t|
@@ -126,6 +134,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_20_231422) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "isDeleted", default: false
+    t.index ["first_trimester_id", "second_trimester_id", "third_trimester_id", "fourth_trimester_id"], name: "index_years_on_natural_key", unique: true
     t.index ["first_trimester_id"], name: "index_years_on_first_trimester_id"
     t.index ["fourth_trimester_id"], name: "index_years_on_fourth_trimester_id"
     t.index ["second_trimester_id"], name: "index_years_on_second_trimester_id"
