@@ -81,7 +81,13 @@
                     <%= grade.examination.lecture.subject.name %>
                   <% end %>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap"><%= grade.examination.lecture.school_class.name %></td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if grade.examination.lecture.school_class.nil? %>
+                    <span class="italic text-gray-500">DELETED_CLASS</span>
+                  <% else %>
+                    <%= grade.examination.lecture.school_class.name %>
+                  <% end %>
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap"><%= grade.examination.title %></td>
                 <td class="px-6 py-4 whitespace-nowrap"><%= grade.examination.date.strftime("%B %d, %Y") %></td>
                 <td class="px-6 py-4 whitespace-nowrap">

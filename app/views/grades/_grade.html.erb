@@ -44,12 +44,14 @@
       <div class="px-4 py-5 bg-gray-50 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
         <dt class="text-sm font-medium text-gray-500">Class</dt>
         <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-          <% if grade.examination&.lecture&.school_class %>
+          <% if grade.examination&.lecture&.school_class.nil? %>
+            <span class="italic text-gray-500">DELETED_CLASS</span>
+          <% elsif grade.examination&.lecture&.school_class&.isDeleted? %>
+            <span class="italic text-gray-500"><%= grade.examination.lecture.school_class.name %> (Deleted)</span>
+          <% else %>
             <%= link_to grade.examination.lecture.school_class.name, 
                 school_class_path(grade.examination.lecture.school_class), 
                 class: "text-red-600 hover:text-red-800" %>
-          <% else %>
-            <span class="italic text-gray-500">Class not found</span>
           <% end %>
         </dd>
       </div>
