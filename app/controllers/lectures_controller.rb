@@ -3,7 +3,20 @@ class LecturesController < ApplicationController
   
   before_action :authenticate_person!
   before_action :authorize_dean, except: [:index, :show]
-  before_action :set_lecture, only: [:show, :edit, :update, :destroy]
+  before_action :set_lecture, only: %i[ show edit update destroy ]
+  before_action :set_deleted_lecture, only: [:undelete]
+
+  def deleted
+    @lectures = Lecture.with_deleted.where(isDeleted: true)
+    Rails.logger.info "Deleted lectures query: #{@lectures.to_sql}"
+    Rails.logger.info "Found #{@lectures.count} deleted lectures"
+    Rails.logger.info "Deleted lectures IDs: #{@lectures.pluck(:id)}"
+  end
+
+  def undelete
+    @lecture.update(isDeleted: false)
+    redirect_to lectures_path, notice: "Lecture was successfully restored."
+  end
 
   # GET /lectures or /lectures.json
   def index
@@ -92,10 +105,12 @@ class LecturesController < ApplicationController
 
   # DELETE /lectures/1 or /lectures/1.json
   def destroy
-    @lecture.destroy!
+    Rails.logger.info "Before soft delete: Lecture #{@lecture.id} isDeleted=#{@lecture.isDeleted}"
+    result = @lecture.soft_delete
+    Rails.logger.info "After soft delete: Lecture #{@lecture.id} isDeleted=#{@lecture.reload.isDeleted}, update result: #{result}"
 
     respond_to do |format|
-      format.html { redirect_to lectures_url, notice: "Lecture was successfully destroyed." }
+      format.html { redirect_to lectures_url, notice: "Lecture was successfully deleted." }
       format.json { head :no_content }
     end
   end
@@ -104,6 +119,10 @@ class LecturesController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_lecture
       @lecture = Lecture.find(params[:id])
+    end
+
+    def set_deleted_lecture
+      @lecture = Lecture.with_deleted.find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.

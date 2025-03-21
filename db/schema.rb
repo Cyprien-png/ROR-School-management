@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_08_133704) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_21_085852) do
   create_table "examinations", force: :cascade do |t|
     t.string "title"
     t.date "date"
@@ -41,6 +41,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_08_133704) do
     t.integer "subject_id", null: false
     t.integer "teacher_id", null: false
     t.integer "school_class_id"
+    t.boolean "isDeleted", default: false
     t.index ["school_class_id"], name: "index_lectures_on_school_class_id"
     t.index ["subject_id"], name: "index_lectures_on_subject_id"
     t.index ["teacher_id"], name: "index_lectures_on_teacher_id"
@@ -49,6 +50,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_08_133704) do
   create_table "lectures_trimesters", id: false, force: :cascade do |t|
     t.integer "lecture_id", null: false
     t.integer "trimester_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["lecture_id", "trimester_id"], name: "index_lectures_trimesters_on_lecture_id_and_trimester_id"
     t.index ["trimester_id", "lecture_id"], name: "index_lectures_trimesters_on_trimester_id_and_lecture_id"
   end
@@ -79,6 +82,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_08_133704) do
     t.datetime "updated_at", null: false
     t.integer "teacher_id", null: false
     t.integer "year_id"
+    t.boolean "isDeleted", default: false
     t.index ["teacher_id"], name: "index_school_classes_on_teacher_id"
     t.index ["year_id"], name: "index_school_classes_on_year_id"
   end
@@ -86,6 +90,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_08_133704) do
   create_table "school_classes_students", force: :cascade do |t|
     t.integer "school_class_id", null: false
     t.integer "student_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["school_class_id"], name: "index_school_classes_students_on_school_class_id"
     t.index ["student_id"], name: "index_school_classes_students_on_student_id"
   end

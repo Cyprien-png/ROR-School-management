@@ -17,32 +17,60 @@
     active_path: examinations_path, 
     deleted_path: deleted_examinations_path %>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
     <% @examinations.each do |examination| %>
-      <div class="overflow-hidden rounded-lg border border-yellow-200 shadow-sm mb-6">
-        <div class="bg-yellow-50 px-4 py-5 sm:px-6 flex items-center">
-          <i class="fa-solid fa-file-pen mr-3 text-xl"></i>
+      <div class="overflow-hidden mb-6 rounded-lg border border-yellow-200 shadow-sm">
+        <div class="flex items-center px-4 py-5 bg-yellow-50 sm:px-6">
+          <i class="mr-3 text-xl fa-solid fa-file-pen"></i>
           <h3 class="text-lg font-medium leading-6 text-yellow-700">
             <%= examination.title %>
           </h3>
         </div>
-        <div class="border-t border-gray-200 bg-white px-4 py-5 sm:p-6">
+        <div class="px-4 py-5 bg-white border-t border-gray-200 sm:p-6">
           <div class="space-y-3">
             <div class="flex justify-between items-center">
               <div>
                 <p class="text-gray-500">Date: <%= examination.date.strftime("%B %d, %Y") %></p>
               </div>
-              <%= render 'shared/badge', text: examination.lecture.subject.name, color: "purple" %>
+              <% if examination.lecture.nil? %>
+                <%= render 'shared/badge', text: "DELETED_LECTURE", color: "gray" %>
+              <% elsif examination.lecture.isDeleted? %>
+                <%= render 'shared/badge', text: "DELETED_LECTURE", color: "gray" %>
+              <% else %>
+                <%= render 'shared/badge', 
+                  text: examination.lecture.subject.nil? ? "DELETED_SUBJECT" : examination.lecture.subject.name, 
+                  color: examination.lecture.subject.nil? ? "gray" : "purple" %>
+              <% end %>
             </div>
             
             <div>
               <p class="font-medium text-gray-700">Class:</p>
-              <p class="text-gray-600"><%= examination.lecture.school_class.name %></p>
+              <p class="text-gray-600">
+                <% if examination.lecture.nil? || examination.lecture.isDeleted? %>
+                  <span class="italic text-gray-500">DELETED_LECTURE</span>
+                <% elsif examination.lecture.school_class.nil? %>
+                  <span class="italic text-gray-500">DELETED_CLASS</span>
+                <% elsif examination.lecture.school_class.isDeleted? %>
+                  <span class="italic text-gray-500"><%= examination.lecture.school_class.name %> (Deleted)</span>
+                <% else %>
+                  <%= examination.lecture.school_class.name %>
+                <% end %>
+              </p>
             </div>
             
             <div>
               <p class="font-medium text-gray-700">Teacher:</p>
-              <p class="text-gray-600"><%= "#{examination.lecture.teacher.firstname} #{examination.lecture.teacher.lastname}" %></p>
+              <p class="text-gray-600">
+                <% if examination.lecture.nil? || examination.lecture.isDeleted? %>
+                  <span class="italic text-gray-500">DELETED_LECTURE</span>
+                <% elsif examination.lecture.teacher.nil? %>
+                  <span class="italic text-gray-500">DELETED_TEACHER</span>
+                <% elsif examination.lecture.teacher.isDeleted? %>
+                  <span class="italic text-gray-500"><%= "#{examination.lecture.teacher.firstname} #{examination.lecture.teacher.lastname}" %> (Deleted)</span>
+                <% else %>
+                  <%= "#{examination.lecture.teacher.firstname} #{examination.lecture.teacher.lastname}" %>
+                <% end %>
+              </p>
             </div>
             
             <div class="pt-3 border-t border-gray-200">
@@ -53,7 +81,7 @@
                   color: "outline-yellow", 
                   href: examination_path(examination) %>
                 
-                <% if current_person.is_a?(Dean) || (current_person.is_a?(Teacher) && current_person.id == examination.lecture.teacher.id) %>
+                <% if current_person.is_a?(Dean) || (current_person.is_a?(Teacher) && current_person.id == examination.lecture&.teacher&.id && !examination.lecture&.isDeleted?) %>
                   <%= render 'shared/button', 
                     text: "Enter Grades", 
                     icon: "fa-solid fa-pen-to-square",

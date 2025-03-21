@@ -1,0 +1,78 @@
+<% content_for :title, "Deleted School Classes" %>
+
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-bold">Deleted School Classes</h1>
+      <p class="text-gray-500">View and restore deleted school classes</p>
+    </div>
+    
+    <%= render 'shared/button', 
+      text: "Back to School Classes", 
+      icon: "fa-solid fa-arrow-left",
+      color: "outline-gray", 
+      href: school_classes_path %>
+  </div>
+
+  <%= render 'shared/resource_tabs', 
+    active_tab: :deleted, 
+    active_path: school_classes_path, 
+    deleted_path: deleted_school_classes_path %>
+
+  <div class="overflow-hidden mb-6 rounded-lg border border-blue-200 shadow-sm">
+    <div class="flex items-center px-4 py-5 bg-blue-50 sm:px-6">
+      <i class="mr-3 text-xl fa-solid fa-trash"></i>
+      <h3 class="text-lg font-medium leading-6 text-blue-700">
+        Deleted School Classes
+      </h3>
+    </div>
+    <div class="px-4 py-5 bg-white border-t border-gray-200 sm:p-6">
+      <div class="overflow-x-auto shadow-md sm:rounded-lg">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <% ["Name", "Grade", "Teacher", "Academic Year", "Actions"].each do |header| %>
+                <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                  <%= header %>
+                </th>
+              <% end %>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @school_classes.each_with_index do |school_class, index| %>
+              <tr class="<%= index.odd? ? 'bg-gray-50' : '' %>">
+                <td class="px-6 py-4 whitespace-nowrap"><%= school_class.name %></td>
+                <td class="px-6 py-4 whitespace-nowrap"><%= school_class.grade %></td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if school_class.teacher.nil? %>
+                    <span class="italic text-gray-500">DELETED_PERSON</span>
+                  <% else %>
+                    <%= "#{school_class.teacher.firstname} #{school_class.teacher.lastname}" %>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if school_class.year.nil? %>
+                    <span class="italic text-gray-500">DELETED_YEAR</span>
+                  <% else %>
+                    <%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex space-x-2">
+                    <%= render 'shared/button', 
+                      text: "Restore", 
+                      icon: "fa-solid fa-trash-restore",
+                      color: "outline-blue", 
+                      size: "sm",
+                      method: :patch,
+                      href: undelete_school_class_path(school_class) %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div> 

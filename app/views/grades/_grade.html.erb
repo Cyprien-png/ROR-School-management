@@ -1,8 +1,8 @@
-<div id="<%= dom_id grade %>" class="bg-white shadow overflow-hidden sm:rounded-lg">
-  <div class="px-4 py-5 sm:px-6 bg-red-50">
+<div id="<%= dom_id grade %>" class="overflow-hidden bg-white shadow sm:rounded-lg">
+  <div class="px-4 py-5 bg-red-50 sm:px-6">
     <div class="flex justify-between items-center">
       <div>
-        <h3 class="text-lg leading-6 font-medium text-red-800">
+        <h3 class="text-lg font-medium leading-6 text-red-800">
           <%= grade.examination&.title || "Examination not found" %>
         </h3>
         <p class="mt-1 max-w-2xl text-sm text-red-600">
@@ -19,33 +19,43 @@
   </div>
   <div class="border-t border-gray-200">
     <dl>
-      <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+      <div class="px-4 py-5 bg-gray-50 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
         <dt class="text-sm font-medium text-gray-500">Student</dt>
         <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-          <% if grade.student %>
+          <% if grade.student.nil? %>
+            <span class="italic text-gray-500">DELETED_PERSON</span>
+          <% else %>
             <%= link_to "#{grade.student.lastname} #{grade.student.firstname}", 
                 person_path(grade.student), 
                 class: "text-red-600 hover:text-red-800" %>
-          <% else %>
-            <span class="text-gray-500 italic">Student not found</span>
           <% end %>
         </dd>
       </div>
-      <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+      <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
         <dt class="text-sm font-medium text-gray-500">Subject</dt>
         <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-          <%= grade.examination&.lecture&.subject&.name || "Subject not found" %>
+          <% if grade.examination&.lecture.nil? || grade.examination&.lecture&.isDeleted? %>
+            <span class="italic text-gray-500">DELETED_LECTURE</span>
+          <% elsif grade.examination&.lecture&.subject.nil? %>
+            <span class="italic text-gray-500">DELETED_SUBJECT</span>
+          <% else %>
+            <%= grade.examination.lecture.subject.name %>
+          <% end %>
         </dd>
       </div>
-      <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+      <div class="px-4 py-5 bg-gray-50 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
         <dt class="text-sm font-medium text-gray-500">Class</dt>
         <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-          <% if grade.examination&.lecture&.school_class %>
+          <% if grade.examination&.lecture.nil? || grade.examination&.lecture&.isDeleted? %>
+            <span class="italic text-gray-500">DELETED_LECTURE</span>
+          <% elsif grade.examination&.lecture&.school_class.nil? %>
+            <span class="italic text-gray-500">DELETED_CLASS</span>
+          <% elsif grade.examination&.lecture&.school_class&.isDeleted? %>
+            <span class="italic text-gray-500"><%= grade.examination.lecture.school_class.name %> (Deleted)</span>
+          <% else %>
             <%= link_to grade.examination.lecture.school_class.name, 
                 school_class_path(grade.examination.lecture.school_class), 
                 class: "text-red-600 hover:text-red-800" %>
-          <% else %>
-            <span class="text-gray-500 italic">Class not found</span>
           <% end %>
         </dd>
       </div>

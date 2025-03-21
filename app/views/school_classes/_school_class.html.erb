@@ -1,7 +1,7 @@
 <div id="<%= dom_id school_class %>" class="space-y-6">
-  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-    <div class="px-4 py-5 sm:px-6 bg-blue-50">
-      <h3 class="text-lg leading-6 font-medium text-blue-800">
+  <div class="overflow-hidden bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 bg-blue-50 sm:px-6">
+      <h3 class="text-lg font-medium leading-6 text-blue-800">
         <%= school_class.name %>
       </h3>
       <p class="mt-1 max-w-2xl text-sm text-blue-600">
@@ -10,32 +10,44 @@
     </div>
     <div class="border-t border-gray-200">
       <dl>
-        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+        <div class="px-4 py-5 bg-gray-50 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
           <dt class="text-sm font-medium text-gray-500">Grade</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= school_class.grade %></dd>
         </div>
-        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+        <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
           <dt class="text-sm font-medium text-gray-500">Academic Year</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-            <%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %>
+            <% if school_class.year.nil? %>
+              <span class="italic text-gray-500">DELETED_YEAR</span>
+            <% elsif school_class.year.isDeleted? %>
+              <span class="italic text-gray-500">
+                <%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %> (Deleted)
+              </span>
+            <% else %>
+              <%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %>
+            <% end %>
           </dd>
         </div>
-        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+        <div class="px-4 py-5 bg-gray-50 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
           <dt class="text-sm font-medium text-gray-500">Teacher</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-            <%= link_to "#{school_class.teacher.firstname} #{school_class.teacher.lastname}", 
-                person_path(school_class.teacher), 
-                class: "text-blue-600 hover:text-blue-800" %>
+            <% if school_class.teacher.nil? %>
+              <span class="italic text-gray-500">DELETED_PERSON</span>
+            <% else %>
+              <%= link_to "#{school_class.teacher.firstname} #{school_class.teacher.lastname}", 
+                  person_path(school_class.teacher), 
+                  class: "text-blue-600 hover:text-blue-800" %>
+            <% end %>
           </dd>
         </div>
       </dl>
     </div>
   </div>
 
-  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-    <div class="px-4 py-5 sm:px-6 bg-blue-50 flex justify-between items-center">
+  <div class="overflow-hidden bg-white shadow sm:rounded-lg">
+    <div class="flex justify-between items-center px-4 py-5 bg-blue-50 sm:px-6">
       <div>
-        <h3 class="text-lg leading-6 font-medium text-blue-800">
+        <h3 class="text-lg font-medium leading-6 text-blue-800">
           Students in this class
         </h3>
         <p class="mt-1 max-w-2xl text-sm text-blue-600">
@@ -46,7 +58,7 @@
         <div>
           <%= form_with(url: add_student_school_class_path(school_class), method: :post, class: "flex items-center space-x-2") do |f| %>
             <%= f.collection_select :student_id, 
-                Student.where.not(id: school_class.student_ids).order(:lastname, :firstname), 
+                Student.where(isDeleted: false).where.not(id: school_class.student_ids).order(:lastname, :firstname), 
                 :id, 
                 ->(s) { "#{s.lastname} #{s.firstname}" }, 
                 { prompt: "Select a student to add" },
@@ -66,13 +78,17 @@
         <% 
           student_rows = school_class.students.order(:lastname, :firstname).map do |student|
             row = [
-              link_to("#{student.lastname} #{student.firstname}", 
-                person_path(student), 
-                class: "text-blue-600 hover:text-blue-800 font-medium"),
-              student.email,
+              if student.nil?
+                content_tag(:span, "DELETED_PERSON", class: "text-gray-500 italic")
+              else
+                link_to("#{student.lastname} #{student.firstname}", 
+                  person_path(student), 
+                  class: "text-blue-600 hover:text-blue-800 font-medium")
+              end,
+              student&.email || "Email not available",
               render('shared/badge', 
-                text: student.status, 
-                color: student.status == "active" ? "green" : "gray")
+                text: student&.status || "unknown", 
+                color: student&.status == "active" ? "green" : "gray")
             ]
             
             if current_person.is_a?(Dean)
@@ -95,7 +111,7 @@
           rows: student_rows,
           striped: true %>
       <% else %>
-        <div class="px-4 py-5 sm:px-6 text-center text-gray-500 italic">
+        <div class="px-4 py-5 italic text-center text-gray-500 sm:px-6">
           No students in this class yet.
         </div>
       <% end %>

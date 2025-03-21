@@ -27,7 +27,14 @@ Rails.application.routes.draw do
       patch :undelete
     end
   end
-  resources :lectures
+  resources :lectures do
+    collection do
+      get :deleted
+    end
+    member do
+      patch :undelete
+    end
+  end
   resources :subjects do
     get 'teachers', on: :member
     collection do
@@ -42,6 +49,10 @@ Rails.application.routes.draw do
       post :add_student
       delete :remove_student
       get :year_trimesters
+      patch :undelete
+    end
+    collection do
+      get :deleted
     end
   end
   devise_for :people, skip: [:registrations]

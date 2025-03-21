@@ -26,6 +26,19 @@ class Lecture < ApplicationRecord
       sunday: 6
   }
   
+  scope :with_deleted, -> { unscope(where: :isDeleted) }
+  
+  def soft_delete
+    Rails.logger.info "Attempting to soft delete Lecture #{id}"
+    result = update(isDeleted: true)
+    Rails.logger.info "Soft delete result: #{result}, isDeleted=#{reload.isDeleted}"
+    result
+  end
+  
+  def self.default_scope
+    where(isDeleted: false)
+  end
+  
   private
   
   def teacher_must_teach_subject

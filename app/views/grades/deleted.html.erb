@@ -2,7 +2,11 @@
 
 <div class="space-y-6">
   <div class="flex justify-between items-center">
-    <h1 class="text-2xl font-bold">Deleted Grades</h1>
+    <div>
+      <h1 class="text-2xl font-bold">Deleted Grades</h1>
+      <p class="text-gray-500">View and restore deleted grades</p>
+    </div>
+    
     <%= render 'shared/button', 
       text: "Back to Grades", 
       icon: "fa-solid fa-arrow-left",
@@ -15,49 +19,82 @@
     active_path: grades_path, 
     deleted_path: deleted_grades_path %>
 
-  <% if @grades.any? %>
-    <div class="overflow-x-auto shadow-md sm:rounded-lg">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Examination</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Grade</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          <% @grades.each_with_index do |grade, index| %>
-            <tr class="<%= index.odd? ? 'bg-gray-50' : '' %>">
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= grade.examination.title %></td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= "#{grade.student.lastname} #{grade.student.firstname}" %></td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <% grade_value = number_with_precision(grade.value, precision: 2) %>
-                <% if grade.value >= 4.0 %>
-                  <%= render 'shared/badge', text: grade_value, color: "green" %>
-                <% else %>
-                  <%= render 'shared/badge', text: grade_value, color: "red" %>
-                <% end %>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= grade.examination.lecture.subject.name %></td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= grade.examination.date.strftime("%B %d, %Y") %></td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <%= render 'shared/undelete_button', path: undelete_grade_path(grade) %>
-              </td>
+  <div class="overflow-hidden mb-6 rounded-lg border border-red-200 shadow-sm">
+    <div class="flex items-center px-4 py-5 bg-red-50 sm:px-6">
+      <i class="mr-3 text-xl fa-solid fa-trash"></i>
+      <h3 class="text-lg font-medium leading-6 text-red-700">
+        Deleted Grade Records
+      </h3>
+    </div>
+    <div class="px-4 py-5 bg-white border-t border-gray-200 sm:p-6">
+      <div class="overflow-x-auto shadow-md sm:rounded-lg">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <% headers = ["Student", "Subject", "Class", "Examination", "Date", "Grade", "Actions"] %>
+              <% headers.each do |header| %>
+                <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                  <%= header %>
+                </th>
+              <% end %>
             </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-  <% else %>
-    <div class="text-center py-10">
-      <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-gray-100">
-        <i class="fa-solid fa-trash text-gray-400"></i>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @grades.each_with_index do |grade, index| %>
+              <tr class="<%= index.odd? ? 'bg-gray-50' : '' %>">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if grade.student.nil? %>
+                    <span class="italic text-gray-500">DELETED_PERSON</span>
+                  <% else %>
+                    <%= "#{grade.student.lastname} #{grade.student.firstname}" %>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if grade.examination.lecture.nil? || grade.examination.lecture.isDeleted? %>
+                    <span class="italic text-gray-500">DELETED_LECTURE</span>
+                  <% elsif grade.examination.lecture.subject.nil? %>
+                    <span class="italic text-gray-500">DELETED_SUBJECT</span>
+                  <% else %>
+                    <%= grade.examination.lecture.subject.name %>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if grade.examination.lecture.nil? || grade.examination.lecture.isDeleted? %>
+                    <span class="italic text-gray-500">DELETED_LECTURE</span>
+                  <% elsif grade.examination.lecture.school_class.nil? %>
+                    <span class="italic text-gray-500">DELETED_CLASS</span>
+                  <% elsif grade.examination.lecture.school_class.isDeleted? %>
+                    <span class="italic text-gray-500"><%= grade.examination.lecture.school_class.name %> (Deleted)</span>
+                  <% else %>
+                    <%= grade.examination.lecture.school_class.name %>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap"><%= grade.examination.title %></td>
+                <td class="px-6 py-4 whitespace-nowrap"><%= grade.examination.date.strftime("%B %d, %Y") %></td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% grade_value = number_with_precision(grade.value, precision: 2) %>
+                  <% if grade.value >= 4.0 %>
+                    <%= render 'shared/badge', text: grade_value, color: "green" %>
+                  <% else %>
+                    <%= render 'shared/badge', text: grade_value, color: "red" %>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex space-x-2">
+                    <%= render 'shared/button', 
+                      text: "Restore", 
+                      icon: "fa-solid fa-trash-restore",
+                      color: "outline-red", 
+                      size: "sm",
+                      method: :patch,
+                      href: undelete_grade_path(grade) %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
       </div>
-      <h3 class="mt-2 text-sm font-medium text-gray-900">No deleted grades</h3>
-      <p class="mt-1 text-sm text-gray-500">There are no deleted grades to display.</p>
     </div>
-  <% end %>
+  </div>
 </div> 

@@ -278,34 +278,128 @@ class LecturesControllerTest < ActionDispatch::IntegrationTest
   test "should destroy lecture when signed in as dean" do
     sign_in @dean
     
-    assert_difference("Lecture.count", -1) do
+    assert_no_difference("Lecture.with_deleted.count") do
       delete lecture_url(@lecture)
     end
     
     assert_redirected_to lectures_url
-    assert_equal "Lecture was successfully destroyed.", flash[:notice]
+    assert_equal "Lecture was successfully deleted.", flash[:notice]
+    
+    # Verify the lecture is soft deleted
+    @lecture.reload
+    assert @lecture.isDeleted
+    
+    # Verify the lecture is not returned in normal queries
+    assert_not Lecture.exists?(@lecture.id)
+    assert Lecture.with_deleted.exists?(@lecture.id)
   end
   
   test "should not destroy lecture when signed in as teacher" do
     sign_in @teacher
     
-    assert_no_difference("Lecture.count") do
+    assert_no_difference("Lecture.with_deleted.count") do
       delete lecture_url(@lecture)
     end
     
     assert_redirected_to root_path
     assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+    
+    # Verify the lecture is not deleted
+    @lecture.reload
+    assert_not @lecture.isDeleted
   end
   
   test "should not destroy lecture when signed in as student" do
     sign_in @student
     
-    assert_no_difference("Lecture.count") do
+    assert_no_difference("Lecture.with_deleted.count") do
       delete lecture_url(@lecture)
     end
     
     assert_redirected_to root_path
     assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+    
+    # Verify the lecture is not deleted
+    @lecture.reload
+    assert_not @lecture.isDeleted
+  end
+
+  # DELETED LECTURES TESTS
+
+  test "should show deleted lectures when signed in as dean" do
+    sign_in @dean
+    
+    # Delete a lecture first
+    @lecture.soft_delete
+    
+    get deleted_lectures_url
+    assert_response :success
+    assert_select "h1", "Deleted Lectures"
+    
+    # Verify the deleted lecture appears in the list
+    assert_select "td", @lecture.subject.name
+    assert_select "td", @lecture.school_class.name
+  end
+
+  test "should restore deleted lecture when signed in as dean" do
+    sign_in @dean
+    
+    # Delete a lecture first
+    @lecture.soft_delete
+    assert @lecture.reload.isDeleted
+    
+    patch undelete_lecture_url(@lecture)
+    assert_redirected_to lectures_url
+    assert_equal "Lecture was successfully restored.", flash[:notice]
+    
+    # Verify the lecture is restored
+    @lecture.reload
+    assert_not @lecture.isDeleted
+    assert Lecture.exists?(@lecture.id)
+  end
+
+  test "should not show deleted lectures when signed in as teacher" do
+    sign_in @teacher
+    get deleted_lectures_url
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+  end
+
+  test "should not show deleted lectures when signed in as student" do
+    sign_in @student
+    get deleted_lectures_url
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+  end
+
+  test "should not restore deleted lecture when signed in as teacher" do
+    sign_in @teacher
+    
+    # Delete a lecture first
+    @lecture.soft_delete
+    assert @lecture.reload.isDeleted
+    
+    patch undelete_lecture_url(@lecture)
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+    
+    # Verify the lecture is still deleted
+    assert @lecture.reload.isDeleted
+  end
+
+  test "should not restore deleted lecture when signed in as student" do
+    sign_in @student
+    
+    # Delete a lecture first
+    @lecture.soft_delete
+    assert @lecture.reload.isDeleted
+    
+    patch undelete_lecture_url(@lecture)
+    assert_redirected_to root_path
+    assert_equal "Only deans are allowed to perform this action.", flash[:alert]
+    
+    # Verify the lecture is still deleted
+    assert @lecture.reload.isDeleted
   end
 
   # TEACHER-SUBJECT VALIDATION TESTS

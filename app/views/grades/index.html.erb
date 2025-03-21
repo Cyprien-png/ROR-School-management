@@ -37,14 +37,14 @@
     active_path: grades_path, 
     deleted_path: deleted_grades_path %>
 
-  <div class="overflow-hidden rounded-lg border border-red-200 shadow-sm mb-6">
-    <div class="bg-red-50 px-4 py-5 sm:px-6 flex items-center">
-      <i class="fa-solid fa-chart-simple mr-3 text-xl"></i>
+  <div class="overflow-hidden mb-6 rounded-lg border border-red-200 shadow-sm">
+    <div class="flex items-center px-4 py-5 bg-red-50 sm:px-6">
+      <i class="mr-3 text-xl fa-solid fa-chart-simple"></i>
       <h3 class="text-lg font-medium leading-6 text-red-700">
         Grade Records
       </h3>
     </div>
-    <div class="border-t border-gray-200 bg-white px-4 py-5 sm:p-6">
+    <div class="px-4 py-5 bg-white border-t border-gray-200 sm:p-6">
       <div class="overflow-x-auto shadow-md sm:rounded-lg">
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
@@ -56,7 +56,7 @@
               <% headers += ["Subject", "Class", "Examination", "Date", "Grade", "Actions"] %>
               
               <% headers.each do |header| %>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                   <%= header %>
                 </th>
               <% end %>
@@ -66,10 +66,34 @@
             <% @grades.each_with_index do |grade, index| %>
               <tr class="<%= index.odd? ? 'bg-gray-50' : '' %>">
                 <% unless current_person.is_a?(Student) %>
-                  <td class="px-6 py-4 whitespace-nowrap"><%= "#{grade.student.lastname} #{grade.student.firstname}" %></td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <% if grade.student.nil? %>
+                      <span class="italic text-gray-500">DELETED_PERSON</span>
+                    <% else %>
+                      <%= "#{grade.student.lastname} #{grade.student.firstname}" %>
+                    <% end %>
+                  </td>
                 <% end %>
-                <td class="px-6 py-4 whitespace-nowrap"><%= grade.examination.lecture.subject.name %></td>
-                <td class="px-6 py-4 whitespace-nowrap"><%= grade.examination.lecture.school_class.name %></td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if grade.examination.lecture.nil? || grade.examination.lecture.isDeleted? %>
+                    <span class="italic text-gray-500">DELETED_LECTURE</span>
+                  <% elsif grade.examination.lecture.subject.nil? %>
+                    <span class="italic text-gray-500">DELETED_SUBJECT</span>
+                  <% else %>
+                    <%= grade.examination.lecture.subject.name %>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if grade.examination.lecture.nil? || grade.examination.lecture.isDeleted? %>
+                    <span class="italic text-gray-500">DELETED_LECTURE</span>
+                  <% elsif grade.examination.lecture.school_class.nil? %>
+                    <span class="italic text-gray-500">DELETED_CLASS</span>
+                  <% elsif grade.examination.lecture.school_class.isDeleted? %>
+                    <span class="italic text-gray-500"><%= grade.examination.lecture.school_class.name %> (Deleted)</span>
+                  <% else %>
+                    <%= grade.examination.lecture.school_class.name %>
+                  <% end %>
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap"><%= grade.examination.title %></td>
                 <td class="px-6 py-4 whitespace-nowrap"><%= grade.examination.date.strftime("%B %d, %Y") %></td>
                 <td class="px-6 py-4 whitespace-nowrap">
@@ -89,7 +113,7 @@
                       size: "sm",
                       href: grade_path(grade) %>
                       
-                    <% if can_grade?(grade.examination) %>
+                    <% if can_grade?(grade.examination) && !grade.examination.lecture&.isDeleted? %>
                       <%= render 'shared/button', 
                         text: "Edit", 
                         icon: "fa-solid fa-pencil",

@@ -36,12 +36,12 @@
 -%>
 
 <div class="overflow-x-auto">
-  <table class="min-w-full border-collapse border border-gray-200 bg-white">
+  <table class="min-w-full bg-white border border-gray-200 border-collapse">
     <thead>
       <tr>
-        <th class="w-20 border border-gray-200 bg-gray-50 p-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+        <th class="p-2 w-20 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50 border border-gray-200">Time</th>
         <% days.each do |day| %>
-          <th class="border border-gray-200 bg-indigo-600 p-3 text-center text-sm font-semibold text-white">
+          <th class="p-3 text-sm font-semibold text-center text-white bg-indigo-600 border border-gray-200">
             <%= day.capitalize %>
           </th>
         <% end %>
@@ -50,12 +50,12 @@
     <tbody>
       <% time_slots.each_with_index do |time_slot, index| %>
         <tr class="<%= index.even? ? 'bg-white' : 'bg-gray-50' %>">
-          <td class="border border-gray-200 p-2 text-xs font-medium text-gray-500">
+          <td class="p-2 text-xs font-medium text-gray-500 border border-gray-200">
             <%= time_slot %>
           </td>
           
           <% days.each do |day| %>
-            <td class="border border-gray-200 p-1 h-20 align-top">
+            <td class="p-1 h-20 align-top border border-gray-200">
               <% 
                 # Find lectures that start or are ongoing in this time slot
                 slot_lectures = lectures_by_day[day].select { |lecture| lecture_in_time_slot?(lecture, time_slot) }
@@ -71,7 +71,13 @@
                     duration = lecture_duration(lecture)
                   %>
                   <div class="p-2 bg-green-50 rounded-lg border border-green-200 shadow-sm transition-shadow duration-200 hover:shadow-md">
-                    <div class="font-semibold text-green-800 text-sm"><%= lecture.subject.name %></div>
+                    <div class="text-sm font-semibold text-green-800">
+                      <% if lecture.subject.nil? %>
+                        <span class="italic text-gray-500">DELETED_SUBJECT</span>
+                      <% else %>
+                        <%= lecture.subject.name %>
+                      <% end %>
+                    </div>
                     <div class="text-xs text-gray-600">
                       <%= lecture.start_time.strftime("%H:%M") %> - <%= lecture.end_time.strftime("%H:%M") %>
                     </div>
@@ -79,7 +85,11 @@
                       <%= lecture.school_class.name %>
                     </div>
                     <div class="mt-1 text-xs text-gray-500">
-                      <%= "#{lecture.teacher.firstname} #{lecture.teacher.lastname}" %>
+                      <% if lecture.teacher.nil? %>
+                        <span class="italic">DELETED_PERSON</span>
+                      <% else %>
+                        <%= "#{lecture.teacher.firstname} #{lecture.teacher.lastname}" %>
+                      <% end %>
                     </div>
                   </div>
                 <% end %>
