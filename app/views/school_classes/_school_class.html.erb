@@ -17,7 +17,15 @@
         <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
           <dt class="text-sm font-medium text-gray-500">Academic Year</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-            <%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %>
+            <% if school_class.year.nil? %>
+              <span class="italic text-gray-500">DELETED_YEAR</span>
+            <% elsif school_class.year.isDeleted? %>
+              <span class="italic text-gray-500">
+                <%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %> (Deleted)
+              </span>
+            <% else %>
+              <%= "#{school_class.year.first_trimester.start_date.year}-#{school_class.year.fourth_trimester.end_date.year}" %>
+            <% end %>
           </dd>
         </div>
         <div class="px-4 py-5 bg-gray-50 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
