@@ -25,10 +25,14 @@ Install Ruby dependencies
 bundle install
 ```
 
+Build CSS styles
+```shell
+rails tailwindcss:watch
+```
+
 Setup database
 ```shell
-# Create database and run migrations
-rails db:create
+# Run migrations
 rails db:migrate
 
 # Seed the database with initial data
@@ -38,11 +42,6 @@ rails db:seed
 Run development server
 ```shell
 rails server
-```
-
-Build CSS styles
-```shell
-rails tailwindcss:watch
 ```
 
 ### Running Tests
